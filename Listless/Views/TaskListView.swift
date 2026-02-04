@@ -18,7 +18,9 @@ struct TaskListView: View {
     @FocusState private var focusedField: FocusField?
     @State private var selectedTaskID: UUID?
     @State private var refreshID = UUID()
-    @State private var draggedTask: UUID?
+    @State private var draggedTaskID: UUID?
+    @State private var visualOrder: [UUID]?
+    @State private var editingTaskID: UUID?
 
     init(store: TaskStore = TaskStore()) {
         _store = State(wrappedValue: store)
@@ -26,78 +28,109 @@ struct TaskListView: View {
 
     var body: some View {
         ScrollView {
-            ScrollViewReader { proxy in
-                VStack(alignment: .leading, spacing: 0) {
-                    if !completedTasks.isEmpty {
-                        Text("Completed")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(.leading, 16)
-                            .padding(.bottom, 6)
-                    }
-
-                    ForEach(completedTasks) { task in
-                        TaskRowView(
-                            task: task,
-                            taskID: task.id,
-                            isSelected: selectedTaskID == task.id,
-                            focusedField: $focusedField,
-                            onToggle: toggleCompletion(_:),
-                            onSubmit: handleSubmit(_:),
-                            onTitleChange: updateTitle(_:_:),
-                            onDelete: deleteTask(_:),
-                            onSelect: { selectTask(task.id) }
-                        )
-                    }
-
-                    if !activeTasks.isEmpty && !completedTasks.isEmpty {
-                        Divider()
-                            .padding(.vertical, 8)
-                    }
-
-                    ForEach(Array(activeTasks.enumerated()), id: \.element.id) { index, task in
-                        TaskRowView(
-                            task: task,
-                            taskID: task.id,
-                            isSelected: selectedTaskID == task.id,
-                            isDragging: draggedTask == task.id,
-                            focusedField: $focusedField,
-                            onToggle: toggleCompletion(_:),
-                            onSubmit: handleSubmit(_:),
-                            onTitleChange: updateTitle(_:_:),
-                            onDelete: deleteTask(_:),
-                            onSelect: { selectTask(task.id) },
-                            onDragStart: { handleDragStart(task.id) },
-                            onDragEnd: handleDragEnd,
-                            onDrop: { droppedTaskID in
-                                handleDrop(taskID: droppedTaskID, at: index)
-                            }
-                        )
-                    }
-
-                    // Drop zone at the end to allow dropping below the last item
-                    if !activeTasks.isEmpty {
-                        Color.clear
-                            .frame(height: 44)
-                            .contentShape(Rectangle())
-                            .dropDestination(for: String.self) { items, location in
-                                guard let droppedUUIDString = items.first,
-                                      let droppedUUID = UUID(uuidString: droppedUUIDString) else {
-                                    return false
-                                }
-                                handleDrop(taskID: droppedUUID, at: activeTasks.count)
-                                return true
-                            }
-                    }
+            VStack(alignment: .leading, spacing: 0) {
+                if !completedTasks.isEmpty {
+                    Text("Completed")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 16)
+                        .padding(.bottom, 6)
                 }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-                .onChange(of: selectedTaskID) { oldValue, newValue in
-                    if let newValue {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            proxy.scrollTo(newValue, anchor: .center)
+
+                ForEach(completedTasks) { task in
+                    TaskRowView(
+                        task: task,
+                        taskID: task.id,
+                        isSelected: selectedTaskID == task.id,
+                        isEditing: editingTaskID == task.id,
+                        focusedField: $focusedField,
+                        onToggle: toggleCompletion(_:),
+                        onSubmit: handleSubmit(_:),
+                        onTitleChange: updateTitle(_:_:),
+                        onDelete: deleteTask(_:),
+                        onSelect: { selectTask(task.id) },
+                        onStartEdit: { startEditing(task.id) },
+                        onEndEdit: { endEditing() }
+                    )
+                }
+
+                if !activeTasks.isEmpty && !completedTasks.isEmpty {
+                    Divider()
+                        .padding(.vertical, 8)
+                }
+
+                ForEach(displayActiveTasks) { task in
+                    TaskRowView(
+                        task: task,
+                        taskID: task.id,
+                        isSelected: selectedTaskID == task.id,
+                        isEditing: editingTaskID == task.id,
+                        focusedField: $focusedField,
+                        onToggle: toggleCompletion(_:),
+                        onSubmit: handleSubmit(_:),
+                        onTitleChange: updateTitle(_:_:),
+                        onDelete: deleteTask(_:),
+                        onSelect: { selectTask(task.id) },
+                        onStartEdit: { startEditing(task.id) },
+                        onEndEdit: { endEditing() }
+                    )
+                    .onDrag {
+                        startDrag(taskID: task.id)
+                        return NSItemProvider(object: task.id.uuidString as NSString)
+                    } preview: {
+                        Color.clear.frame(width: 1, height: 1)
+                    }
+                    .overlay {
+                        if draggedTaskID != nil && draggedTaskID != task.id {
+                            VStack(spacing: 0) {
+                                // Top 1/6 - insert BEFORE
+                                Color.clear
+                                    .frame(maxHeight: .infinity)
+                                    .layoutPriority(1)
+                                    .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
+                                        if isTargeted {
+                                            updateVisualOrder(insertBefore: task.id)
+                                        }
+                                    })
+
+                                // Middle 2/3 - insert based on direction
+                                Color.clear
+                                    .frame(maxHeight: .infinity)
+                                    .layoutPriority(4)
+                                    .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
+                                        if isTargeted {
+                                            updateVisualOrderSmart(relativeTo: task.id)
+                                        }
+                                    })
+
+                                // Bottom 1/6 - insert AFTER
+                                Color.clear
+                                    .frame(maxHeight: .infinity)
+                                    .layoutPriority(1)
+                                    .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
+                                        if isTargeted {
+                                            updateVisualOrder(insertAfter: task.id)
+                                        }
+                                    })
+                            }
                         }
                     }
                 }
+
+                // Drop zone at the end
+                if !activeTasks.isEmpty && draggedTaskID != nil {
+                    Color.clear
+                        .frame(height: 44)
+                        .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
+                            if isTargeted {
+                                updateVisualOrder(insertAtEnd: true)
+                            }
+                        })
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .dropDestination(for: String.self) { items, location in
+                handleDrop(items: items)
             }
         }
         .contentShape(Rectangle())
@@ -127,19 +160,29 @@ struct TaskListView: View {
             .sorted { $0.sortOrder < $1.sortOrder }
     }
 
+    private var displayActiveTasks: [TaskItem] {
+        guard let visualOrder = visualOrder else {
+            return activeTasks
+        }
+
+        return visualOrder.compactMap { id in
+            activeTasks.first(where: { $0.id == id })
+        }
+    }
+
     private var completedTasks: [TaskItem] {
         Array(tasks.filter { $0.isCompleted })
             .sorted { $0.updatedAt > $1.updatedAt }
     }
 
     private var allTasksInDisplayOrder: [TaskItem] {
-        completedTasks + activeTasks
+        completedTasks + displayActiveTasks
     }
 
     private func createTaskAndFocus() {
         let task = store.createTask(title: "")
         selectedTaskID = task.id
-        focusTextField(task.id)
+        startEditing(task.id)
     }
 
     private func handleBackgroundTap() {
@@ -254,12 +297,13 @@ struct TaskListView: View {
         guard let currentID = selectedTaskID else { return .handled }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return .handled }
         guard !task.isCompleted else { return .handled }
-        focusTextField(currentID)
+        startEditing(currentID)
         return .handled
     }
 
     private func unfocusTextField() -> KeyPress.Result {
         guard case .task = focusedField else { return .ignored }
+        endEditing()
         focusScrollView()
         return .handled
     }
@@ -274,18 +318,105 @@ struct TaskListView: View {
         focusedField = .task(taskID)
     }
 
+    private func startEditing(_ taskID: UUID) {
+        editingTaskID = taskID
+        focusedField = .task(taskID)
+    }
+
+    private func endEditing() {
+        if let editingID = editingTaskID {
+            deleteIfEmpty(taskID: editingID)
+        }
+        editingTaskID = nil
+    }
+
     // MARK: - Drag and Drop
 
-    private func handleDragStart(_ taskID: UUID) {
-        draggedTask = taskID
+    private func startDrag(taskID: UUID) {
+        draggedTaskID = taskID
+        visualOrder = activeTasks.map(\.id)
     }
 
-    private func handleDragEnd() {
-        draggedTask = nil
+    private func updateVisualOrder(insertBefore targetID: UUID) {
+        guard let draggedID = draggedTaskID,
+              let order = visualOrder else { return }
+
+        var newOrder = order.filter { $0 != draggedID }
+        if let targetIndex = newOrder.firstIndex(of: targetID) {
+            newOrder.insert(draggedID, at: targetIndex)
+        }
+
+        if newOrder != visualOrder {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                visualOrder = newOrder
+            }
+        }
     }
 
-    private func handleDrop(taskID: UUID, at index: Int) {
-        store.moveTask(taskID: taskID, toIndex: index)
-        draggedTask = nil
+    private func updateVisualOrder(insertAfter targetID: UUID) {
+        guard let draggedID = draggedTaskID,
+              let order = visualOrder else { return }
+
+        var newOrder = order.filter { $0 != draggedID }
+        if let targetIndex = newOrder.firstIndex(of: targetID) {
+            newOrder.insert(draggedID, at: targetIndex + 1)
+        }
+
+        if newOrder != visualOrder {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                visualOrder = newOrder
+            }
+        }
+    }
+
+    private func updateVisualOrderSmart(relativeTo targetID: UUID) {
+        guard let draggedID = draggedTaskID,
+              let order = visualOrder else { return }
+
+        // Determine if dragged item is currently above or below target
+        guard let draggedIndex = order.firstIndex(of: draggedID),
+              let targetIndex = order.firstIndex(of: targetID) else { return }
+
+        if draggedIndex < targetIndex {
+            // Dragging from above → insert after target
+            updateVisualOrder(insertAfter: targetID)
+        } else {
+            // Dragging from below → insert before target
+            updateVisualOrder(insertBefore: targetID)
+        }
+    }
+
+    private func updateVisualOrder(insertAtEnd: Bool) {
+        guard let draggedID = draggedTaskID,
+              let order = visualOrder else { return }
+
+        var newOrder = order.filter { $0 != draggedID }
+        newOrder.append(draggedID)
+
+        if newOrder != visualOrder {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                visualOrder = newOrder
+            }
+        }
+    }
+
+    private func handleDrop(items: [String]) -> Bool {
+        guard let droppedUUIDString = items.first,
+              let droppedUUID = UUID(uuidString: droppedUUIDString),
+              let order = visualOrder,
+              let finalIndex = order.firstIndex(of: droppedUUID) else {
+            draggedTaskID = nil
+            visualOrder = nil
+            return false
+        }
+
+        // Commit the reorder
+        store.moveTask(taskID: droppedUUID, toIndex: finalIndex)
+
+        // Clear drag state
+        draggedTaskID = nil
+        visualOrder = nil
+
+        return true
     }
 }

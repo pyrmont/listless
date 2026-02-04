@@ -4,48 +4,44 @@ struct TaskRowView: View {
     let task: TaskItem
     let taskID: UUID
     let isSelected: Bool
-    let isDragging: Bool
+    let isEditing: Bool
     let onToggle: (TaskItem) -> Void
     let onSubmit: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
     let onSelect: () -> Void
-    let onDragStart: () -> Void
-    let onDragEnd: () -> Void
-    let onDrop: (UUID) -> Void
+    let onStartEdit: () -> Void
+    let onEndEdit: () -> Void
     @FocusState.Binding var focusedField: TaskListView.FocusField?
 
-    @State private var title: String
+    @State private var editingTitle: String = ""
 
     init(
         task: TaskItem,
         taskID: UUID,
         isSelected: Bool,
-        isDragging: Bool = false,
+        isEditing: Bool = false,
         focusedField: FocusState<TaskListView.FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
         onSubmit: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
         onDelete: @escaping (TaskItem) -> Void,
         onSelect: @escaping () -> Void,
-        onDragStart: @escaping () -> Void = {},
-        onDragEnd: @escaping () -> Void = {},
-        onDrop: @escaping (UUID) -> Void = { _ in }
+        onStartEdit: @escaping () -> Void = {},
+        onEndEdit: @escaping () -> Void = {}
     ) {
         self.task = task
         self.taskID = taskID
         self.isSelected = isSelected
-        self.isDragging = isDragging
+        self.isEditing = isEditing
         self.onToggle = onToggle
         self.onSubmit = onSubmit
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
         self.onSelect = onSelect
-        self.onDragStart = onDragStart
-        self.onDragEnd = onDragEnd
-        self.onDrop = onDrop
+        self.onStartEdit = onStartEdit
+        self.onEndEdit = onEndEdit
         _focusedField = focusedField
-        _title = State(initialValue: task.title)
     }
 
     var body: some View {
@@ -59,17 +55,33 @@ struct TaskRowView: View {
             }
             .buttonStyle(.borderless)
 
-            TextField("New task", text: $title)
-                .textFieldStyle(.plain)
-                .font(.body)
-                .focused($focusedField, equals: .task(taskID))
-                .onSubmit {
-                    onSubmit(task)
+            if isEditing {
+                TextField("New task", text: $editingTitle, axis: .vertical)
+                    .textFieldStyle(.plain)
+                    .font(.body)
+                    .lineLimit(1...5)
+                    .focused($focusedField, equals: .task(taskID))
+                    .onSubmit {
+                        onSubmit(task)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .disabled(task.isCompleted)
+            } else {
+                HStack(spacing: 0) {
+                    Text(task.title.isEmpty ? "New task" : task.title)
+                        .font(.body)
+                        .foregroundStyle(task.title.isEmpty ? .secondary : (task.isCompleted ? .secondary : .primary))
+                        .strikethrough(task.isCompleted, color: .secondary)
+                        .modifier(TextHoverModifier(isCompleted: task.isCompleted))
+                        .onTapGesture {
+                            if !task.isCompleted {
+                                onStartEdit()
+                            }
+                        }
+
+                    Spacer(minLength: 0)
                 }
-                .platformTextFieldWidth(text: title, placeholder: "New task")
-                .disabled(task.isCompleted)
-                .strikethrough(task.isCompleted, color: .secondary)
-                .foregroundStyle(task.isCompleted ? .secondary : .primary)
+            }
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
@@ -98,29 +110,22 @@ struct TaskRowView: View {
                 onDelete(task)
             }
         }
-        .onChange(of: title) {
+        .onChange(of: editingTitle) {
             guard !task.isCompleted else { return }
-            onTitleChange(task, title)
+            onTitleChange(task, editingTitle)
         }
-        .onChange(of: task.title) {
-            if task.title != title {
-                title = task.title
+        .onChange(of: isEditing) { _, newValue in
+            if newValue {
+                editingTitle = task.title
             }
         }
         .onChange(of: focusedField) { oldValue, newValue in
             if newValue == .task(taskID) && oldValue != .task(taskID) {
                 onSelect()
+            } else if oldValue == .task(taskID) && newValue != .task(taskID) {
+                onEndEdit()
             }
         }
-        .opacity(isDragging ? 0.5 : 1.0)
-        .taskDragGesture(
-            isActive: !task.isCompleted,
-            taskID: task.id,
-            taskTitle: task.title,
-            onDragStart: onDragStart,
-            onDragEnd: onDragEnd,
-            onDrop: onDrop
-        )
     }
 
     private var selectionBackground: some View {
@@ -144,13 +149,14 @@ struct TaskRowView: View {
     }
 
     private func copyToPasteboard() {
-        guard !title.isEmpty else { return }
+        let text = isEditing ? editingTitle : task.title
+        guard !text.isEmpty else { return }
         #if os(macOS)
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(title, forType: .string)
+        pasteboard.setString(text, forType: .string)
         #else
-        UIPasteboard.general.string = title
+        UIPasteboard.general.string = text
         #endif
     }
 
@@ -160,7 +166,9 @@ struct TaskRowView: View {
         #else
         guard let string = UIPasteboard.general.string else { return }
         #endif
-        title = string
+        if isEditing {
+            editingTitle = string
+        }
         onTitleChange(task, string)
     }
 }
