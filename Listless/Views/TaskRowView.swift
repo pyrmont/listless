@@ -64,9 +64,7 @@ struct TaskRowView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture {
-            print("TaskRowView: row tap \(taskID)")
             onSelect()
-            focusedField = nil
         }
         .background(selectionBackground)
         .contextMenu {

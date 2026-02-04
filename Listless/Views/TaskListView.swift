@@ -3,12 +3,19 @@ import SwiftUI
 struct TaskListView: View {
     enum FocusField: Hashable {
         case task(UUID)
+        case scrollView
     }
 
     @State private var store: TaskStore
-    @State private var tasks: [TaskItem] = []
+    @FetchRequest(
+        sortDescriptors: [
+            NSSortDescriptor(keyPath: \TaskItem.isCompleted, ascending: true),
+            NSSortDescriptor(keyPath: \TaskItem.createdAt, ascending: true),
+        ],
+        animation: .default
+    )
+    private var tasks: FetchedResults<TaskItem>
     @FocusState private var focusedField: FocusField?
-    @FocusState private var scrollViewFocused: Bool
     @State private var selectedTaskID: UUID?
     @State private var refreshID = UUID()
 
@@ -73,54 +80,47 @@ struct TaskListView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            print("TaskListView: background tap")
             handleBackgroundTap()
         }
         .focusable()
-        .focused($scrollViewFocused)
+        .focused($focusedField, equals: .scrollView)
         .focusEffectDisabled()
         .keyboardNavigation(
             onUpArrow: navigateUp,
-            onDownArrow: navigateDown
+            onDownArrow: navigateDown,
+            onSpace: toggleSelectedTask,
+            onReturn: focusSelectedTask,
+            onEscape: unfocusTextField
         )
         .onAppear {
-            reloadTasks()
-            scrollViewFocused = true
+            focusScrollView()
         }
         .onChange(of: focusedField) { oldValue, newValue in
             handleFocusChange(from: oldValue, to: newValue)
-            // When a text field gets focus, remove ScrollView focus
-            // When text field loses focus, restore ScrollView focus
-            scrollViewFocused = (newValue == nil)
         }
     }
 
     private var activeTasks: [TaskItem] {
-        tasks.filter { !$0.isCompleted }
+        Array(tasks.filter { !$0.isCompleted })
     }
 
     private var completedTasks: [TaskItem] {
-        tasks.filter { $0.isCompleted }
+        Array(tasks.filter { $0.isCompleted })
     }
 
     private var allTasksInDisplayOrder: [TaskItem] {
         completedTasks + activeTasks
     }
 
-    private func reloadTasks() {
-        tasks = store.fetchTasks()
-    }
-
     private func createTaskAndFocus() {
         let task = store.createTask(title: "")
-        reloadTasks()
         selectedTaskID = task.id
-        focusedField = .task(task.id)
+        focusTextField(task.id)
     }
 
     private func handleBackgroundTap() {
         if focusedField != nil || selectedTaskID != nil {
-            focusedField = nil
+            focusScrollView()
             selectedTaskID = nil
         } else {
             createTaskAndFocus()
@@ -162,8 +162,6 @@ struct TaskListView: View {
         } else {
             store.complete(taskID: task.id)
         }
-        reloadTasks()
-        refreshID = UUID()
     }
 
     private func selectTask(_ taskID: UUID) {
@@ -173,52 +171,82 @@ struct TaskListView: View {
     private func deleteTask(_ task: TaskItem) {
         let taskID = task.id
         if focusedField == .task(taskID) {
-            focusedField = nil
+            focusScrollView()
         }
         if selectedTaskID == taskID {
             selectedTaskID = nil
         }
         store.delete(taskID: taskID)
-        reloadTasks()
     }
 
-    private func navigateUp() {
-        print("TaskListView: navigateUp called, selectedTaskID: \(String(describing: selectedTaskID))")
+    private func navigateUp() -> KeyPress.Result {
+        guard focusedField == .scrollView else { return .ignored }
+
         guard let currentID = selectedTaskID else {
             selectedTaskID = activeTasks.last?.id
-            print("TaskListView: No selection, selected last active: \(String(describing: selectedTaskID))")
-            return
+            return .handled
         }
 
         let displayOrder = allTasksInDisplayOrder
         guard let currentIndex = displayOrder.firstIndex(where: { $0.id == currentID }) else {
-            print("TaskListView: Current task not found in display order")
-            return
+            return .handled
         }
 
         if currentIndex > 0 {
             selectedTaskID = displayOrder[currentIndex - 1].id
-            print("TaskListView: Moved to previous task: \(String(describing: selectedTaskID))")
         }
+        return .handled
     }
 
-    private func navigateDown() {
-        print("TaskListView: navigateDown called, selectedTaskID: \(String(describing: selectedTaskID))")
+    private func navigateDown() -> KeyPress.Result {
+        guard focusedField == .scrollView else { return .ignored }
+
         guard let currentID = selectedTaskID else {
             selectedTaskID = completedTasks.first?.id ?? activeTasks.first?.id
-            print("TaskListView: No selection, selected first: \(String(describing: selectedTaskID))")
-            return
+            return .handled
         }
 
         let displayOrder = allTasksInDisplayOrder
         guard let currentIndex = displayOrder.firstIndex(where: { $0.id == currentID }) else {
-            print("TaskListView: Current task not found in display order")
-            return
+            return .handled
         }
 
         if currentIndex < displayOrder.count - 1 {
             selectedTaskID = displayOrder[currentIndex + 1].id
-            print("TaskListView: Moved to next task: \(String(describing: selectedTaskID))")
         }
+        return .handled
+    }
+
+    private func toggleSelectedTask() -> KeyPress.Result {
+        guard focusedField == .scrollView else { return .ignored }
+        guard let currentID = selectedTaskID else { return .handled }
+        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return .handled }
+        toggleCompletion(task)
+        return .handled
+    }
+
+    private func focusSelectedTask() -> KeyPress.Result {
+        guard focusedField == .scrollView else { return .ignored }
+        guard let currentID = selectedTaskID else { return .handled }
+        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return .handled }
+        guard !task.isCompleted else { return .handled }
+        focusTextField(currentID)
+        return .handled
+    }
+
+    private func unfocusTextField() -> KeyPress.Result {
+        guard case .task = focusedField else { return .ignored }
+        focusScrollView()
+        return .handled
+    }
+
+    // MARK: - Focus Management
+
+    private func focusScrollView() {
+        focusedField = .scrollView
+    }
+
+    private func focusTextField(_ taskID: UUID) {
+        focusedField = .task(taskID)
     }
 }

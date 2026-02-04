@@ -2,19 +2,27 @@ import SwiftUI
 
 extension View {
     func keyboardNavigation(
-        onUpArrow: @escaping () -> Void,
-        onDownArrow: @escaping () -> Void
+        onUpArrow: @escaping () -> KeyPress.Result,
+        onDownArrow: @escaping () -> KeyPress.Result,
+        onSpace: @escaping () -> KeyPress.Result,
+        onReturn: @escaping () -> KeyPress.Result,
+        onEscape: @escaping () -> KeyPress.Result
     ) -> some View {
         self
             .onKeyPress(.upArrow) {
-                print("KeyboardNavigation: upArrow pressed")
                 onUpArrow()
-                return .handled
             }
             .onKeyPress(.downArrow) {
-                print("KeyboardNavigation: downArrow pressed")
                 onDownArrow()
-                return .handled
+            }
+            .onKeyPress(.space) {
+                onSpace()
+            }
+            .onKeyPress(.return) {
+                onReturn()
+            }
+            .onKeyPress(.escape) {
+                onEscape()
             }
     }
 }

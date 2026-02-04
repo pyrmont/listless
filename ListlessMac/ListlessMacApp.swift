@@ -7,6 +7,7 @@ struct ListlessMacApp: App {
     var body: some Scene {
         WindowGroup {
             TaskListView(store: TaskStore(persistenceController: persistenceController))
+                .environment(\.managedObjectContext, persistenceController.viewContext)
         }
     }
 }
