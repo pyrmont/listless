@@ -8,22 +8,50 @@
 
 /* Begin PBXBuildFile section */
 		0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
+		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
+		42E4CDE1D17463554CC4F41F /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
+		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */; };
+		6C252050E62AED3A0A684EBF /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7B37EF6A2389656D105FF8 /* KeyboardNavigationModifier.swift */; };
+		8E08F4C82D6F9E67667CB20A /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
+		8E680EC18B0339931E785F0C /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48AE1AE43296C1692FA6F755 /* PlatformScrollIndicatorsModifier.swift */; };
+		9041B7CED5298439BF7DC2C1 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007D500D2EFF3E66B780ADE0 /* TaskRowView.swift */; };
+		91EDF52C7C5C0B35E9D8B51E /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
+		96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
+		A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
+		A8D13DD6196772ECA146CF2A /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D74AE2501F35974F57D21F /* PlatformScrollIndicatorsModifier.swift */; };
 		C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
+		C2400278D5F6F79C85A68897 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007D500D2EFF3E66B780ADE0 /* TaskRowView.swift */; };
+		D878CD3A552C6A9685A30AA8 /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6B0195EA0176B72DE9B092 /* PlatformTextFieldWidthModifier.swift */; };
+		D8EFF49E9156083D675D47F0 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7B37EF6A2389656D105FF8 /* KeyboardNavigationModifier.swift */; };
+		DC71C45D92524C3893BF9FDB /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81880970CCFC2CB00B65047E /* PlatformTextFieldWidthModifier.swift */; };
+		DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
 		F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		007D500D2EFF3E66B780ADE0 /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		01E141436176F83594E2F26B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		0E7B37EF6A2389656D105FF8 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
 		126108860D7878DDC3BECC4B /* Listless iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Listless iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessMacApp.swift; sourceTree = "<group>"; };
 		3313FEDB101EECA4B344EEF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		48AE1AE43296C1692FA6F755 /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
+		537A913AC421BAEF60D26D9C /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		5B0E22B8F7B2B7283CAF749E /* Listless macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		74255E6B6C40899E9B17D927 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
+		81880970CCFC2CB00B65047E /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
+		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		944BAE054AAC1B9C4FC954F9 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		9FBEB58DD41817F09B0EB9F0 /* Listless.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Listless.xcdatamodel; sourceTree = "<group>"; };
 		AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSApp.swift; sourceTree = "<group>"; };
+		B4D74AE2501F35974F57D21F /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
+		C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		D10B5491A53E77C80F8F75CD /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		D123BB181208FC825777B0A7 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		DC3DEE364304587D280C5672 /* TaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStore.swift; sourceTree = "<group>"; };
+		EF6B0195EA0176B72DE9B092 /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
 		FBB8A3BEB346267B30B4675F /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -32,6 +60,9 @@
 			isa = PBXGroup;
 			children = (
 				D123BB181208FC825777B0A7 /* .gitkeep */,
+				0E7B37EF6A2389656D105FF8 /* KeyboardNavigationModifier.swift */,
+				537A913AC421BAEF60D26D9C /* TaskListView.swift */,
+				007D500D2EFF3E66B780ADE0 /* TaskRowView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -56,11 +87,22 @@
 			path = Listless;
 			sourceTree = "<group>";
 		};
+		58F917D865E0BDF4EF282306 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				48AE1AE43296C1692FA6F755 /* PlatformScrollIndicatorsModifier.swift */,
+				81880970CCFC2CB00B65047E /* PlatformTextFieldWidthModifier.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		8656EEF3161BE20196B8042E /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				74255E6B6C40899E9B17D927 /* .gitkeep */,
+				C093494053E6C348F245D4EC /* Listless.xcdatamodeld */,
 				FBB8A3BEB346267B30B4675F /* TaskItem.swift */,
+				DC3DEE364304587D280C5672 /* TaskStore.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -69,7 +111,9 @@
 			isa = PBXGroup;
 			children = (
 				3313FEDB101EECA4B344EEF4 /* Info.plist */,
+				9262207DAC21619BD9EDEE15 /* Listless.entitlements */,
 				AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */,
+				58F917D865E0BDF4EF282306 /* Views */,
 			);
 			path = ListlessiOS;
 			sourceTree = "<group>";
@@ -82,11 +126,22 @@
 			path = Infrastructure;
 			sourceTree = "<group>";
 		};
+		D12ECC901ABED96B86CC85B5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B4D74AE2501F35974F57D21F /* PlatformScrollIndicatorsModifier.swift */,
+				EF6B0195EA0176B72DE9B092 /* PlatformTextFieldWidthModifier.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		D5B197AFF26144948D032299 /* ListlessMac */ = {
 			isa = PBXGroup;
 			children = (
 				01E141436176F83594E2F26B /* Info.plist */,
+				7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */,
 				1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */,
+				D12ECC901ABED96B86CC85B5 /* Views */,
 			);
 			path = ListlessMac;
 			sourceTree = "<group>";
@@ -95,6 +150,7 @@
 			isa = PBXGroup;
 			children = (
 				944BAE054AAC1B9C4FC954F9 /* .gitkeep */,
+				C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */,
 			);
 			path = Sync;
 			sourceTree = "<group>";
@@ -154,6 +210,16 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0FB4F07A37999BBC6DFE4DBB = {
+						DevelopmentTeam = 7TD7PZBNXP;
+						ProvisioningStyle = Automatic;
+					};
+					34A03D42B91730DEAC2EBD8E = {
+						DevelopmentTeam = 7TD7PZBNXP;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = CAACA40A09D5F78ECE7A0EDF /* Build configuration list for PBXProject "Listless" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -180,8 +246,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8EFF49E9156083D675D47F0 /* KeyboardNavigationModifier.swift in Sources */,
+				96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */,
 				614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */,
+				A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */,
+				A8D13DD6196772ECA146CF2A /* PlatformScrollIndicatorsModifier.swift in Sources */,
+				D878CD3A552C6A9685A30AA8 /* PlatformTextFieldWidthModifier.swift in Sources */,
 				C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */,
+				8E08F4C82D6F9E67667CB20A /* TaskListView.swift in Sources */,
+				C2400278D5F6F79C85A68897 /* TaskRowView.swift in Sources */,
+				3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,8 +263,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C252050E62AED3A0A684EBF /* KeyboardNavigationModifier.swift in Sources */,
+				5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */,
 				F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */,
+				DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */,
+				8E680EC18B0339931E785F0C /* PlatformScrollIndicatorsModifier.swift in Sources */,
+				DC71C45D92524C3893BF9FDB /* PlatformTextFieldWidthModifier.swift in Sources */,
 				0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */,
+				42E4CDE1D17463554CC4F41F /* TaskListView.swift in Sources */,
+				9041B7CED5298439BF7DC2C1 /* TaskRowView.swift in Sources */,
+				91EDF52C7C5C0B35E9D8B51E /* TaskStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,7 +283,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ListlessMac/Listless.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -216,7 +301,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ListlessMac/Listless.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -350,7 +438,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ListlessiOS/Listless.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessiOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -366,7 +457,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ListlessiOS/Listless.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessiOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -409,6 +503,19 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		C093494053E6C348F245D4EC /* Listless.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				9FBEB58DD41817F09B0EB9F0 /* Listless.xcdatamodel */,
+			);
+			currentVersion = 9FBEB58DD41817F09B0EB9F0 /* Listless.xcdatamodel */;
+			path = Listless.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 3256C2BF8F1DAF371DA32120 /* Project object */;
 }

@@ -2,16 +2,11 @@ import SwiftUI
 
 @main
 struct ListlessMacApp: App {
+    private let persistenceController = PersistenceController.shared
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TaskListView(store: TaskStore(persistenceController: persistenceController))
         }
-    }
-}
-
-struct ContentView: View {
-    var body: some View {
-        Text("Listless for macOS")
-            .padding()
     }
 }
