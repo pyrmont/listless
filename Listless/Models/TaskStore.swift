@@ -32,6 +32,12 @@ final class TaskStore {
     func createTask(title: String = "") -> TaskItem {
         let task = TaskItem(context: context)
         task.title = title
+
+        // Set sortOrder to end of active tasks
+        let activeTasks = fetchTasks().filter { !$0.isCompleted }
+        let maxOrder = activeTasks.map(\.sortOrder).max() ?? 0
+        task.sortOrder = maxOrder + 1000
+
         save()
         return task
     }
@@ -45,6 +51,12 @@ final class TaskStore {
     func uncomplete(taskID: UUID) {
         guard let task = findTask(id: taskID) else { return }
         task.isCompleted = false
+
+        // Move to end of active tasks
+        let activeTasks = fetchTasks().filter { !$0.isCompleted }
+        let maxOrder = activeTasks.map(\.sortOrder).max() ?? 0
+        task.sortOrder = maxOrder + 1000
+
         save()
     }
 
@@ -57,6 +69,28 @@ final class TaskStore {
     func delete(taskID: UUID) {
         guard let task = findTask(id: taskID) else { return }
         context.delete(task)
+        save()
+    }
+
+    func moveTask(taskID: UUID, toIndex: Int) {
+        let activeTasks = fetchTasks().filter { !$0.isCompleted }
+            .sorted { $0.sortOrder < $1.sortOrder }
+
+        guard let currentIndex = activeTasks.firstIndex(where: { $0.id == taskID }) else { return }
+        guard currentIndex != toIndex else { return }
+
+        var reordered = activeTasks
+        let task = reordered.remove(at: currentIndex)
+
+        // Clamp toIndex to valid range after removal
+        let insertIndex = min(toIndex, reordered.count)
+        reordered.insert(task, at: insertIndex)
+
+        // Reassign sortOrder with gaps of 1000
+        for (index, task) in reordered.enumerated() {
+            task.sortOrder = Int64(index) * 1000
+        }
+
         save()
     }
 

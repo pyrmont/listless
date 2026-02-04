@@ -8,6 +8,7 @@ public class TaskItem: NSManagedObject, Identifiable {
     @NSManaged public var isCompleted: Bool
     @NSManaged public var createdAt: Date
     @NSManaged public var updatedAt: Date
+    @NSManaged public var sortOrder: Int64
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<TaskItem> {
         return NSFetchRequest<TaskItem>(entityName: "TaskItem")
@@ -20,6 +21,7 @@ public class TaskItem: NSManagedObject, Identifiable {
         setPrimitiveValue(Date(), forKey: "updatedAt")
         setPrimitiveValue(false, forKey: "isCompleted")
         setPrimitiveValue("", forKey: "title")
+        setPrimitiveValue(0, forKey: "sortOrder")
     }
 
     public override func willSave() {

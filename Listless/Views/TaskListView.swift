@@ -18,6 +18,7 @@ struct TaskListView: View {
     @FocusState private var focusedField: FocusField?
     @State private var selectedTaskID: UUID?
     @State private var refreshID = UUID()
+    @State private var draggedTask: UUID?
 
     init(store: TaskStore = TaskStore()) {
         _store = State(wrappedValue: store)
@@ -54,18 +55,39 @@ struct TaskListView: View {
                             .padding(.vertical, 8)
                     }
 
-                    ForEach(activeTasks) { task in
+                    ForEach(Array(activeTasks.enumerated()), id: \.element.id) { index, task in
                         TaskRowView(
                             task: task,
                             taskID: task.id,
                             isSelected: selectedTaskID == task.id,
+                            isDragging: draggedTask == task.id,
                             focusedField: $focusedField,
                             onToggle: toggleCompletion(_:),
                             onSubmit: handleSubmit(_:),
                             onTitleChange: updateTitle(_:_:),
                             onDelete: deleteTask(_:),
-                            onSelect: { selectTask(task.id) }
+                            onSelect: { selectTask(task.id) },
+                            onDragStart: { handleDragStart(task.id) },
+                            onDragEnd: handleDragEnd,
+                            onDrop: { droppedTaskID in
+                                handleDrop(taskID: droppedTaskID, at: index)
+                            }
                         )
+                    }
+
+                    // Drop zone at the end to allow dropping below the last item
+                    if !activeTasks.isEmpty {
+                        Color.clear
+                            .frame(height: 44)
+                            .contentShape(Rectangle())
+                            .dropDestination(for: String.self) { items, location in
+                                guard let droppedUUIDString = items.first,
+                                      let droppedUUID = UUID(uuidString: droppedUUIDString) else {
+                                    return false
+                                }
+                                handleDrop(taskID: droppedUUID, at: activeTasks.count)
+                                return true
+                            }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -102,10 +124,12 @@ struct TaskListView: View {
 
     private var activeTasks: [TaskItem] {
         Array(tasks.filter { !$0.isCompleted })
+            .sorted { $0.sortOrder < $1.sortOrder }
     }
 
     private var completedTasks: [TaskItem] {
         Array(tasks.filter { $0.isCompleted })
+            .sorted { $0.updatedAt > $1.updatedAt }
     }
 
     private var allTasksInDisplayOrder: [TaskItem] {
@@ -248,5 +272,20 @@ struct TaskListView: View {
 
     private func focusTextField(_ taskID: UUID) {
         focusedField = .task(taskID)
+    }
+
+    // MARK: - Drag and Drop
+
+    private func handleDragStart(_ taskID: UUID) {
+        draggedTask = taskID
+    }
+
+    private func handleDragEnd() {
+        draggedTask = nil
+    }
+
+    private func handleDrop(taskID: UUID, at index: Int) {
+        store.moveTask(taskID: taskID, toIndex: index)
+        draggedTask = nil
     }
 }

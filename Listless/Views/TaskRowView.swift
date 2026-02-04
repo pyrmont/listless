@@ -4,11 +4,15 @@ struct TaskRowView: View {
     let task: TaskItem
     let taskID: UUID
     let isSelected: Bool
+    let isDragging: Bool
     let onToggle: (TaskItem) -> Void
     let onSubmit: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
     let onSelect: () -> Void
+    let onDragStart: () -> Void
+    let onDragEnd: () -> Void
+    let onDrop: (UUID) -> Void
     @FocusState.Binding var focusedField: TaskListView.FocusField?
 
     @State private var title: String
@@ -17,21 +21,29 @@ struct TaskRowView: View {
         task: TaskItem,
         taskID: UUID,
         isSelected: Bool,
+        isDragging: Bool = false,
         focusedField: FocusState<TaskListView.FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
         onSubmit: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
         onDelete: @escaping (TaskItem) -> Void,
-        onSelect: @escaping () -> Void
+        onSelect: @escaping () -> Void,
+        onDragStart: @escaping () -> Void = {},
+        onDragEnd: @escaping () -> Void = {},
+        onDrop: @escaping (UUID) -> Void = { _ in }
     ) {
         self.task = task
         self.taskID = taskID
         self.isSelected = isSelected
+        self.isDragging = isDragging
         self.onToggle = onToggle
         self.onSubmit = onSubmit
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
         self.onSelect = onSelect
+        self.onDragStart = onDragStart
+        self.onDragEnd = onDragEnd
+        self.onDrop = onDrop
         _focusedField = focusedField
         _title = State(initialValue: task.title)
     }
@@ -100,6 +112,15 @@ struct TaskRowView: View {
                 onSelect()
             }
         }
+        .opacity(isDragging ? 0.5 : 1.0)
+        .taskDragGesture(
+            isActive: !task.isCompleted,
+            taskID: task.id,
+            taskTitle: task.title,
+            onDragStart: onDragStart,
+            onDragEnd: onDragEnd,
+            onDrop: onDrop
+        )
     }
 
     private var selectionBackground: some View {
