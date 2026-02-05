@@ -21,6 +21,7 @@ struct TaskListView: View {
     @State private var draggedTaskID: UUID?
     @State private var visualOrder: [UUID]?
     @State private var editingTaskID: UUID?
+    @State private var justCreatedTaskID: UUID?
 
     init(store: TaskStore = TaskStore()) {
         _store = State(wrappedValue: store)
@@ -38,19 +39,20 @@ struct TaskListView: View {
                 }
 
                 ForEach(completedTasks) { task in
+                    let taskID = task.id
                     TaskRowView(
                         task: task,
-                        taskID: task.id,
-                        isSelected: selectedTaskID == task.id,
-                        isEditing: editingTaskID == task.id,
+                        taskID: taskID,
+                        isSelected: selectedTaskID == taskID,
+                        isEditing: editingTaskID == taskID,
                         focusedField: $focusedField,
                         onToggle: toggleCompletion(_:),
                         onSubmit: handleSubmit(_:),
                         onTitleChange: updateTitle(_:_:),
                         onDelete: deleteTask(_:),
-                        onSelect: { selectTask(task.id) },
-                        onStartEdit: { startEditing(task.id) },
-                        onEndEdit: { endEditing() }
+                        onSelect: { selectTask(taskID) },
+                        onStartEdit: { startEditing(taskID) },
+                        onEndEdit: { endEditing(taskID) }
                     )
                 }
 
@@ -60,26 +62,26 @@ struct TaskListView: View {
                 }
 
                 ForEach(displayActiveTasks) { task in
+                    let taskID = task.id
                     TaskRowView(
                         task: task,
-                        taskID: task.id,
-                        isSelected: selectedTaskID == task.id,
-                        isEditing: editingTaskID == task.id,
+                        taskID: taskID,
+                        isSelected: selectedTaskID == taskID,
+                        isEditing: editingTaskID == taskID,
                         focusedField: $focusedField,
                         onToggle: toggleCompletion(_:),
                         onSubmit: handleSubmit(_:),
                         onTitleChange: updateTitle(_:_:),
                         onDelete: deleteTask(_:),
-                        onSelect: { selectTask(task.id) },
-                        onStartEdit: { startEditing(task.id) },
-                        onEndEdit: { endEditing() }
+                        onSelect: { selectTask(taskID) },
+                        onStartEdit: { startEditing(taskID) },
+                        onEndEdit: { endEditing(taskID) }
                     )
-                    .onDrag {
-                        startDrag(taskID: task.id)
-                        return NSItemProvider(object: task.id.uuidString as NSString)
-                    } preview: {
-                        Color.clear.frame(width: 1, height: 1)
-                    }
+                    .taskDragGesture(
+                        isActive: !task.isCompleted,
+                        taskID: task.id,
+                        onDragStart: { startDrag(taskID: task.id) }
+                    )
                     .overlay {
                         if draggedTaskID != nil && draggedTaskID != task.id {
                             VStack(spacing: 0) {
@@ -140,6 +142,7 @@ struct TaskListView: View {
         .focusable()
         .focused($focusedField, equals: .scrollView)
         .focusEffectDisabled()
+        .accessibilityIdentifier("task-list-scrollview")
         .keyboardNavigation(
             onUpArrow: navigateUp,
             onDownArrow: navigateDown,
@@ -180,13 +183,33 @@ struct TaskListView: View {
     }
 
     private func createTaskAndFocus() {
+        // Clear any lingering drag state
+        draggedTaskID = nil
+        visualOrder = nil
+
+        // Create Core Data task
         let task = store.createTask(title: "")
+
+        // Protect from immediate deletion
+        justCreatedTaskID = task.id
         selectedTaskID = task.id
-        startEditing(task.id)
+
+        // Set editing state to trigger TextField render
+        editingTaskID = task.id
+
+        // Wait for view to update, then focus the TextField
+        DispatchQueue.main.async {
+            self.focusedField = .task(task.id)
+            // Clear the just-created protection once focused
+            self.justCreatedTaskID = nil
+        }
     }
 
     private func handleBackgroundTap() {
-        if focusedField != nil || selectedTaskID != nil {
+        // Check if a task is focused (not just scrollView)
+        let isTaskFocused = if case .task = focusedField { true } else { false }
+
+        if isTaskFocused || selectedTaskID != nil {
             focusScrollView()
             selectedTaskID = nil
         } else {
@@ -208,7 +231,14 @@ struct TaskListView: View {
     }
 
     private func deleteIfEmpty(taskID: UUID) {
-        guard let task = tasks.first(where: { $0.id == taskID }) else { return }
+        // Don't delete tasks that were just created
+        if taskID == justCreatedTaskID {
+            return
+        }
+
+        guard let task = tasks.first(where: { $0.id == taskID }) else {
+            return
+        }
         let trimmedTitle = task.title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedTitle.isEmpty else { return }
         deleteTask(task)
@@ -221,6 +251,11 @@ struct TaskListView: View {
     private func updateTitle(_ task: TaskItem, _ title: String) {
         guard task.title != title else { return }
         store.update(taskID: task.id, title: title)
+
+        // Clear the justCreated flag once user starts typing
+        if task.id == justCreatedTaskID && !title.isEmpty {
+            justCreatedTaskID = nil
+        }
     }
 
     private func toggleCompletion(_ task: TaskItem) {
@@ -247,7 +282,9 @@ struct TaskListView: View {
     }
 
     private func navigateUp() -> KeyPress.Result {
-        guard focusedField == .scrollView else { return .ignored }
+        guard focusedField == .scrollView else {
+            return .ignored
+        }
 
         guard let currentID = selectedTaskID else {
             selectedTaskID = activeTasks.last?.id
@@ -302,8 +339,12 @@ struct TaskListView: View {
     }
 
     private func unfocusTextField() -> KeyPress.Result {
-        guard case .task = focusedField else { return .ignored }
-        endEditing()
+        guard case .task = focusedField else {
+            return .ignored
+        }
+        if let editingID = editingTaskID {
+            endEditing(editingID)
+        }
         focusScrollView()
         return .handled
     }
@@ -311,7 +352,11 @@ struct TaskListView: View {
     // MARK: - Focus Management
 
     private func focusScrollView() {
-        focusedField = .scrollView
+        // Try clearing focus first, then setting to scrollView
+        focusedField = nil
+        DispatchQueue.main.async {
+            self.focusedField = .scrollView
+        }
     }
 
     private func focusTextField(_ taskID: UUID) {
@@ -323,10 +368,13 @@ struct TaskListView: View {
         focusedField = .task(taskID)
     }
 
-    private func endEditing() {
-        if let editingID = editingTaskID {
-            deleteIfEmpty(taskID: editingID)
+    private func endEditing(_ taskID: UUID) {
+        // Only clear editingTaskID if it matches this task
+        guard editingTaskID == taskID else {
+            return
         }
+
+        deleteIfEmpty(taskID: taskID)
         editingTaskID = nil
     }
 

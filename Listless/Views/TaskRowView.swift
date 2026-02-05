@@ -54,6 +54,8 @@ struct TaskRowView: View {
                     .frame(width: 20, height: 20)
             }
             .buttonStyle(.borderless)
+            .accessibilityIdentifier("task-checkbox")
+            .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
 
             if isEditing {
                 TextField("New task", text: $editingTitle, axis: .vertical)
@@ -66,6 +68,7 @@ struct TaskRowView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .disabled(task.isCompleted)
+                    .accessibilityIdentifier("task-textfield")
             } else {
                 HStack(spacing: 0) {
                     Text(task.title.isEmpty ? "New task" : task.title)
@@ -78,6 +81,7 @@ struct TaskRowView: View {
                                 onStartEdit()
                             }
                         }
+                        .accessibilityIdentifier("task-text-\(task.title)")
 
                     Spacer(minLength: 0)
                 }
