@@ -60,6 +60,12 @@ final class TaskStore {
         save()
     }
 
+    func updateWithoutSaving(taskID: UUID, title: String) {
+        guard let task = findTask(id: taskID) else { return }
+        task.title = title
+        // Don't save - will be saved when editing ends
+    }
+
     func delete(taskID: UUID) {
         guard let task = findTask(id: taskID) else { return }
         context.delete(task)
@@ -101,7 +107,7 @@ final class TaskStore {
         }
     }
 
-    private func save() {
+    func save() {
         persistenceController.save()
     }
 }

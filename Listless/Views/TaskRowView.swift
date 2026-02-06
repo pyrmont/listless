@@ -6,7 +6,6 @@ struct TaskRowView: View {
     let isSelected: Bool
     let isEditing: Bool
     let onToggle: (TaskItem) -> Void
-    let onSubmit: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
     let onSelect: () -> Void
@@ -15,6 +14,7 @@ struct TaskRowView: View {
     @FocusState.Binding var focusedField: TaskListView.FocusField?
 
     @State private var editingTitle: String = ""
+    @State private var isCurrentlyEditing: Bool = false
 
     init(
         task: TaskItem,
@@ -23,7 +23,6 @@ struct TaskRowView: View {
         isEditing: Bool = false,
         focusedField: FocusState<TaskListView.FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
-        onSubmit: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
         onDelete: @escaping (TaskItem) -> Void,
         onSelect: @escaping () -> Void,
@@ -35,7 +34,6 @@ struct TaskRowView: View {
         self.isSelected = isSelected
         self.isEditing = isEditing
         self.onToggle = onToggle
-        self.onSubmit = onSubmit
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
         self.onSelect = onSelect
@@ -57,35 +55,21 @@ struct TaskRowView: View {
             .accessibilityIdentifier("task-checkbox")
             .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
 
-            if isEditing {
-                TextField("New task", text: $editingTitle, axis: .vertical)
-                    .textFieldStyle(.plain)
-                    .font(.body)
-                    .lineLimit(1...5)
-                    .focused($focusedField, equals: .task(taskID))
-                    .onSubmit {
-                        onSubmit(task)
+            ClickableTextField(
+                text: $editingTitle,
+                isCompleted: task.isCompleted,
+                onEditingChanged: { editing in
+                    isCurrentlyEditing = editing
+                    if editing {
+                        onStartEdit()
+                    } else {
+                        onEndEdit()
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .disabled(task.isCompleted)
-                    .accessibilityIdentifier("task-textfield")
-            } else {
-                HStack(spacing: 0) {
-                    Text(task.title.isEmpty ? "New task" : task.title)
-                        .font(.body)
-                        .foregroundStyle(task.title.isEmpty ? .secondary : (task.isCompleted ? .secondary : .primary))
-                        .strikethrough(task.isCompleted, color: .secondary)
-                        .modifier(TextHoverModifier(isCompleted: task.isCompleted))
-                        .onTapGesture {
-                            if !task.isCompleted {
-                                onStartEdit()
-                            }
-                        }
-                        .accessibilityIdentifier("task-text-\(task.title)")
-
-                    Spacer(minLength: 0)
                 }
-            }
+            )
+            .focused($focusedField, equals: .task(taskID))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier(isCurrentlyEditing ? "task-textfield" : "task-text-\(task.title)")
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
@@ -118,17 +102,15 @@ struct TaskRowView: View {
             guard !task.isCompleted else { return }
             onTitleChange(task, editingTitle)
         }
-        .onChange(of: isEditing) { _, newValue in
-            if newValue {
-                editingTitle = task.title
+        .onChange(of: task.title) { _, newValue in
+            // Keep editingTitle in sync with task.title when not editing
+            if !isCurrentlyEditing {
+                editingTitle = newValue
             }
         }
-        .onChange(of: focusedField) { oldValue, newValue in
-            if newValue == .task(taskID) && oldValue != .task(taskID) {
-                onSelect()
-            } else if oldValue == .task(taskID) && newValue != .task(taskID) {
-                onEndEdit()
-            }
+        .onAppear {
+            // Initialize editingTitle
+            editingTitle = task.title
         }
     }
 

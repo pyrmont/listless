@@ -47,7 +47,6 @@ struct TaskListView: View {
                         isEditing: editingTaskID == taskID,
                         focusedField: $focusedField,
                         onToggle: toggleCompletion(_:),
-                        onSubmit: handleSubmit(_:),
                         onTitleChange: updateTitle(_:_:),
                         onDelete: deleteTask(_:),
                         onSelect: { selectTask(taskID) },
@@ -70,7 +69,6 @@ struct TaskListView: View {
                         isEditing: editingTaskID == taskID,
                         focusedField: $focusedField,
                         onToggle: toggleCompletion(_:),
-                        onSubmit: handleSubmit(_:),
                         onTitleChange: updateTitle(_:_:),
                         onDelete: deleteTask(_:),
                         onSelect: { selectTask(taskID) },
@@ -182,6 +180,11 @@ struct TaskListView: View {
         completedTasks + displayActiveTasks
     }
 
+    private func isLastActiveTask(_ taskID: UUID) -> Bool {
+        guard let lastTask = activeTasks.last else { return false }
+        return lastTask.id == taskID
+    }
+
     private func createTaskAndFocus() {
         // Clear any lingering drag state
         draggedTaskID = nil
@@ -244,13 +247,10 @@ struct TaskListView: View {
         deleteTask(task)
     }
 
-    private func handleSubmit(_ task: TaskItem) {
-        createTaskAndFocus()
-    }
 
     private func updateTitle(_ task: TaskItem, _ title: String) {
         guard task.title != title else { return }
-        store.update(taskID: task.id, title: title)
+        store.updateWithoutSaving(taskID: task.id, title: title)
 
         // Clear the justCreated flag once user starts typing
         if task.id == justCreatedTaskID && !title.isEmpty {
@@ -344,6 +344,8 @@ struct TaskListView: View {
         }
         if let editingID = editingTaskID {
             endEditing(editingID)
+            // Keep the task selected
+            selectedTaskID = editingID
         }
         focusScrollView()
         return .handled
@@ -353,8 +355,10 @@ struct TaskListView: View {
 
     private func focusScrollView() {
         // Try clearing focus first, then setting to scrollView
+        print("🔵 focusScrollView called, setting focusedField = nil")
         focusedField = nil
         DispatchQueue.main.async {
+            print("🔵 focusScrollView async setting focusedField = .scrollView")
             self.focusedField = .scrollView
         }
     }
@@ -364,18 +368,34 @@ struct TaskListView: View {
     }
 
     private func startEditing(_ taskID: UUID) {
+        print("🟢 startEditing called for task \(taskID)")
+        selectedTaskID = taskID
         editingTaskID = taskID
         focusedField = .task(taskID)
+        print("🟢 startEditing set focusedField = .task(\(taskID))")
     }
 
     private func endEditing(_ taskID: UUID) {
+        // Save any pending changes
+        store.save()
+
+        // Delete if empty
+        deleteIfEmpty(taskID: taskID)
+
         // Only clear editingTaskID if it matches this task
-        guard editingTaskID == taskID else {
-            return
+        if editingTaskID == taskID {
+            editingTaskID = nil
         }
 
-        deleteIfEmpty(taskID: taskID)
-        editingTaskID = nil
+        // Focus management (same for Return key and clicking away)
+        if isLastActiveTask(taskID) {
+            // Last task: create new task below it
+            createTaskAndFocus()
+        } else {
+            // Not last task: keep task selected, return to navigation mode
+            selectedTaskID = taskID
+            focusScrollView()
+        }
     }
 
     // MARK: - Drag and Drop
