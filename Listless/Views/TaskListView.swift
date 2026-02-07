@@ -127,12 +127,13 @@ struct TaskListView: View {
         .focused($focusedField, equals: .scrollView)
         .focusEffectDisabled()
         .accessibilityIdentifier("task-list-scrollview")
-        .keyboardNavigation(
-            onUpArrow: navigateUp,
-            onDownArrow: navigateDown,
-            onSpace: toggleSelectedTask,
-            onReturn: focusSelectedTask
-        )
+        .keyboardNavigation([
+            ShortcutKey(key: .upArrow): navigateUp,
+            ShortcutKey(key: .downArrow): navigateDown,
+            ShortcutKey(key: .space): toggleSelectedTask,
+            ShortcutKey(key: .return): focusSelectedTask,
+            ShortcutKey(key: .delete): deleteSelectedTask,
+        ])
         .onAppear {
             // Set initial focus to enable keyboard navigation
             if focusedField == nil {
@@ -346,6 +347,25 @@ struct TaskListView: View {
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return .handled }
         guard !task.isCompleted else { return .handled }
         startEditing(currentID)
+        return .handled
+    }
+
+    private func deleteSelectedTask() -> KeyPress.Result {
+        print("🗑️ deleteSelectedTask() called, focusedField: \(String(describing: focusedField))")
+        guard focusedField == .scrollView else {
+            print("🗑️ deleteSelectedTask() IGNORED - focus is not .scrollView")
+            return .ignored
+        }
+        guard let currentID = selectedTaskID else {
+            print("🗑️ deleteSelectedTask() no task selected")
+            return .handled
+        }
+        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
+            print("🗑️ deleteSelectedTask() task not found")
+            return .handled
+        }
+        print("🗑️ deleteSelectedTask() deleting task \(currentID)")
+        deleteTask(task)
         return .handled
     }
 
