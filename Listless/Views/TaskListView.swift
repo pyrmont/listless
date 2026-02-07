@@ -147,7 +147,10 @@ struct TaskListView: View {
             onReturn: focusSelectedTask
         )
         .onAppear {
-            // Focus repair will set to .scrollView if nil
+            // Set initial focus to enable keyboard navigation
+            if focusedField == nil {
+                focusedField = .scrollView
+            }
         }
         .onChange(of: focusedField) { oldValue, newValue in
             handleFocusChange(from: oldValue, to: newValue)
