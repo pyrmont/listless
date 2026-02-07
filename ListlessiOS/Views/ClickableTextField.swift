@@ -4,9 +4,10 @@ import SwiftUI
 struct ClickableTextField: View {
     @Binding var text: String
     let isCompleted: Bool
-    let onEditingChanged: (Bool) -> Void
+    let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
 
     @FocusState private var isFocused: Bool
+    @State private var submittedViaReturn = false
 
     var body: some View {
         TextField("New task", text: $text, axis: .vertical)
@@ -15,12 +16,20 @@ struct ClickableTextField: View {
             .lineLimit(1...5)
             .focused($isFocused)
             .onSubmit {
-                // Resign focus when Return is pressed (same as focus loss)
+                // Return key pressed - mark for new task creation
+                submittedViaReturn = true
                 isFocused = false
             }
             .disabled(isCompleted)
             .onChange(of: isFocused) { _, newValue in
-                onEditingChanged(newValue)
+                if newValue {
+                    // Focus gained
+                    onEditingChanged(true, false)
+                } else {
+                    // Focus lost - check if it was via Return key
+                    onEditingChanged(false, submittedViaReturn)
+                    submittedViaReturn = false
+                }
             }
     }
 }

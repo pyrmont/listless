@@ -39,7 +39,21 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES"
+            testExecutionOrdering = "random">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D533FDEDCE6DFCA2E8CB70F5"
+               BuildableName = "Listless iOS Unit Tests.xctest"
+               BlueprintName = "Listless iOS Unit Tests"
+               ReferencedContainer = "container:Listless.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

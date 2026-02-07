@@ -16,13 +16,20 @@ final class TaskStore {
 
     func fetchTasks() -> [TaskItem] {
         let request = TaskItem.fetchRequest()
-        request.sortDescriptors = [
-            NSSortDescriptor(keyPath: \TaskItem.isCompleted, ascending: true),
-            NSSortDescriptor(keyPath: \TaskItem.createdAt, ascending: true),
-        ]
+        request.sortDescriptors = []
 
         do {
-            return try context.fetch(request)
+            let allTasks = try context.fetch(request)
+
+            // Active tasks sorted by sortOrder
+            let activeTasks = allTasks.filter { !$0.isCompleted }
+                .sorted { $0.sortOrder < $1.sortOrder }
+
+            // Completed tasks sorted by updatedAt (most recently completed last)
+            let completedTasks = allTasks.filter { $0.isCompleted }
+                .sorted { $0.updatedAt < $1.updatedAt }
+
+            return activeTasks + completedTasks
         } catch {
             print("Failed to fetch tasks: \(error)")
             return []
@@ -34,8 +41,9 @@ final class TaskStore {
         task.title = title
 
         // Set sortOrder to end of active tasks
+        context.processPendingChanges()
         let activeTasks = fetchTasks().filter { !$0.isCompleted }
-        let maxOrder = activeTasks.map(\.sortOrder).max() ?? 0
+        let maxOrder = activeTasks.map(\.sortOrder).max() ?? -1000
         task.sortOrder = maxOrder + 1000
 
         save()
@@ -82,8 +90,8 @@ final class TaskStore {
         var reordered = activeTasks
         let task = reordered.remove(at: currentIndex)
 
-        // Clamp toIndex to valid range after removal
-        let insertIndex = min(toIndex, reordered.count)
+        // Clamp toIndex to valid range [0, reordered.count] after removal
+        let insertIndex = max(0, min(toIndex, reordered.count))
         reordered.insert(task, at: insertIndex)
 
         // Reassign sortOrder with gaps of 1000
