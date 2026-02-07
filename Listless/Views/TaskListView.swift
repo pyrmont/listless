@@ -6,6 +6,9 @@ struct TaskListView: View {
         case scrollView
     }
 
+    @Environment(\.undoManager) private var undoManager
+    @Environment(\.managedObjectContext) private var managedObjectContext
+
     @State private var store: TaskStore
     @FetchRequest(
         sortDescriptors: [
@@ -155,6 +158,10 @@ struct TaskListView: View {
                 }
             }
         }
+        .onChange(of: undoManager, initial: true) { _, newValue in
+            // Connect SwiftUI's undo manager to Core Data context for automatic undo/redo
+            managedObjectContext.undoManager = newValue
+        }
     }
 
     private var activeTasks: [TaskItem] {
@@ -252,7 +259,14 @@ struct TaskListView: View {
         }
         let trimmedTitle = task.title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedTitle.isEmpty else { return }
+
+        // Remove this task from undo history since it was never really used
+        managedObjectContext.undoManager?.removeAllActions(withTarget: task)
+
+        // Disable undo registration for the delete operation itself
+        managedObjectContext.undoManager?.disableUndoRegistration()
         deleteTask(task)
+        managedObjectContext.undoManager?.enableUndoRegistration()
     }
 
 
