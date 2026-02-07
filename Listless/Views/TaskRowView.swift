@@ -3,6 +3,8 @@ import SwiftUI
 struct TaskRowView: View {
     let task: TaskItem
     let taskID: UUID
+    let index: Int
+    let totalTasks: Int
     let isSelected: Bool
     let isEditing: Bool
     let onToggle: (TaskItem) -> Void
@@ -16,9 +18,55 @@ struct TaskRowView: View {
     @State private var editingTitle: String = ""
     @State private var isCurrentlyEditing: Bool = false
 
+    private let horizontalPadding: CGFloat = 16
+    private let checkboxTextSpacing: CGFloat = 12
+    @ScaledMetric private var checkboxSize: CGFloat = 20
+
+    private var dividerInset: CGFloat {
+        horizontalPadding + checkboxSize + checkboxTextSpacing
+    }
+
+    private var accentColor: Color {
+        guard !task.isCompleted else { return .clear }
+        guard totalTasks > 1 else { return Color(hue: 0.98, saturation: 0.85, brightness: 1.0) }
+
+        // Gradient matches gradient.png: coral/red → pink/magenta → purple/blue
+        let progress = Double(index) / Double(totalTasks - 1)
+
+        // Define color stops based on the gradient image
+        let topColor = Color(hue: 0.98, saturation: 0.85, brightness: 1.0)      // Coral/red
+        let midColor = Color(hue: 0.88, saturation: 0.75, brightness: 0.95)    // Pink/magenta
+        let bottomColor = Color(hue: 0.72, saturation: 0.65, brightness: 0.85) // Purple/blue
+
+        // Interpolate between colors
+        if progress < 0.5 {
+            // Top half: coral → magenta
+            let localProgress = progress * 2.0
+            return interpolateColor(from: topColor, to: midColor, progress: localProgress)
+        } else {
+            // Bottom half: magenta → purple/blue
+            let localProgress = (progress - 0.5) * 2.0
+            return interpolateColor(from: midColor, to: bottomColor, progress: localProgress)
+        }
+    }
+
+    private func interpolateColor(from: Color, to: Color, progress: Double) -> Color {
+        // Extract HSB components and interpolate
+        let fromHSB = PlatformColor(from).hsba
+        let toHSB = PlatformColor(to).hsba
+
+        let hue = fromHSB.hue + (toHSB.hue - fromHSB.hue) * progress
+        let saturation = fromHSB.saturation + (toHSB.saturation - fromHSB.saturation) * progress
+        let brightness = fromHSB.brightness + (toHSB.brightness - fromHSB.brightness) * progress
+
+        return Color(hue: hue, saturation: saturation, brightness: brightness)
+    }
+
     init(
         task: TaskItem,
         taskID: UUID,
+        index: Int = 0,
+        totalTasks: Int = 1,
         isSelected: Bool,
         isEditing: Bool = false,
         focusedField: FocusState<TaskListView.FocusField?>.Binding,
@@ -31,6 +79,8 @@ struct TaskRowView: View {
     ) {
         self.task = task
         self.taskID = taskID
+        self.index = index
+        self.totalTasks = totalTasks
         self.isSelected = isSelected
         self.isEditing = isEditing
         self.onToggle = onToggle
@@ -50,6 +100,7 @@ struct TaskRowView: View {
                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(task.isCompleted ? .secondary : .primary)
                     .font(.system(size: 17))
+                    .fontWeight(.thin)
             }
             .buttonStyle(.borderless)
             .alignmentGuide(.firstTextBaseline) { d in
@@ -82,6 +133,23 @@ struct TaskRowView: View {
             onSelect(taskID)
         }
         .background(selectionBackground)
+        .overlay(alignment: .leading) {
+            // Colored accent bar on the left edge
+            Rectangle()
+                .fill(accentColor)
+                .frame(width: 4)
+                .padding(.vertical, 1)
+        }
+        .overlay(alignment: .bottom) {
+            // Hairline border between rows, inset to align with text
+            // Only show for active (non-completed) tasks
+            if !task.isCompleted {
+                Rectangle()
+                    .fill(.separator)
+                    .frame(height: 0.5)
+                    .padding(.leading, dividerInset)
+            }
+        }
         .contextMenu {
             Button(task.isCompleted ? "Mark as Incomplete" : "Mark as Complete") {
                 onToggle(task)

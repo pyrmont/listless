@@ -42,11 +42,9 @@ extension View {
     }
 
     private func normalizeModifiers(_ modifiers: EventModifiers) -> EventModifiers {
-        // Filter out system modifiers that come automatically with certain keys
-        // (function keys, numericPad) - only keep user-intentional modifiers
-        var normalized = modifiers
-        normalized.remove(.function)
-        normalized.remove(.numericPad)
-        return normalized
+        // Mask to only meaningful shortcut modifiers, excluding system artifacts
+        // like .function (deprecated), .numericPad, .capsLock, etc.
+        let shortcutModifierMask: EventModifiers = [.command, .shift, .option, .control]
+        return EventModifiers(rawValue: modifiers.rawValue & shortcutModifierMask.rawValue)
     }
 }

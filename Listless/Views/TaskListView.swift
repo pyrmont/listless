@@ -32,11 +32,13 @@ struct TaskListView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(displayActiveTasks) { task in
+                ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
                     let taskID = task.id
                     TaskRowView(
                         task: task,
                         taskID: taskID,
+                        index: index,
+                        totalTasks: displayActiveTasks.count,
                         isSelected: selectedTaskID == taskID,
                         isEditing: editingTaskID == taskID,
                         focusedField: $focusedField,

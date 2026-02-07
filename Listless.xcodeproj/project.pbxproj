@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
+		0BB5D2C4FADE3F1E22202814 /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917597025B3D5D18E33982D3 /* ColorExtensions.swift */; };
 		15B71073767FB4766A6BA2BE /* HoverCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41D6E0CED14D79F31C45062 /* HoverCursorModifier.swift */; };
 		1AA328A921EF8A7FDD03119A /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
 		269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */; };
@@ -15,6 +16,7 @@
 		42E4CDE1D17463554CC4F41F /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
 		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */; };
+		69D1909CB6D2368CF90065C7 /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDF292392702661DBB94D06 /* ColorExtensions.swift */; };
 		6C252050E62AED3A0A684EBF /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7B37EF6A2389656D105FF8 /* KeyboardNavigationModifier.swift */; };
 		83378A0575640417ED41FC25 /* ClickableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2BB7ABCABA4EB67180A200 /* ClickableTextField.swift */; };
 		8E08F4C82D6F9E67667CB20A /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
@@ -71,6 +73,7 @@
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		81880970CCFC2CB00B65047E /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
 		82A3509AD32A54434BCC8017 /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
+		917597025B3D5D18E33982D3 /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
 		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		944BAE054AAC1B9C4FC954F9 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreTests.swift; sourceTree = "<group>"; };
@@ -79,6 +82,7 @@
 		9FBEB58DD41817F09B0EB9F0 /* Listless.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Listless.xcdatamodel; sourceTree = "<group>"; };
 		AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSApp.swift; sourceTree = "<group>"; };
 		B4D74AE2501F35974F57D21F /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
+		BBDF292392702661DBB94D06 /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
 		C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Listless iOS Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9B14DC786A336008AAB78EE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
@@ -149,6 +153,7 @@
 		954AAB8DDFF6E6D6FD6A0A2C /* ListlessiOS */ = {
 			isa = PBXGroup;
 			children = (
+				BBDF292392702661DBB94D06 /* ColorExtensions.swift */,
 				3313FEDB101EECA4B344EEF4 /* Info.plist */,
 				9262207DAC21619BD9EDEE15 /* Listless.entitlements */,
 				AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */,
@@ -180,6 +185,7 @@
 		D5B197AFF26144948D032299 /* ListlessMac */ = {
 			isa = PBXGroup;
 			children = (
+				917597025B3D5D18E33982D3 /* ColorExtensions.swift */,
 				01E141436176F83594E2F26B /* Info.plist */,
 				7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */,
 				1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */,
@@ -337,6 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				83378A0575640417ED41FC25 /* ClickableTextField.swift in Sources */,
+				0BB5D2C4FADE3F1E22202814 /* ColorExtensions.swift in Sources */,
 				15B71073767FB4766A6BA2BE /* HoverCursorModifier.swift in Sources */,
 				D8EFF49E9156083D675D47F0 /* KeyboardNavigationModifier.swift in Sources */,
 				96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */,
@@ -357,6 +364,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				978DABFA617B6EBD6FA179CD /* ClickableTextField.swift in Sources */,
+				69D1909CB6D2368CF90065C7 /* ColorExtensions.swift in Sources */,
 				FEC96DAA2BF8BB5D6D8504EB /* HoverCursorModifier.swift in Sources */,
 				6C252050E62AED3A0A684EBF /* KeyboardNavigationModifier.swift in Sources */,
 				5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */,
