@@ -225,6 +225,9 @@ struct TaskListView: View {
             // Focus repair will set to .scrollView if needed
         } else {
             createTaskAndFocus()
+            // Trigger focus resolution by setting to nil
+            // onChange(of: focusedField) will then resolve pendingFocus
+            focusedField = nil
         }
     }
 
