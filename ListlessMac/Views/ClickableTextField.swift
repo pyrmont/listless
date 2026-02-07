@@ -18,7 +18,7 @@ class ClickableNSTextField: NSTextField {
 struct ClickableTextField: NSViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
-    let onEditingChanged: (Bool) -> Void
+    let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
 
     func makeNSView(context: Context) -> ClickableNSTextField {
         let textField = ClickableNSTextField()
@@ -66,20 +66,27 @@ struct ClickableTextField: NSViewRepresentable {
         let maxWidth = proposal.width ?? 300
         let isEditing = nsView.currentEditor() != nil
 
+        // Always calculate height based on maxWidth to preserve multiline wrapping
+        let height = calculateHeight(for: text, width: maxWidth, font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
+
         if isEditing {
             // When editing, take full width
-            let height = calculateHeight(for: text, width: maxWidth, font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
             return CGSize(width: maxWidth, height: max(height, 22))
         } else {
-            // When not editing, size to content
+            // When not editing, size width to content but maintain multiline height
             let width = calculateWidth(for: text, font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
-            let height = calculateHeight(for: text, width: width, font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
             return CGSize(width: min(width, maxWidth), height: max(height, 22))
         }
     }
 
     func makeCoordinator() -> Coordinator {
         Coordinator(text: $text, onEditingChanged: onEditingChanged)
+    }
+
+    enum EditEndReason {
+        case returnKey
+        case escape
+        case focusLost
     }
 
     // Calculate text width
@@ -114,9 +121,10 @@ struct ClickableTextField: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextFieldDelegate {
         @Binding var text: String
-        let onEditingChanged: (Bool) -> Void
+        let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+        var editEndReason: EditEndReason = .focusLost
 
-        init(text: Binding<String>, onEditingChanged: @escaping (Bool) -> Void) {
+        init(text: Binding<String>, onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void) {
             _text = text
             self.onEditingChanged = onEditingChanged
         }
@@ -135,12 +143,14 @@ struct ClickableTextField: NSViewRepresentable {
 
         func handleBecomeFirstResponder() {
             print("🟡 ClickableTextField.becomeFirstResponder - calling onEditingChanged(true)")
-            onEditingChanged(true)
+            onEditingChanged(true, false)
         }
 
         func controlTextDidEndEditing(_ obj: Notification) {
-            print("🟡 ClickableTextField.controlTextDidEndEditing fired")
-            onEditingChanged(false)
+            print("🟡 ClickableTextField.controlTextDidEndEditing fired - reason: \(editEndReason)")
+            let shouldCreateNewTask = editEndReason == .returnKey
+            editEndReason = .focusLost  // Reset for next time
+            onEditingChanged(false, shouldCreateNewTask)
         }
 
         func controlTextDidChange(_ obj: Notification) {
@@ -149,11 +159,22 @@ struct ClickableTextField: NSViewRepresentable {
         }
 
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            print("🟡 ClickableTextField.doCommandBy selector: \(commandSelector)")
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                // Resign first responder, which triggers controlTextDidEndEditing → onEditingChanged(false)
+                // Return key pressed
+                print("🟡 ClickableTextField.doCommandBy RETURN key detected")
+                editEndReason = .returnKey
                 control.window?.makeFirstResponder(nil)
                 return true  // Prevent newline insertion
             }
+            if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
+                // Escape key pressed
+                print("🟡 ClickableTextField.doCommandBy ESCAPE key detected")
+                editEndReason = .escape
+                control.window?.makeFirstResponder(nil)
+                return true
+            }
+            print("🟡 ClickableTextField.doCommandBy unhandled selector, returning false")
             return false
         }
     }

@@ -5,8 +5,7 @@ extension View {
         onUpArrow: @escaping () -> KeyPress.Result,
         onDownArrow: @escaping () -> KeyPress.Result,
         onSpace: @escaping () -> KeyPress.Result,
-        onReturn: @escaping () -> KeyPress.Result,
-        onEscape: @escaping () -> KeyPress.Result
+        onReturn: @escaping () -> KeyPress.Result
     ) -> some View {
         self
             .onKeyPress(.upArrow) {
@@ -20,9 +19,6 @@ extension View {
             }
             .onKeyPress(.return) {
                 onReturn()
-            }
-            .onKeyPress(.escape) {
-                onEscape()
             }
     }
 }

@@ -8,9 +8,9 @@ struct TaskRowView: View {
     let onToggle: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
-    let onSelect: () -> Void
-    let onStartEdit: () -> Void
-    let onEndEdit: () -> Void
+    let onSelect: (UUID) -> Void
+    let onStartEdit: (UUID) -> Void
+    let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
     @FocusState.Binding var focusedField: TaskListView.FocusField?
 
     @State private var editingTitle: String = ""
@@ -25,9 +25,9 @@ struct TaskRowView: View {
         onToggle: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
         onDelete: @escaping (TaskItem) -> Void,
-        onSelect: @escaping () -> Void,
-        onStartEdit: @escaping () -> Void = {},
-        onEndEdit: @escaping () -> Void = {}
+        onSelect: @escaping (UUID) -> Void,
+        onStartEdit: @escaping (UUID) -> Void = { _ in },
+        onEndEdit: @escaping (UUID, _ shouldCreateNewTask: Bool) -> Void = { _, _ in }
     ) {
         self.task = task
         self.taskID = taskID
@@ -43,27 +43,30 @@ struct TaskRowView: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Button {
                 onToggle(task)
             } label: {
                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(task.isCompleted ? .secondary : .primary)
-                    .frame(width: 20, height: 20)
+                    .font(.system(size: 17))
             }
             .buttonStyle(.borderless)
+            .alignmentGuide(.firstTextBaseline) { d in
+                d[VerticalAlignment.center] + 5
+            }
             .accessibilityIdentifier("task-checkbox")
             .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
 
             ClickableTextField(
                 text: $editingTitle,
                 isCompleted: task.isCompleted,
-                onEditingChanged: { editing in
+                onEditingChanged: { editing, shouldCreateNewTask in
                     isCurrentlyEditing = editing
                     if editing {
-                        onStartEdit()
+                        onStartEdit(taskID)
                     } else {
-                        onEndEdit()
+                        onEndEdit(taskID, shouldCreateNewTask)
                     }
                 }
             )
@@ -76,7 +79,7 @@ struct TaskRowView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture {
-            onSelect()
+            onSelect(taskID)
         }
         .background(selectionBackground)
         .contextMenu {
