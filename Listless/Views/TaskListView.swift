@@ -29,36 +29,6 @@ struct TaskListView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                if !completedTasks.isEmpty {
-                    Text("Completed")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 16)
-                        .padding(.bottom, 6)
-                }
-
-                ForEach(completedTasks) { task in
-                    let taskID = task.id
-                    TaskRowView(
-                        task: task,
-                        taskID: taskID,
-                        isSelected: selectedTaskID == taskID,
-                        isEditing: editingTaskID == taskID,
-                        focusedField: $focusedField,
-                        onToggle: toggleCompletion(_:),
-                        onTitleChange: updateTitle(_:_:),
-                        onDelete: deleteTask(_:),
-                        onSelect: selectTask(_:),
-                        onStartEdit: startEditing(_:),
-                        onEndEdit: endEditing(_:shouldCreateNewTask:)
-                    )
-                }
-
-                if !activeTasks.isEmpty && !completedTasks.isEmpty {
-                    Divider()
-                        .padding(.vertical, 8)
-                }
-
                 ForEach(displayActiveTasks) { task in
                     let taskID = task.id
                     TaskRowView(
@@ -126,6 +96,23 @@ struct TaskListView: View {
                             }
                         })
                 }
+
+                ForEach(completedTasks) { task in
+                    let taskID = task.id
+                    TaskRowView(
+                        task: task,
+                        taskID: taskID,
+                        isSelected: selectedTaskID == taskID,
+                        isEditing: editingTaskID == taskID,
+                        focusedField: $focusedField,
+                        onToggle: toggleCompletion(_:),
+                        onTitleChange: updateTitle(_:_:),
+                        onDelete: deleteTask(_:),
+                        onSelect: selectTask(_:),
+                        onStartEdit: startEditing(_:),
+                        onEndEdit: endEditing(_:shouldCreateNewTask:)
+                    )
+                }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .dropDestination(for: String.self) { items, location in
@@ -190,7 +177,7 @@ struct TaskListView: View {
     }
 
     private var allTasksInDisplayOrder: [TaskItem] {
-        completedTasks + displayActiveTasks
+        displayActiveTasks + completedTasks
     }
 
     private var editingTaskID: UUID? {
