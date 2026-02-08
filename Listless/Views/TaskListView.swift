@@ -18,8 +18,8 @@ struct TaskListView: View {
         animation: .default
     )
     private var tasks: FetchedResults<TaskItem>
-    @FocusState private var focusedField: FocusField?
-    @State private var selectedTaskID: UUID?
+    @FocusState var focusedField: FocusField?
+    @State var selectedTaskID: UUID?
     @State private var refreshID = UUID()
     @State private var draggedTaskID: UUID?
     @State private var visualOrder: [UUID]?
@@ -165,33 +165,7 @@ struct TaskListView: View {
             managedObjectContext.undoManager = newValue
         }
         .toolbar {
-            ToolbarItem(placement: .automatic) {
-                Spacer()
-            }
-
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    createTaskAndFocus()
-                    // Trigger focus resolution by setting to nil
-                    focusedField = nil
-                } label: {
-                    Label("New Task", systemImage: "plus")
-                }
-                .help("Create a new task")
-            }
-
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    if let currentID = selectedTaskID,
-                       let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) {
-                        deleteTask(task)
-                    }
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-                .disabled(selectedTaskID == nil)
-                .help("Delete selected task")
-            }
+            platformToolbar
         }
     }
 
@@ -210,12 +184,12 @@ struct TaskListView: View {
         }
     }
 
-    private var completedTasks: [TaskItem] {
+    var completedTasks: [TaskItem] {
         Array(tasks.filter { $0.isCompleted })
             .sorted { $0.updatedAt > $1.updatedAt }
     }
 
-    private var allTasksInDisplayOrder: [TaskItem] {
+    var allTasksInDisplayOrder: [TaskItem] {
         displayActiveTasks + completedTasks
     }
 
@@ -231,7 +205,7 @@ struct TaskListView: View {
         return lastTask.id == taskID
     }
 
-    private func createTaskAndFocus() {
+    func createTaskAndFocus() {
         // Clear any lingering drag state
         draggedTaskID = nil
         visualOrder = nil
@@ -318,7 +292,7 @@ struct TaskListView: View {
         selectedTaskID = taskID
     }
 
-    private func deleteTask(_ task: TaskItem) {
+    func deleteTask(_ task: TaskItem) {
         let taskID = task.id
         print("🔴 deleteTask() called for task \(taskID)")
 
@@ -330,6 +304,13 @@ struct TaskListView: View {
 
         store.delete(taskID: taskID)
         print("🔴 deleteTask() completed")
+    }
+
+    func clearCompletedTasks() {
+        // Delete all completed tasks (in reverse to avoid index issues)
+        for task in completedTasks.reversed() {
+            store.delete(taskID: task.id)
+        }
     }
 
     private func navigateUp() -> KeyPress.Result {
