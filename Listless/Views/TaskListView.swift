@@ -164,6 +164,35 @@ struct TaskListView: View {
             // Connect SwiftUI's undo manager to Core Data context for automatic undo/redo
             managedObjectContext.undoManager = newValue
         }
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Spacer()
+            }
+
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    createTaskAndFocus()
+                    // Trigger focus resolution by setting to nil
+                    focusedField = nil
+                } label: {
+                    Label("New Task", systemImage: "plus")
+                }
+                .help("Create a new task")
+            }
+
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    if let currentID = selectedTaskID,
+                       let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) {
+                        deleteTask(task)
+                    }
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                .disabled(selectedTaskID == nil)
+                .help("Delete selected task")
+            }
+        }
     }
 
     private var activeTasks: [TaskItem] {
@@ -211,7 +240,7 @@ struct TaskListView: View {
         let task = store.createTask(title: "")
 
         // Record intent to focus the new task
-        // This will be resolved in onChange(of: tasks) after view is created
+        // This will be resolved in onChange(of: focusedField) when focus becomes nil
         pendingFocus = .task(task.id)
         selectedTaskID = task.id
     }

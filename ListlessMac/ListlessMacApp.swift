@@ -15,5 +15,6 @@ struct ListlessMacApp: App {
             TaskListView(store: TaskStore(persistenceController: persistenceController))
                 .environment(\.managedObjectContext, persistenceController.viewContext)
         }
+        .windowStyle(.hiddenTitleBar)
     }
 }
