@@ -10,7 +10,7 @@ extension TaskListView {
         ToolbarItemGroup(placement: .automatic) {
             HStack {
                 Button {
-                    createTaskAndFocus()
+                    createNewTask()
                     // Trigger focus resolution by setting to nil
                     focusedField = nil
                 } label: {

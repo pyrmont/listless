@@ -205,7 +205,7 @@ struct TaskListView: View {
         return lastTask.id == taskID
     }
 
-    func createTaskAndFocus() {
+    func createNewTask() {
         // Clear any lingering drag state
         draggedTaskID = nil
         visualOrder = nil
@@ -227,7 +227,7 @@ struct TaskListView: View {
             selectedTaskID = nil
             // Focus repair will set to .scrollView if needed
         } else {
-            createTaskAndFocus()
+            createNewTask()
             // Trigger focus resolution by setting to nil
             // onChange(of: focusedField) will then resolve pendingFocus
             focusedField = nil
@@ -426,7 +426,7 @@ struct TaskListView: View {
             // No explicit focus management - onChange will repair to .scrollView
         } else if wasLastActiveTask && shouldCreateNewTask {
             print("🟢 endEditing() creating new task")
-            createTaskAndFocus()
+            createNewTask()
         } else {
             print("🟢 endEditing() keeping task selected, returning to navigation")
             selectedTaskID = taskID
