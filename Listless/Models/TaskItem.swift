@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 
 @objc(TaskItem)
 public class TaskItem: NSManagedObject, Identifiable {

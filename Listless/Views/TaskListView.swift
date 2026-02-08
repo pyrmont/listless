@@ -61,31 +61,37 @@ struct TaskListView: View {
                                 Color.clear
                                     .frame(maxHeight: .infinity)
                                     .layoutPriority(1)
-                                    .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
-                                        if isTargeted {
-                                            updateVisualOrder(insertBefore: task.id)
-                                        }
-                                    })
+                                    .dropDestination(
+                                        for: String.self, action: { _, _ in false },
+                                        isTargeted: { isTargeted in
+                                            if isTargeted {
+                                                updateVisualOrder(insertBefore: task.id)
+                                            }
+                                        })
 
                                 // Middle 2/3 - insert based on direction
                                 Color.clear
                                     .frame(maxHeight: .infinity)
                                     .layoutPriority(4)
-                                    .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
-                                        if isTargeted {
-                                            updateVisualOrderSmart(relativeTo: task.id)
-                                        }
-                                    })
+                                    .dropDestination(
+                                        for: String.self, action: { _, _ in false },
+                                        isTargeted: { isTargeted in
+                                            if isTargeted {
+                                                updateVisualOrderSmart(relativeTo: task.id)
+                                            }
+                                        })
 
                                 // Bottom 1/6 - insert AFTER
                                 Color.clear
                                     .frame(maxHeight: .infinity)
                                     .layoutPriority(1)
-                                    .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
-                                        if isTargeted {
-                                            updateVisualOrder(insertAfter: task.id)
-                                        }
-                                    })
+                                    .dropDestination(
+                                        for: String.self, action: { _, _ in false },
+                                        isTargeted: { isTargeted in
+                                            if isTargeted {
+                                                updateVisualOrder(insertAfter: task.id)
+                                            }
+                                        })
                             }
                         }
                     }
@@ -95,11 +101,13 @@ struct TaskListView: View {
                 if !activeTasks.isEmpty && draggedTaskID != nil {
                     Color.clear
                         .frame(height: 44)
-                        .dropDestination(for: String.self, action: { _, _ in false }, isTargeted: { isTargeted in
-                            if isTargeted {
-                                updateVisualOrder(insertAtEnd: true)
-                            }
-                        })
+                        .dropDestination(
+                            for: String.self, action: { _, _ in false },
+                            isTargeted: { isTargeted in
+                                if isTargeted {
+                                    updateVisualOrder(insertAtEnd: true)
+                                }
+                            })
                 }
 
                 ForEach(completedTasks) { task in
@@ -235,7 +243,9 @@ struct TaskListView: View {
     }
 
     private func handleFocusChange(from oldValue: FocusField?, to newValue: FocusField?) {
-        print("🟣 handleFocusChange() from: \(String(describing: oldValue)) to: \(String(describing: newValue))")
+        print(
+            "🟣 handleFocusChange() from: \(String(describing: oldValue)) to: \(String(describing: newValue))"
+        )
         let oldID = taskID(from: oldValue)
         let newID = taskID(from: newValue)
 
@@ -248,7 +258,7 @@ struct TaskListView: View {
     }
 
     private func taskID(from field: FocusField?) -> UUID? {
-        guard case let .task(id) = field else { return nil }
+        guard case .task(let id) = field else { return nil }
         return id
     }
 
@@ -273,7 +283,6 @@ struct TaskListView: View {
         deleteTask(task)
         managedObjectContext.undoManager?.enableUndoRegistration()
     }
-
 
     private func updateTitle(_ task: TaskItem, _ title: String) {
         guard task.title != title else { return }
@@ -362,7 +371,9 @@ struct TaskListView: View {
     private func toggleSelectedTask() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
         guard let currentID = selectedTaskID else { return .handled }
-        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return .handled }
+        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
+            return .handled
+        }
         toggleCompletion(task)
         return .handled
     }
@@ -370,7 +381,9 @@ struct TaskListView: View {
     private func focusSelectedTask() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
         guard let currentID = selectedTaskID else { return .handled }
-        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return .handled }
+        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
+            return .handled
+        }
         guard !task.isCompleted else { return .handled }
         startEditing(currentID)
         return .handled
@@ -395,7 +408,6 @@ struct TaskListView: View {
         return .handled
     }
 
-
     // MARK: - Focus Management
 
     private func focusTextField(_ taskID: UUID) {
@@ -410,14 +422,17 @@ struct TaskListView: View {
     }
 
     private func endEditing(_ taskID: UUID, shouldCreateNewTask: Bool) {
-        print("🟢 endEditing() called for task \(taskID), shouldCreateNewTask: \(shouldCreateNewTask)")
+        print(
+            "🟢 endEditing() called for task \(taskID), shouldCreateNewTask: \(shouldCreateNewTask)")
         // Save any pending changes
         store.save()
 
         // Check conditions BEFORE deleting the task
         let wasLastActiveTask = isLastActiveTask(taskID)
         let willBeDeleted = shouldDeleteIfEmpty(taskID: taskID)
-        print("🟢 endEditing() wasLastActiveTask: \(wasLastActiveTask), willBeDeleted: \(willBeDeleted)")
+        print(
+            "🟢 endEditing() wasLastActiveTask: \(wasLastActiveTask), willBeDeleted: \(willBeDeleted)"
+        )
 
         if willBeDeleted {
             print("🟢 endEditing() deleting task - focus will be repaired automatically by onChange")
@@ -453,7 +468,8 @@ struct TaskListView: View {
 
     private func updateVisualOrder(insertBefore targetID: UUID) {
         guard let draggedID = draggedTaskID,
-              let order = visualOrder else { return }
+            let order = visualOrder
+        else { return }
 
         var newOrder = order.filter { $0 != draggedID }
         if let targetIndex = newOrder.firstIndex(of: targetID) {
@@ -469,7 +485,8 @@ struct TaskListView: View {
 
     private func updateVisualOrder(insertAfter targetID: UUID) {
         guard let draggedID = draggedTaskID,
-              let order = visualOrder else { return }
+            let order = visualOrder
+        else { return }
 
         var newOrder = order.filter { $0 != draggedID }
         if let targetIndex = newOrder.firstIndex(of: targetID) {
@@ -485,11 +502,13 @@ struct TaskListView: View {
 
     private func updateVisualOrderSmart(relativeTo targetID: UUID) {
         guard let draggedID = draggedTaskID,
-              let order = visualOrder else { return }
+            let order = visualOrder
+        else { return }
 
         // Determine if dragged item is currently above or below target
         guard let draggedIndex = order.firstIndex(of: draggedID),
-              let targetIndex = order.firstIndex(of: targetID) else { return }
+            let targetIndex = order.firstIndex(of: targetID)
+        else { return }
 
         if draggedIndex < targetIndex {
             // Dragging from above → insert after target
@@ -502,7 +521,8 @@ struct TaskListView: View {
 
     private func updateVisualOrder(insertAtEnd: Bool) {
         guard let draggedID = draggedTaskID,
-              let order = visualOrder else { return }
+            let order = visualOrder
+        else { return }
 
         var newOrder = order.filter { $0 != draggedID }
         newOrder.append(draggedID)
@@ -516,9 +536,10 @@ struct TaskListView: View {
 
     private func handleDrop(items: [String]) -> Bool {
         guard let droppedUUIDString = items.first,
-              let droppedUUID = UUID(uuidString: droppedUUIDString),
-              let order = visualOrder,
-              let finalIndex = order.firstIndex(of: droppedUUID) else {
+            let droppedUUID = UUID(uuidString: droppedUUIDString),
+            let order = visualOrder,
+            let finalIndex = order.firstIndex(of: droppedUUID)
+        else {
             draggedTaskID = nil
             visualOrder = nil
             return false

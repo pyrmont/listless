@@ -20,7 +20,8 @@ extension TaskListView {
 
                 Button {
                     if let currentID = selectedTaskID,
-                       let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) {
+                        let task = allTasksInDisplayOrder.first(where: { $0.id == currentID })
+                    {
                         deleteTask(task)
                     }
                 } label: {

@@ -7,11 +7,12 @@ extension View {
         taskID: UUID,
         onDragStart: @escaping () -> Void
     ) -> some View {
-        self.modifier(TaskRowDragGesture(
-            isActive: isActive,
-            taskID: taskID,
-            onDragStart: onDragStart
-        ))
+        self.modifier(
+            TaskRowDragGesture(
+                isActive: isActive,
+                taskID: taskID,
+                onDragStart: onDragStart
+            ))
     }
 }
 

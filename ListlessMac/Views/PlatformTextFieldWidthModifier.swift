@@ -32,7 +32,8 @@ private struct MacTextFieldWidthModifier: ViewModifier {
             .fixedSize()
             .background(
                 GeometryReader { proxy in
-                    Color.clear.preference(key: TextFieldWidthPreferenceKey.self, value: proxy.size.width)
+                    Color.clear.preference(
+                        key: TextFieldWidthPreferenceKey.self, value: proxy.size.width)
                 }
             )
             .hidden()

@@ -27,7 +27,8 @@ final class PersistenceController {
             )
 
             description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-            description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+            description.setOption(
+                true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
         }
 
         container.loadPersistentStores { storeDescription, error in
@@ -37,7 +38,8 @@ final class PersistenceController {
         }
 
         container.viewContext.automaticallyMergesChangesFromParent = true
-        container.viewContext.mergePolicy = NSMergePolicy(merge: .mergeByPropertyObjectTrumpMergePolicyType)
+        container.viewContext.mergePolicy = NSMergePolicy(
+            merge: .mergeByPropertyObjectTrumpMergePolicyType)
 
         performDataMigrationIfNeeded()
     }

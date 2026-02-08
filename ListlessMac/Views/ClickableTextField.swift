@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 /// Custom NSTextField that notifies when clicked (becomes first responder)
 class ClickableNSTextField: NSTextField {
@@ -33,7 +33,7 @@ struct ClickableTextField: NSViewRepresentable {
         textField.cell?.wraps = true
         textField.cell?.isScrollable = false
         textField.isSelectable = true  // Shows I-beam cursor on hover
-        textField.isEditable = true    // Always editable, becomes first responder on click
+        textField.isEditable = true  // Always editable, becomes first responder on click
 
         // Notify when field is clicked (becomes first responder)
         textField.onBecomeFirstResponder = {
@@ -62,19 +62,24 @@ struct ClickableTextField: NSViewRepresentable {
         textField.isSelectable = !isCompleted
     }
 
-    func sizeThatFits(_ proposal: ProposedViewSize, nsView: ClickableNSTextField, context: Context) -> CGSize? {
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: ClickableNSTextField, context: Context)
+        -> CGSize?
+    {
         let maxWidth = proposal.width ?? 300
         let isEditing = nsView.currentEditor() != nil
 
         // Always calculate height based on maxWidth to preserve multiline wrapping
-        let height = calculateHeight(for: text, width: maxWidth, font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
+        let height = calculateHeight(
+            for: text, width: maxWidth,
+            font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
 
         if isEditing {
             // When editing, take full width
             return CGSize(width: maxWidth, height: max(height, 22))
         } else {
             // When not editing, size width to content but maintain multiline height
-            let width = calculateWidth(for: text, font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
+            let width = calculateWidth(
+                for: text, font: nsView.font ?? .systemFont(ofSize: NSFont.systemFontSize))
             return CGSize(width: min(width, maxWidth), height: max(height, 22))
         }
     }
@@ -107,7 +112,8 @@ struct ClickableTextField: NSViewRepresentable {
         )
         let textStorage = NSTextStorage(attributedString: attributedString)
         let layoutManager = NSLayoutManager()
-        let textContainer = NSTextContainer(size: CGSize(width: width, height: .greatestFiniteMagnitude))
+        let textContainer = NSTextContainer(
+            size: CGSize(width: width, height: .greatestFiniteMagnitude))
         textContainer.lineFragmentPadding = 0
 
         layoutManager.addTextContainer(textContainer)
@@ -124,7 +130,10 @@ struct ClickableTextField: NSViewRepresentable {
         let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
         var editEndReason: EditEndReason = .focusLost
 
-        init(text: Binding<String>, onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void) {
+        init(
+            text: Binding<String>,
+            onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void
+        ) {
             _text = text
             self.onEditingChanged = onEditingChanged
         }
@@ -134,11 +143,14 @@ struct ClickableTextField: NSViewRepresentable {
             let displayText = text.isEmpty ? "New task" : text
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: NSFont.systemFont(ofSize: NSFont.systemFontSize),
-                .foregroundColor: text.isEmpty ? NSColor.secondaryLabelColor : (isCompleted ? NSColor.secondaryLabelColor : NSColor.labelColor),
+                .foregroundColor: text.isEmpty
+                    ? NSColor.secondaryLabelColor
+                    : (isCompleted ? NSColor.secondaryLabelColor : NSColor.labelColor),
                 .strikethroughStyle: isCompleted ? NSUnderlineStyle.single.rawValue : 0,
-                .strikethroughColor: NSColor.secondaryLabelColor
+                .strikethroughColor: NSColor.secondaryLabelColor,
             ]
-            textField.attributedStringValue = NSAttributedString(string: displayText, attributes: attributes)
+            textField.attributedStringValue = NSAttributedString(
+                string: displayText, attributes: attributes)
         }
 
         func handleBecomeFirstResponder() {
@@ -158,7 +170,11 @@ struct ClickableTextField: NSViewRepresentable {
             text = textField.stringValue
         }
 
-        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        func control(
+            _ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector
+        )
+            -> Bool
+        {
             print("🟡 ClickableTextField.doCommandBy selector: \(commandSelector)")
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
                 // Return key pressed

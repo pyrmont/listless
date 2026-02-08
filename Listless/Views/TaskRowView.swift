@@ -34,9 +34,9 @@ struct TaskRowView: View {
         let progress = Double(index) / Double(totalTasks - 1)
 
         // Define color stops based on the gradient image
-        let topColor = Color(hue: 0.98, saturation: 0.85, brightness: 1.0)      // Coral/red
-        let midColor = Color(hue: 0.88, saturation: 0.75, brightness: 0.95)    // Pink/magenta
-        let bottomColor = Color(hue: 0.72, saturation: 0.65, brightness: 0.85) // Purple/blue
+        let topColor = Color(hue: 0.98, saturation: 0.85, brightness: 1.0)  // Coral/red
+        let midColor = Color(hue: 0.88, saturation: 0.75, brightness: 0.95)  // Pink/magenta
+        let bottomColor = Color(hue: 0.72, saturation: 0.65, brightness: 0.85)  // Purple/blue
 
         // Interpolate between colors
         if progress < 0.5 {
@@ -123,7 +123,8 @@ struct TaskRowView: View {
             )
             .focused($focusedField, equals: .task(taskID))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityIdentifier(isCurrentlyEditing ? "task-textfield" : "task-text-\(task.title)")
+            .accessibilityIdentifier(
+                isCurrentlyEditing ? "task-textfield" : "task-text-\(task.title)")
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
@@ -209,19 +210,19 @@ struct TaskRowView: View {
         let text = isEditing ? editingTitle : task.title
         guard !text.isEmpty else { return }
         #if os(macOS)
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(text, forType: .string)
         #else
-        UIPasteboard.general.string = text
+            UIPasteboard.general.string = text
         #endif
     }
 
     private func pasteFromPasteboard() {
         #if os(macOS)
-        guard let string = NSPasteboard.general.string(forType: .string) else { return }
+            guard let string = NSPasteboard.general.string(forType: .string) else { return }
         #else
-        guard let string = UIPasteboard.general.string else { return }
+            guard let string = UIPasteboard.general.string else { return }
         #endif
         if isEditing {
             editingTitle = string

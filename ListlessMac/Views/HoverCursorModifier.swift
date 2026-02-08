@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct TextHoverModifier: ViewModifier {
     let isCompleted: Bool

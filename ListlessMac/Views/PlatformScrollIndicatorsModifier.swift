@@ -18,7 +18,8 @@ private struct PlatformScrollIndicatorsModifier: ViewModifier {
             content
                 .background(
                     GeometryReader { contentProxy in
-                        Color.clear.preference(key: ContentHeightKey.self, value: contentProxy.size.height)
+                        Color.clear.preference(
+                            key: ContentHeightKey.self, value: contentProxy.size.height)
                     }
                 )
                 .scrollIndicators(effectiveContentHeight > proxy.size.height ? .visible : .hidden)
