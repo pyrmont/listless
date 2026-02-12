@@ -3,10 +3,7 @@ import SwiftUI
 struct TaskRowView: View {
     let task: TaskItem
     let taskID: UUID
-    let index: Int
-    let totalTasks: Int
     let isSelected: Bool
-    let isEditing: Bool
     let onToggle: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
@@ -17,15 +14,9 @@ struct TaskRowView: View {
 
     @State private var editingTitle: String = ""
     @State private var isCurrentlyEditing: Bool = false
-    @State private var submittedViaReturn = false
-
-    private let horizontalPadding: CGFloat = 16
-    private let checkboxTextSpacing: CGFloat = 12
-    @ScaledMetric private var checkboxSize: CGFloat = 20
-
-    private var dividerInset: CGFloat {
-        horizontalPadding + checkboxSize + checkboxTextSpacing
-    }
+    @State private var swipeOffset: CGFloat = 0
+    @State private var swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none
+    @State private var isSwipeTriggered: Bool = false
 
     init(
         task: TaskItem,
@@ -44,10 +35,7 @@ struct TaskRowView: View {
     ) {
         self.task = task
         self.taskID = taskID
-        self.index = index
-        self.totalTasks = totalTasks
         self.isSelected = isSelected
-        self.isEditing = isEditing
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
@@ -62,94 +50,70 @@ struct TaskRowView: View {
             Button {
                 onToggle(task)
             } label: {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(task.isCompleted ? .secondary : .primary)
+                // When a right-swipe is past the threshold, preview the toggled state
+                let previewCompleted = isSwipeTriggered && swipeDirection == .right
+                    ? !task.isCompleted
+                    : task.isCompleted
+                Image(systemName: previewCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(previewCompleted ? Color.secondary : Color.primary)
                     .font(.system(size: 17))
                     .fontWeight(.thin)
             }
             .buttonStyle(.borderless)
-            .accessibilityIdentifier("task-checkbox")
-            .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
 
-            TextField("New task", text: $editingTitle, axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(.body)
-                .lineLimit(1...5)
+            TextField("Task", text: $editingTitle)
                 .focused($focusedField, equals: .task(taskID))
-                .onSubmit {
-                    // Return key pressed - mark for new task creation
-                    submittedViaReturn = true
-                    focusedField = nil
-                }
+                .foregroundStyle(task.isCompleted ? Color.secondary : Color.primary)
+                .strikethrough(task.isCompleted, color: .secondary)
                 .disabled(task.isCompleted)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier(
-                    isCurrentlyEditing ? "task-textfield" : "task-text-\(task.title)")
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
-        .onTapGesture {
-            onSelect(taskID)
-        }
+        .simultaneousGesture(
+            TapGesture()
+                .onEnded {
+                    onSelect(taskID)
+                    if !task.isCompleted {
+                        focusedField = .task(taskID)
+                    }
+                }
+        )
         .background(selectionBackground)
-        .overlay(alignment: .bottom) {
-            // Hairline border between rows, inset to align with text
-            // Only show for active (non-completed) tasks
-            if !task.isCompleted {
-                Rectangle()
-                    .fill(.separator)
-                    .frame(height: 0.5)
-                    .padding(.leading, dividerInset)
-            }
-        }
-        .contextMenu {
-            Button(task.isCompleted ? "Mark as Incomplete" : "Mark as Complete") {
-                onToggle(task)
-            }
-            Divider()
-            Button("Cut") {
-                cutToPasteboard()
-            }
-            Button("Copy") {
-                copyToPasteboard()
-            }
-            Button("Paste") {
-                pasteFromPasteboard()
-            }
-            Divider()
-            Button("Delete", role: .destructive) {
-                onDelete(task)
-            }
+        .onAppear {
+            editingTitle = task.title
         }
         .onChange(of: editingTitle) {
             guard !task.isCompleted else { return }
             onTitleChange(task, editingTitle)
         }
         .onChange(of: task.title) { _, newValue in
-            // Keep editingTitle in sync with task.title when not editing
             if !isCurrentlyEditing {
                 editingTitle = newValue
             }
         }
         .onChange(of: focusedField) { _, newValue in
-            let isFocused = newValue == .task(taskID)
-            if isFocused {
-                // Focus gained
+            let isNowEditing = newValue == .task(taskID)
+            if isNowEditing && !isCurrentlyEditing {
                 isCurrentlyEditing = true
                 onStartEdit(taskID)
-            } else if isCurrentlyEditing {
-                // Focus lost - check if it was via Return key
+            } else if !isNowEditing && isCurrentlyEditing {
                 isCurrentlyEditing = false
-                onEndEdit(taskID, submittedViaReturn)
-                submittedViaReturn = false
+                onEndEdit(taskID, false)
             }
         }
-        .onAppear {
-            // Initialize editingTitle
-            editingTitle = task.title
-        }
+        .taskSwipeGesture(
+            isActive: true,
+            isEditing: isCurrentlyEditing,
+            isDragging: false,
+            swipeOffset: $swipeOffset,
+            swipeDirection: $swipeDirection,
+            isTriggered: $isSwipeTriggered,
+            onComplete: { onToggle(task) },
+            onDelete: { onDelete(task) }
+        )
     }
 
     @ViewBuilder
@@ -157,25 +121,8 @@ struct TaskRowView: View {
         if isSelected {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
                 .fill(Color.accentColor.opacity(0.2))
+        } else {
+            Color(uiColor: .systemBackground)
         }
-    }
-
-    private func cutToPasteboard() {
-        copyToPasteboard()
-        onDelete(task)
-    }
-
-    private func copyToPasteboard() {
-        let text = isEditing ? editingTitle : task.title
-        guard !text.isEmpty else { return }
-        UIPasteboard.general.string = text
-    }
-
-    private func pasteFromPasteboard() {
-        guard let string = UIPasteboard.general.string else { return }
-        if isEditing {
-            editingTitle = string
-        }
-        onTitleChange(task, string)
     }
 }

@@ -22,6 +22,7 @@ struct TaskListView: View {
     @State var selectedTaskID: UUID?
     @State private var refreshID = UUID()
     @State private var draggedTaskID: UUID?
+    @State private var swipingTaskID: UUID?
     @State private var visualOrder: [UUID]?
     @State private var pendingFocus: FocusField?
 
@@ -40,17 +41,16 @@ struct TaskListView: View {
                         index: index,
                         totalTasks: displayActiveTasks.count,
                         isSelected: selectedTaskID == taskID,
-                        isEditing: editingTaskID == taskID,
                         focusedField: $focusedField,
-                        onToggle: toggleCompletion(_:),
-                        onTitleChange: updateTitle(_:_:),
-                        onDelete: deleteTask(_:),
-                        onSelect: selectTask(_:),
-                        onStartEdit: startEditing(_:),
-                        onEndEdit: endEditing(_:shouldCreateNewTask:)
+                        onToggle: { toggleCompletion($0) },
+                        onTitleChange: { updateTitle($0, $1) },
+                        onDelete: { deleteTask($0) },
+                        onSelect: { selectTask($0) },
+                        onStartEdit: { startEditing($0) },
+                        onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
                     )
                     .taskDragGesture(
-                        isActive: !task.isCompleted,
+                        isActive: !task.isCompleted && swipingTaskID == nil,
                         taskID: task.id,
                         onDragStart: { startDrag(taskID: task.id) }
                     )
@@ -116,14 +116,11 @@ struct TaskListView: View {
                         task: task,
                         taskID: taskID,
                         isSelected: selectedTaskID == taskID,
-                        isEditing: editingTaskID == taskID,
                         focusedField: $focusedField,
-                        onToggle: toggleCompletion(_:),
-                        onTitleChange: updateTitle(_:_:),
-                        onDelete: deleteTask(_:),
-                        onSelect: selectTask(_:),
-                        onStartEdit: startEditing(_:),
-                        onEndEdit: endEditing(_:shouldCreateNewTask:)
+                        onToggle: { toggleCompletion($0) },
+                        onTitleChange: { updateTitle($0, $1) },
+                        onDelete: { deleteTask($0) },
+                        onSelect: { selectTask($0) }
                     )
                 }
             }
@@ -297,6 +294,20 @@ struct TaskListView: View {
         }
     }
 
+    private func handleSwipeComplete(_ taskID: UUID) {
+        guard let task = tasks.first(where: { $0.id == taskID }) else { return }
+        toggleCompletion(task)
+    }
+
+    private func handleSwipeDelete(_ taskID: UUID) {
+        guard let task = tasks.first(where: { $0.id == taskID }) else { return }
+        deleteTask(task)
+    }
+
+    private func handleSwipeActiveChanged(_ taskID: UUID, _ isActive: Bool) {
+        swipingTaskID = isActive ? taskID : nil
+    }
+
     private func selectTask(_ taskID: UUID) {
         selectedTaskID = taskID
     }
@@ -443,9 +454,17 @@ struct TaskListView: View {
             print("🟢 endEditing() creating new task")
             createNewTask()
         } else {
-            print("🟢 endEditing() keeping task selected, returning to navigation")
-            selectedTaskID = taskID
-            // Focus repair will set to .scrollView if needed
+            print("🟢 endEditing() done, selection unchanged")
+            // Do NOT restore selectedTaskID = taskID here.
+            //
+            // On macOS: selectedTaskID is already taskID (set by startEditing when editing
+            // began), and AppKit fires controlTextDidEndEditing synchronously before any
+            // SwiftUI tap gesture handler runs, so nothing has changed it yet. The line
+            // would be a no-op.
+            //
+            // On iOS: everything flows through onChange(of: focusedField), so onStartEdit
+            // on the new row may have already updated selectedTaskID before this fires.
+            // Restoring it here would overwrite the new selection.
         }
 
         print("🟢 endEditing() completed, final focus: \(String(describing: focusedField))")
