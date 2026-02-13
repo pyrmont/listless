@@ -67,20 +67,32 @@ struct TaskRowView: View {
                 .strikethrough(task.isCompleted, color: .secondary)
                 .disabled(task.isCompleted)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .onSubmit {
+                    isCurrentlyEditing = false
+                    onEndEdit(taskID, true)
+                }
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
-        .simultaneousGesture(
-            TapGesture()
-                .onEnded {
-                    onSelect(taskID)
-                    if !task.isCompleted {
-                        focusedField = .task(taskID)
-                    }
-                }
-        )
+        .onTapGesture {
+            // .onTapGesture (not .simultaneousGesture) lets the child Button suppress this
+            // gesture for its own hit area, so circle button taps don't also fire here.
+            // If tapping a completed row while another row is being edited, preserve
+            // the current focus/selection.
+            if task.isCompleted,
+               let field = focusedField,
+               case .task(let id) = field,
+               id != taskID
+            {
+                return
+            }
+            onSelect(taskID)
+            if !task.isCompleted {
+                focusedField = .task(taskID)
+            }
+        }
         .background(selectionBackground)
         .onAppear {
             editingTitle = task.title
@@ -116,13 +128,12 @@ struct TaskRowView: View {
         )
     }
 
-    @ViewBuilder
     private var selectionBackground: some View {
-        if isSelected {
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color.accentColor.opacity(0.2))
-        } else {
-            Color(uiColor: .systemBackground)
-        }
+        Color(uiColor: .systemBackground)
+            .overlay {
+                if isSelected {
+                    Color.accentColor.opacity(0.2)
+                }
+            }
     }
 }

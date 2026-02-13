@@ -230,7 +230,7 @@ struct TaskListView: View {
 
         if isTaskFocused || selectedTaskID != nil {
             selectedTaskID = nil
-            // Focus repair will set to .scrollView if needed
+            focusedField = nil
         } else {
             createNewTask()
             // Trigger focus resolution by setting to nil

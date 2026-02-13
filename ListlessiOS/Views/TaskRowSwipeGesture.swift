@@ -51,7 +51,7 @@ struct TaskRowSwipeGesture: ViewModifier {
     private let offsetDamping: CGFloat = 0.9  // Damping factor for responsive feel
 
     func body(content: Content) -> some View {
-        return ZStack(alignment: .leading) {
+        ZStack(alignment: .leading) {
             // Background stays in place
             swipeBackground
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -62,23 +62,21 @@ struct TaskRowSwipeGesture: ViewModifier {
                 .offset(x: swipeOffset)
                 .animation(.spring(response: 0.3, dampingFraction: 0.8), value: swipeOffset)
                 .contentShape(Rectangle())
-                .background {
-                    #if canImport(UIKit)
-                        SwipePanGestureInstaller(
-                            isEnabled: isActive && !isEditing && !isDragging,
-                            onChanged: { translation in
-                                handleDragChanged(
-                                    horizontalTranslation: translation.x,
-                                    verticalTranslation: abs(translation.y)
-                                )
-                            },
-                            onEnded: {
-                                handleDragEnded()
-                            }
-                        )
-                    #endif
-                }
         }
+        .gesture(
+            SwipePanGesture(
+                onChanged: { translation in
+                    guard isActive, !isEditing, !isDragging else { return }
+                    handleDragChanged(
+                        horizontalTranslation: translation.x,
+                        verticalTranslation: abs(translation.y)
+                    )
+                },
+                onEnded: {
+                    handleDragEnded()
+                }
+            )
+        )
         .onDisappear {
             resetSwipeState()
         }
@@ -91,14 +89,16 @@ struct TaskRowSwipeGesture: ViewModifier {
             Color.green.opacity(backgroundOpacity(offset: swipeOffset))
         } else if swipeDirection == .left {
             // Delete action (red background, trash icon)
-            HStack {
-                Spacer()
-                Image(systemName: "trash.fill")
-                    .font(.system(size: 24))
-                    .foregroundStyle(.white)
-                    .padding(.trailing, 20)
-            }
-            .background(Color.red.opacity(backgroundOpacity(offset: swipeOffset)))
+            Color.red.opacity(backgroundOpacity(offset: swipeOffset))
+                .overlay {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.white)
+                            .padding(.trailing, 20)
+                    }
+                }
         }
     }
 
@@ -181,146 +181,42 @@ struct TaskRowSwipeGesture: ViewModifier {
     }
 }
 
-private struct SwipePanGestureInstaller: UIViewRepresentable {
-    let isEnabled: Bool
+// MARK: - UIKit Pan Gesture via UIGestureRecognizerRepresentable
+
+/// A UIPanGestureRecognizer bridged into SwiftUI. Each row gets its own
+/// recognizer; SwiftUI manages the lifecycle automatically — no manual
+/// UIView host-finding or marker-based hit-testing needed.
+private struct SwipePanGesture: UIGestureRecognizerRepresentable {
     let onChanged: (CGPoint) -> Void
     let onEnded: () -> Void
 
-    func makeUIView(context: Context) -> InstallerView {
-        let view = InstallerView()
-        view.onMoveToSuperview = { installerView in
-            context.coordinator.attach(to: hostView(for: installerView), marker: installerView)
-        }
-        return view
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let pan = UIPanGestureRecognizer()
+        pan.cancelsTouchesInView = false
+        pan.delaysTouchesBegan = false
+        pan.maximumNumberOfTouches = 1
+        pan.delegate = context.coordinator
+        return pan
     }
 
-    func updateUIView(_ uiView: InstallerView, context: Context) {
-        context.coordinator.isEnabled = isEnabled
-        context.coordinator.onChanged = onChanged
-        context.coordinator.onEnded = onEnded
-        context.coordinator.attach(to: hostView(for: uiView), marker: uiView)
-    }
-
-    static func dismantleUIView(_ uiView: InstallerView, coordinator: Coordinator) {
-        coordinator.detach()
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(isEnabled: isEnabled, onChanged: onChanged, onEnded: onEnded)
-    }
-
-    private func hostView(for installerView: UIView) -> UIView? {
-        // Climb toward the row container (above the background host, below the ScrollView).
-        var current = installerView.superview
-        var candidate: UIView?
-
-        while let view = current {
-            if view is UIScrollView {
-                break
-            }
-            candidate = view
-            current = view.superview
-        }
-
-        return candidate ?? installerView.superview
-    }
-
-    final class InstallerView: UIView {
-        var onMoveToSuperview: ((UIView) -> Void)?
-
-        override func didMoveToSuperview() {
-            super.didMoveToSuperview()
-            onMoveToSuperview?(self)
-        }
-
-        override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-            false
+    func handleUIGestureRecognizerAction(
+        _ recognizer: UIPanGestureRecognizer, context: Context
+    ) {
+        switch recognizer.state {
+        case .began, .changed:
+            onChanged(recognizer.translation(in: recognizer.view))
+        case .ended, .cancelled, .failed:
+            onEnded()
+        default:
+            break
         }
     }
 
-        final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-        var isEnabled: Bool
-        var onChanged: (CGPoint) -> Void
-        var onEnded: () -> Void
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+        Coordinator()
+    }
 
-        private weak var attachedView: UIView?
-        private weak var markerView: UIView?
-        private var panRecognizer: UIPanGestureRecognizer?
-
-        init(isEnabled: Bool, onChanged: @escaping (CGPoint) -> Void, onEnded: @escaping () -> Void) {
-            self.isEnabled = isEnabled
-            self.onChanged = onChanged
-            self.onEnded = onEnded
-        }
-
-        func attach(to view: UIView?, marker: UIView) {
-            markerView = marker
-
-            guard let view else {
-                detach()
-                return
-            }
-
-            if attachedView === view {
-                panRecognizer?.isEnabled = isEnabled
-                return
-            }
-
-            detach()
-
-            let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-            pan.delegate = self
-            pan.cancelsTouchesInView = false
-            pan.delaysTouchesBegan = false
-            pan.maximumNumberOfTouches = 1
-            pan.isEnabled = isEnabled
-            view.addGestureRecognizer(pan)
-
-            attachedView = view
-            panRecognizer = pan
-        }
-
-        func detach() {
-            if let panRecognizer, let attachedView {
-                attachedView.removeGestureRecognizer(panRecognizer)
-            }
-            panRecognizer = nil
-            attachedView = nil
-            markerView = nil
-        }
-
-        @objc
-        private func handlePan(_ recognizer: UIPanGestureRecognizer) {
-            guard isEnabled else { return }
-            let translation = recognizer.translation(in: recognizer.view)
-
-            switch recognizer.state {
-            case .began, .changed:
-                onChanged(translation)
-            case .ended, .cancelled, .failed:
-                onEnded()
-            default:
-                break
-            }
-        }
-
-        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-            guard
-                isEnabled,
-                let pan = gestureRecognizer as? UIPanGestureRecognizer,
-                let attachedView,
-                let markerView
-            else {
-                return false
-            }
-
-            // Multiple row recognizers may be attached to a shared host view.
-            // Only allow the recognizer whose row contains the touch to begin.
-            let markerFrame = markerView.convert(markerView.bounds, to: attachedView)
-            let touchPoint = pan.location(in: attachedView)
-            return markerFrame.contains(touchPoint)
-        }
-
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         func gestureRecognizer(
             _ gestureRecognizer: UIGestureRecognizer,
             shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
@@ -329,3 +225,4 @@ private struct SwipePanGestureInstaller: UIViewRepresentable {
         }
     }
 }
+
