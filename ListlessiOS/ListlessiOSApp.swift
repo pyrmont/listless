@@ -8,7 +8,7 @@ struct ListlessiOSApp: App {
         WindowGroup {
             NavigationStack {
                 TaskListView(store: TaskStore(persistenceController: persistenceController))
-                    .navigationTitle("Tasks")
+                    .navigationTitle("Listless")
                     .navigationBarTitleDisplayMode(.large)
                     .safeAreaInset(edge: .top) {
                         Color.clear.frame(height: 8)

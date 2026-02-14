@@ -32,7 +32,7 @@ struct TaskListView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: vStackSpacing) {
                 ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
                     let taskID = task.id
                     TaskRowView(
@@ -125,22 +125,19 @@ struct TaskListView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
+            #if os(iOS)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            #endif
             .dropDestination(for: String.self) { items, location in
                 handleDrop(items: items)
             }
         }
-        // .background(
-        //     LinearGradient(
-        //         colors: [
-        //             Color(hue: 0.98, saturation: 0.85, brightness: 1.0),
-        //             Color(hue: 0.88, saturation: 0.75, brightness: 0.95),
-        //             Color(hue: 0.72, saturation: 0.65, brightness: 0.85),
-        //         ],
-        //         startPoint: .top,
-        //         endPoint: .bottom
-        //     )
-        //     .ignoresSafeArea()
-        // )
+        #if os(iOS)
+        .background {
+            Color.outerBackground.ignoresSafeArea()
+        }
+        #endif
         .contentShape(Rectangle())
         .onTapGesture {
             handleBackgroundTap()
@@ -184,6 +181,14 @@ struct TaskListView: View {
         .toolbar {
             platformToolbar
         }
+    }
+
+    private var vStackSpacing: CGFloat {
+        #if os(iOS)
+        12
+        #else
+        0
+        #endif
     }
 
     private var activeTasks: [TaskItem] {
@@ -230,9 +235,11 @@ struct TaskListView: View {
         // Create Core Data task (Core Data assigns the ID)
         let task = store.createTask(title: "")
 
-        // Record intent to focus the new task
-        // This will be resolved in onChange(of: focusedField) when focus becomes nil
+        // Record intent to focus the new task.
+        // pendingFocus is retained for the background-tap flow (focusedField → nil there).
+        // focusedField is also set directly for the TappableTextField Return flow (stays non-nil).
         pendingFocus = .task(task.id)
+        focusedField = .task(task.id)
         selectedTaskID = task.id
     }
 
@@ -441,6 +448,7 @@ struct TaskListView: View {
         print("🟢 startEditing called for task \(taskID)")
         selectedTaskID = taskID
         focusedField = .task(taskID)
+        pendingFocus = nil    // Consume pendingFocus once the field is live
         print("🟢 startEditing set focusedField = .task(\(taskID))")
     }
 
@@ -465,6 +473,13 @@ struct TaskListView: View {
         } else if wasLastActiveTask && shouldCreateNewTask {
             print("🟢 endEditing() creating new task")
             createNewTask()
+        } else if shouldCreateNewTask {
+            print("🟢 endEditing() Return on non-last task — dismiss keyboard, enter navigation mode")
+            // TappableTextField returns false from textFieldShouldReturn, so the old field
+            // stays first responder. Setting focusedField to .scrollView causes SwiftUI's
+            // .focused() to detect the mismatch and call resignFirstResponder(), dismissing
+            // the keyboard cleanly.
+            focusedField = .scrollView
         } else {
             print("🟢 endEditing() done, selection unchanged")
             // Do NOT restore selectedTaskID = taskID here.

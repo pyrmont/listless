@@ -61,17 +61,17 @@ struct TaskRowView: View {
             }
             .buttonStyle(.borderless)
 
-            TextField("Task", text: $editingTitle)
-                .focused($focusedField, equals: .task(taskID))
-                .font(.system(size: 18))
-                .foregroundStyle(task.isCompleted ? Color.secondary : Color.primary)
-                .strikethrough(task.isCompleted, color: .secondary)
-                .disabled(task.isCompleted)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .onSubmit {
-                    isCurrentlyEditing = false
-                    onEndEdit(taskID, true)
+            TappableTextField(
+                text: $editingTitle,
+                isCompleted: task.isCompleted,
+                onEditingChanged: { editing, shouldCreateNewTask in
+                    isCurrentlyEditing = editing
+                    if editing { onStartEdit(taskID) }
+                    else { onEndEdit(taskID, shouldCreateNewTask) }
                 }
+            )
+            .focused($focusedField, equals: .task(taskID))
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 16)
@@ -94,20 +94,12 @@ struct TaskRowView: View {
                 focusedField = .task(taskID)
             }
         }
-        .background(selectionBackground)
-        .overlay(alignment: .top) {
-            if !task.isCompleted {
-                VStack(spacing: 0) {
-                    LinearGradient(
-                        colors: [.black.opacity(0.10), .clear],
-                        startPoint: .bottom,
-                        endPoint: .top
-                    )
-                    .frame(height: 6)
-                    Rectangle()
-                        .fill(.black.opacity(0.4))
-                        .frame(height: 0.5)
-                }
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: task.isCompleted ? 0 : 14))
+        .overlay {
+            if isSelected && !task.isCompleted {
+                RoundedRectangle(cornerRadius: 14)
+                    .strokeBorder(Color.accentColor, lineWidth: 2)
             }
         }
         .onAppear {
@@ -122,16 +114,6 @@ struct TaskRowView: View {
                 editingTitle = newValue
             }
         }
-        .onChange(of: focusedField) { _, newValue in
-            let isNowEditing = newValue == .task(taskID)
-            if isNowEditing && !isCurrentlyEditing {
-                isCurrentlyEditing = true
-                onStartEdit(taskID)
-            } else if !isNowEditing && isCurrentlyEditing {
-                isCurrentlyEditing = false
-                onEndEdit(taskID, false)
-            }
-        }
         .taskSwipeGesture(
             isActive: true,
             isEditing: isCurrentlyEditing,
@@ -142,14 +124,15 @@ struct TaskRowView: View {
             onComplete: { onToggle(task) },
             onDelete: { onDelete(task) }
         )
+        .clipShape(RoundedRectangle(cornerRadius: task.isCompleted ? 0 : 14))
     }
 
     @ViewBuilder
-    private var selectionBackground: some View {
+    private var cardBackground: some View {
         if task.isCompleted {
-            Color(uiColor: .systemBackground)
-        } else if isSelected {
-            Color.accentColor.opacity(0.2)
+            Color.clear
+        } else {
+            Color.taskCard
         }
     }
 }
