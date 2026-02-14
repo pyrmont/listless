@@ -33,34 +33,27 @@ struct TaskRowView: View {
 
         // Gradient matches gradient.png: coral/red → pink/magenta → purple/blue
         let progress = Double(index) / Double(totalTasks - 1)
+        let top    = (h: 0.98, s: 0.85, b: 1.00)
+        let mid    = (h: 0.88, s: 0.75, b: 0.95)
+        let bottom = (h: 0.72, s: 0.65, b: 0.85)
 
-        // Define color stops based on the gradient image
-        let topColor = Color(hue: 0.98, saturation: 0.85, brightness: 1.0)  // Coral/red
-        let midColor = Color(hue: 0.88, saturation: 0.75, brightness: 0.95)  // Pink/magenta
-        let bottomColor = Color(hue: 0.72, saturation: 0.65, brightness: 0.85)  // Purple/blue
-
-        // Interpolate between colors
         if progress < 0.5 {
-            // Top half: coral → magenta
-            let localProgress = progress * 2.0
-            return interpolateColor(from: topColor, to: midColor, progress: localProgress)
+            return interpolateHSB(from: top, to: mid, progress: progress * 2.0)
         } else {
-            // Bottom half: magenta → purple/blue
-            let localProgress = (progress - 0.5) * 2.0
-            return interpolateColor(from: midColor, to: bottomColor, progress: localProgress)
+            return interpolateHSB(from: mid, to: bottom, progress: (progress - 0.5) * 2.0)
         }
     }
 
-    private func interpolateColor(from: Color, to: Color, progress: Double) -> Color {
-        // Extract HSB components and interpolate
-        let fromHSB = PlatformColor(from).hsba
-        let toHSB = PlatformColor(to).hsba
-
-        let hue = fromHSB.hue + (toHSB.hue - fromHSB.hue) * progress
-        let saturation = fromHSB.saturation + (toHSB.saturation - fromHSB.saturation) * progress
-        let brightness = fromHSB.brightness + (toHSB.brightness - fromHSB.brightness) * progress
-
-        return Color(hue: hue, saturation: saturation, brightness: brightness)
+    private func interpolateHSB(
+        from: (h: Double, s: Double, b: Double),
+        to: (h: Double, s: Double, b: Double),
+        progress: Double
+    ) -> Color {
+        Color(
+            hue: from.h + (to.h - from.h) * progress,
+            saturation: from.s + (to.s - from.s) * progress,
+            brightness: from.b + (to.b - from.b) * progress
+        )
     }
 
     init(
@@ -191,7 +184,10 @@ struct TaskRowView: View {
                 editingTitle = newValue
             }
         }
-        .onChange(of: "\(index)-\(totalTasks)") { _, _ in
+        .onChange(of: index) { _, _ in
+            cachedAccentColor = computeAccentColor()
+        }
+        .onChange(of: totalTasks) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
         .onAppear {

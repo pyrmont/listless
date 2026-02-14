@@ -136,7 +136,10 @@ struct TaskRowView: View {
                 editingTitle = newValue
             }
         }
-        .onChange(of: "\(index)-\(totalTasks)") { _, _ in
+        .onChange(of: index) { _, _ in
+            cachedAccentColor = computeAccentColor()
+        }
+        .onChange(of: totalTasks) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
         .taskSwipeGesture(
@@ -165,24 +168,26 @@ struct TaskRowView: View {
 
         // Gradient: coral/red → pink/magenta → purple/blue (matches macOS)
         let progress = Double(index) / Double(totalTasks - 1)
-        let topColor = Color(hue: 0.98, saturation: 0.85, brightness: 1.0)
-        let midColor = Color(hue: 0.88, saturation: 0.75, brightness: 0.95)
-        let bottomColor = Color(hue: 0.72, saturation: 0.65, brightness: 0.85)
+        let top    = (h: 0.98, s: 0.85, b: 1.00)
+        let mid    = (h: 0.88, s: 0.75, b: 0.95)
+        let bottom = (h: 0.72, s: 0.65, b: 0.85)
 
         if progress < 0.5 {
-            return interpolateColor(from: topColor, to: midColor, progress: progress * 2.0)
+            return interpolateHSB(from: top, to: mid, progress: progress * 2.0)
         } else {
-            return interpolateColor(from: midColor, to: bottomColor, progress: (progress - 0.5) * 2.0)
+            return interpolateHSB(from: mid, to: bottom, progress: (progress - 0.5) * 2.0)
         }
     }
 
-    private func interpolateColor(from: Color, to: Color, progress: Double) -> Color {
-        let fromHSB = PlatformColor(from).hsba
-        let toHSB = PlatformColor(to).hsba
-        return Color(
-            hue: fromHSB.hue + (toHSB.hue - fromHSB.hue) * progress,
-            saturation: fromHSB.saturation + (toHSB.saturation - fromHSB.saturation) * progress,
-            brightness: fromHSB.brightness + (toHSB.brightness - fromHSB.brightness) * progress
+    private func interpolateHSB(
+        from: (h: Double, s: Double, b: Double),
+        to: (h: Double, s: Double, b: Double),
+        progress: Double
+    ) -> Color {
+        Color(
+            hue: from.h + (to.h - from.h) * progress,
+            saturation: from.s + (to.s - from.s) * progress,
+            brightness: from.b + (to.b - from.b) * progress
         )
     }
 
