@@ -9,6 +9,7 @@ extension View {
         swipeOffset: Binding<CGFloat>,
         swipeDirection: Binding<TaskRowSwipeGesture.SwipeDirection>,
         isTriggered: Binding<Bool>,
+        completeColor: Color = .green,
         onComplete: @escaping () -> Void,
         onDelete: @escaping () -> Void,
         onSwipeActiveChanged: @escaping (Bool) -> Void = { _ in }
@@ -21,6 +22,7 @@ extension View {
                 swipeOffset: swipeOffset,
                 swipeDirection: swipeDirection,
                 isTriggered: isTriggered,
+                completeColor: completeColor,
                 onComplete: onComplete,
                 onDelete: onDelete,
                 onSwipeActiveChanged: onSwipeActiveChanged
@@ -35,6 +37,7 @@ struct TaskRowSwipeGesture: ViewModifier {
     @Binding var swipeOffset: CGFloat
     @Binding var swipeDirection: SwipeDirection
     @Binding var isTriggered: Bool
+    let completeColor: Color
     let onComplete: () -> Void
     let onDelete: () -> Void
     let onSwipeActiveChanged: (Bool) -> Void
@@ -85,8 +88,8 @@ struct TaskRowSwipeGesture: ViewModifier {
     @ViewBuilder
     private var swipeBackground: some View {
         if swipeDirection == .right {
-            // Complete action — plain green background
-            Color.green.opacity(backgroundOpacity(offset: swipeOffset))
+            // Complete action — accent color background
+            completeColor.opacity(backgroundOpacity(offset: swipeOffset))
         } else if swipeDirection == .left {
             // Delete action (red background, trash icon)
             Color.red.opacity(backgroundOpacity(offset: swipeOffset))

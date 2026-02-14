@@ -126,7 +126,7 @@ struct TaskListView: View {
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             #if os(iOS)
-            .padding(.horizontal, 16)
+            .padding(.trailing, 16)
             .padding(.vertical, 12)
             #endif
             .dropDestination(for: String.self) { items, location in

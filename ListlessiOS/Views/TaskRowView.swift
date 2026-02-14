@@ -3,6 +3,8 @@ import SwiftUI
 struct TaskRowView: View {
     let task: TaskItem
     let taskID: UUID
+    let index: Int
+    let totalTasks: Int
     let isSelected: Bool
     let onToggle: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
@@ -17,6 +19,7 @@ struct TaskRowView: View {
     @State private var swipeOffset: CGFloat = 0
     @State private var swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none
     @State private var isSwipeTriggered: Bool = false
+    @State private var cachedAccentColor: Color = .clear
 
     init(
         task: TaskItem,
@@ -35,6 +38,8 @@ struct TaskRowView: View {
     ) {
         self.task = task
         self.taskID = taskID
+        self.index = index
+        self.totalTasks = totalTasks
         self.isSelected = isSelected
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
@@ -95,15 +100,32 @@ struct TaskRowView: View {
             }
         }
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: task.isCompleted ? 0 : 14))
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 0, bottomLeadingRadius: 0,
+                bottomTrailingRadius: task.isCompleted ? 0 : 14,
+                topTrailingRadius: task.isCompleted ? 0 : 14
+            )
+        )
         .overlay {
             if isSelected && !task.isCompleted {
-                RoundedRectangle(cornerRadius: 14)
-                    .strokeBorder(Color.accentColor, lineWidth: 2)
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 0, bottomLeadingRadius: 0,
+                    bottomTrailingRadius: 14, topTrailingRadius: 14
+                )
+                .strokeBorder(Color.accentColor, lineWidth: 2)
+            }
+        }
+        .overlay(alignment: .leading) {
+            if !task.isCompleted {
+                Rectangle()
+                    .fill(cachedAccentColor)
+                    .frame(width: 8)
             }
         }
         .onAppear {
             editingTitle = task.title
+            cachedAccentColor = computeAccentColor()
         }
         .onChange(of: editingTitle) {
             guard !task.isCompleted else { return }
@@ -114,6 +136,9 @@ struct TaskRowView: View {
                 editingTitle = newValue
             }
         }
+        .onChange(of: "\(index)-\(totalTasks)") { _, _ in
+            cachedAccentColor = computeAccentColor()
+        }
         .taskSwipeGesture(
             isActive: true,
             isEditing: isCurrentlyEditing,
@@ -121,10 +146,44 @@ struct TaskRowView: View {
             swipeOffset: $swipeOffset,
             swipeDirection: $swipeDirection,
             isTriggered: $isSwipeTriggered,
+            completeColor: cachedAccentColor,
             onComplete: { onToggle(task) },
             onDelete: { onDelete(task) }
         )
-        .clipShape(RoundedRectangle(cornerRadius: task.isCompleted ? 0 : 14))
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 0, bottomLeadingRadius: 0,
+                bottomTrailingRadius: task.isCompleted ? 0 : 14,
+                topTrailingRadius: task.isCompleted ? 0 : 14
+            )
+        )
+    }
+
+    private func computeAccentColor() -> Color {
+        guard !task.isCompleted else { return .clear }
+        guard totalTasks > 1 else { return Color(hue: 0.98, saturation: 0.85, brightness: 1.0) }
+
+        // Gradient: coral/red → pink/magenta → purple/blue (matches macOS)
+        let progress = Double(index) / Double(totalTasks - 1)
+        let topColor = Color(hue: 0.98, saturation: 0.85, brightness: 1.0)
+        let midColor = Color(hue: 0.88, saturation: 0.75, brightness: 0.95)
+        let bottomColor = Color(hue: 0.72, saturation: 0.65, brightness: 0.85)
+
+        if progress < 0.5 {
+            return interpolateColor(from: topColor, to: midColor, progress: progress * 2.0)
+        } else {
+            return interpolateColor(from: midColor, to: bottomColor, progress: (progress - 0.5) * 2.0)
+        }
+    }
+
+    private func interpolateColor(from: Color, to: Color, progress: Double) -> Color {
+        let fromHSB = PlatformColor(from).hsba
+        let toHSB = PlatformColor(to).hsba
+        return Color(
+            hue: fromHSB.hue + (toHSB.hue - fromHSB.hue) * progress,
+            saturation: fromHSB.saturation + (toHSB.saturation - fromHSB.saturation) * progress,
+            brightness: fromHSB.brightness + (toHSB.brightness - fromHSB.brightness) * progress
+        )
     }
 
     @ViewBuilder
