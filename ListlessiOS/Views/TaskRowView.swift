@@ -63,6 +63,7 @@ struct TaskRowView: View {
 
             TextField("Task", text: $editingTitle)
                 .focused($focusedField, equals: .task(taskID))
+                .font(.system(size: 18))
                 .foregroundStyle(task.isCompleted ? Color.secondary : Color.primary)
                 .strikethrough(task.isCompleted, color: .secondary)
                 .disabled(task.isCompleted)
@@ -72,7 +73,7 @@ struct TaskRowView: View {
                     onEndEdit(taskID, true)
                 }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 14)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
@@ -94,6 +95,21 @@ struct TaskRowView: View {
             }
         }
         .background(selectionBackground)
+        .overlay(alignment: .top) {
+            if !task.isCompleted {
+                VStack(spacing: 0) {
+                    LinearGradient(
+                        colors: [.black.opacity(0.10), .clear],
+                        startPoint: .bottom,
+                        endPoint: .top
+                    )
+                    .frame(height: 6)
+                    Rectangle()
+                        .fill(.black.opacity(0.4))
+                        .frame(height: 0.5)
+                }
+            }
+        }
         .onAppear {
             editingTitle = task.title
         }
@@ -128,12 +144,12 @@ struct TaskRowView: View {
         )
     }
 
+    @ViewBuilder
     private var selectionBackground: some View {
-        Color(uiColor: .systemBackground)
-            .overlay {
-                if isSelected {
-                    Color.accentColor.opacity(0.2)
-                }
-            }
+        if task.isCompleted {
+            Color(uiColor: .systemBackground)
+        } else if isSelected {
+            Color.accentColor.opacity(0.2)
+        }
     }
 }

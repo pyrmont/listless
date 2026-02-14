@@ -135,6 +135,16 @@ struct TaskRowView: View {
             onSelect(taskID)
         }
         .background(selectionBackground)
+        .overlay(alignment: .bottom) {
+            if !task.isCompleted {
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.15)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 6)
+            }
+        }
         .overlay(alignment: .leading) {
             // Colored accent bar on the left edge
             Rectangle()
@@ -193,7 +203,9 @@ struct TaskRowView: View {
 
     @ViewBuilder
     private var selectionBackground: some View {
-        if isSelected {
+        if task.isCompleted {
+            Color(nsColor: .windowBackgroundColor)
+        } else if isSelected {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
                 .fill(Color.accentColor.opacity(0.2))
         }

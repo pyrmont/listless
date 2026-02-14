@@ -95,7 +95,7 @@ struct TaskRowSwipeGesture: ViewModifier {
                         Spacer()
                         Image(systemName: "trash.fill")
                             .font(.system(size: 24))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(isTriggered ? .black : .white)
                             .padding(.trailing, 20)
                     }
                 }

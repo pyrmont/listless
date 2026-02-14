@@ -129,6 +129,18 @@ struct TaskListView: View {
                 handleDrop(items: items)
             }
         }
+        // .background(
+        //     LinearGradient(
+        //         colors: [
+        //             Color(hue: 0.98, saturation: 0.85, brightness: 1.0),
+        //             Color(hue: 0.88, saturation: 0.75, brightness: 0.95),
+        //             Color(hue: 0.72, saturation: 0.65, brightness: 0.85),
+        //         ],
+        //         startPoint: .top,
+        //         endPoint: .bottom
+        //     )
+        //     .ignoresSafeArea()
+        // )
         .contentShape(Rectangle())
         .onTapGesture {
             handleBackgroundTap()
