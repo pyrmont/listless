@@ -57,10 +57,10 @@ struct TaskListView: View {
                         onStartEdit: { startEditing($0) },
                         onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
                     )
-                    .scaleEffect(draggedTaskID == taskID ? 1.03 : 1.0)
+                    .scaleEffect(draggedTaskID == taskID ? 1.05 : 1.0)
                     .shadow(
-                        color: draggedTaskID == taskID ? .black.opacity(0.15) : .clear,
-                        radius: 8, y: 2
+                        color: draggedTaskID == taskID ? .black.opacity(0.3) : .clear,
+                        radius: 12, y: 4
                     )
                     .zIndex(draggedTaskID == taskID ? 1 : 0)
                     .taskDragGesture(

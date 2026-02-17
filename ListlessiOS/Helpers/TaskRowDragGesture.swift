@@ -34,11 +34,11 @@ struct TaskRowDragGesture: ViewModifier {
                     .onChanged { value in
                         switch value {
                         case .second(true, let drag):
+                            // Fire onDragStart as soon as the long press completes so the
+                            // row lifts visually before any finger movement. onDragStart is
+                            // idempotent (guarded in TaskListView).
+                            onDragStart()
                             if let drag {
-                                // onDragStart is idempotent (guarded in TaskListView);
-                                // wait for a real drag value so the overlay has a valid
-                                // position from the very first frame.
-                                onDragStart()
                                 onDragChanged(drag.location)
                             }
                         default:
