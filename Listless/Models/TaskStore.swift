@@ -25,9 +25,9 @@ final class TaskStore {
             let activeTasks = allTasks.filter { !$0.isCompleted }
                 .sorted { $0.sortOrder < $1.sortOrder }
 
-            // Completed tasks sorted by updatedAt (most recently completed last)
+            // Completed tasks sorted by updatedAt (most recently completed first)
             let completedTasks = allTasks.filter { $0.isCompleted }
-                .sorted { $0.updatedAt < $1.updatedAt }
+                .sorted { $0.updatedAt > $1.updatedAt }
 
             return activeTasks + completedTasks
         } catch {

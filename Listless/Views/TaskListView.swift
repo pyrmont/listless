@@ -202,7 +202,7 @@ struct TaskListView: View {
                 HStack(spacing: 0) {
                     Rectangle()
                         .fill(
-                            accentColor(
+                            taskColor(
                                 forIndex: visualOrder?.firstIndex(of: state.taskID) ?? 0,
                                 total: displayActiveTasks.count
                             )
@@ -506,7 +506,7 @@ struct TaskListView: View {
         }
 
         guard let currentID = selectedTaskID else {
-            selectedTaskID = completedTasks.first?.id ?? activeTasks.first?.id
+            selectedTaskID = activeTasks.first?.id ?? completedTasks.first?.id
             return .handled
         }
 
@@ -771,27 +771,5 @@ struct TaskListView: View {
         visualOrder = nil
     }
 
-    private func accentColor(forIndex index: Int, total: Int) -> Color {
-        guard total > 1 else { return Color(hue: 0.98, saturation: 0.85, brightness: 1.0) }
-        let progress = Double(index) / Double(total - 1)
-        let top    = (h: 0.98, s: 0.85, b: 1.00)
-        let mid    = (h: 0.88, s: 0.75, b: 0.95)
-        let bottom = (h: 0.72, s: 0.65, b: 0.85)
-        if progress < 0.5 {
-            let t = progress * 2.0
-            return Color(
-                hue: top.h + (mid.h - top.h) * t,
-                saturation: top.s + (mid.s - top.s) * t,
-                brightness: top.b + (mid.b - top.b) * t
-            )
-        } else {
-            let t = (progress - 0.5) * 2.0
-            return Color(
-                hue: mid.h + (bottom.h - mid.h) * t,
-                saturation: mid.s + (bottom.s - mid.s) * t,
-                brightness: mid.b + (bottom.b - mid.b) * t
-            )
-        }
-    }
     #endif
 }

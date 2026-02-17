@@ -51,8 +51,7 @@ final class PersistenceController {
             do {
                 try context.save()
             } catch {
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                print("Failed to save context: \(error.localizedDescription)")
             }
         }
     }
