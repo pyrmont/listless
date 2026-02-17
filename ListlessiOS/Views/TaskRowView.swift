@@ -29,7 +29,6 @@ struct TaskRowView: View {
         totalTasks: Int = 1,
         isSelected: Bool,
         isDragging: Binding<Bool> = .constant(false),
-        isEditing: Bool = false,
         focusedField: FocusState<TaskListView.FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
@@ -153,8 +152,6 @@ struct TaskRowView: View {
             }
         }
         .taskSwipeGesture(
-            isActive: true,
-            isEditing: isCurrentlyEditing,
             isDragging: $isDragging,
             swipeOffset: $swipeOffset,
             swipeDirection: $swipeDirection,

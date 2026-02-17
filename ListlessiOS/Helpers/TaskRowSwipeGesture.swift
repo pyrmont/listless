@@ -3,8 +3,6 @@ import UIKit
 
 extension View {
     func taskSwipeGesture(
-        isActive: Bool,
-        isEditing: Bool,
         isDragging: Binding<Bool>,
         swipeOffset: Binding<CGFloat>,
         swipeDirection: Binding<TaskRowSwipeGesture.SwipeDirection>,
@@ -15,8 +13,6 @@ extension View {
     ) -> some View {
         self.modifier(
             TaskRowSwipeGesture(
-                isActive: isActive,
-                isEditing: isEditing,
                 isDragging: isDragging,
                 swipeOffset: swipeOffset,
                 swipeDirection: swipeDirection,
@@ -29,8 +25,6 @@ extension View {
 }
 
 struct TaskRowSwipeGesture: ViewModifier {
-    let isActive: Bool
-    let isEditing: Bool
     @Binding var isDragging: Bool
     @Binding var swipeOffset: CGFloat
     @Binding var swipeDirection: SwipeDirection
@@ -65,9 +59,9 @@ struct TaskRowSwipeGesture: ViewModifier {
         }
         .gesture(
             SwipePanGesture(
-                isEnabled: isActive && !isDragging,
+                isEnabled: !isDragging,
                 onChanged: { translation in
-                    guard isActive, !isEditing, !isDragging else { return }
+                    guard !isDragging else { return }
                     handleDragChanged(
                         horizontalTranslation: translation.x,
                         verticalTranslation: abs(translation.y)

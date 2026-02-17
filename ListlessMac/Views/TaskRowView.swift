@@ -6,8 +6,6 @@ struct TaskRowView: View {
     let index: Int
     let totalTasks: Int
     let isSelected: Bool
-    let isDragging: Bool
-    let isEditing: Bool
     let onToggle: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
@@ -39,8 +37,6 @@ struct TaskRowView: View {
         index: Int = 0,
         totalTasks: Int = 1,
         isSelected: Bool,
-        isDragging: Bool = false,
-        isEditing: Bool = false,
         focusedField: FocusState<TaskListView.FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
@@ -54,8 +50,6 @@ struct TaskRowView: View {
         self.index = index
         self.totalTasks = totalTasks
         self.isSelected = isSelected
-        self.isDragging = isDragging
-        self.isEditing = isEditing
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
