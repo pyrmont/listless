@@ -6,15 +6,17 @@ struct ListlessiOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                TaskListView(store: TaskStore(persistenceController: persistenceController))
-                    .navigationTitle("Listless")
-                    .navigationBarTitleDisplayMode(.large)
-                    .safeAreaInset(edge: .top) {
-                        Color.clear.frame(height: 8)
-                    }
-                    .environment(\.managedObjectContext, persistenceController.viewContext)
-            }
+            TaskListView(store: TaskStore(persistenceController: persistenceController))
+                .safeAreaInset(edge: .top) {
+                    Color.clear.frame(height: 8)
+                }
+                .environment(\.managedObjectContext, persistenceController.viewContext)
+                .overlay(alignment: .top) {
+                    Color.outerBackground
+                        .opacity(0.9)
+                        .ignoresSafeArea(edges: .top)
+                        .frame(height: 0)
+                }
         }
     }
 }

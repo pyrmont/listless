@@ -1,66 +1,74 @@
 import SwiftUI
 import UIKit
 
-/// UITextField that's always present, manages its own editing state.
-/// Mirrors the interface of ClickableTextField (macOS) so TaskListView
-/// can drive both platforms through the same focusedField binding.
+/// UITextView that's always present, manages its own editing state, and expands
+/// vertically to fit its content. Mirrors the interface of ClickableTextField (macOS)
+/// so TaskListView can drive both platforms through the same focusedField binding.
 struct TappableTextField: UIViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
     let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
 
-    func makeUIView(context: Context) -> UITextField {
-        let textField = UITextField()
-        textField.delegate = context.coordinator
-        textField.borderStyle = .none
-        textField.font = .systemFont(ofSize: 18)
-        textField.returnKeyType = .done
-        textField.autocorrectionType = .default
-        textField.autocapitalizationType = .sentences
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "Task",
-            attributes: [
-                .foregroundColor: UIColor.placeholderText,
-                .font: UIFont.systemFont(ofSize: 18),
-            ]
-        )
-        textField.addTarget(
-            context.coordinator,
-            action: #selector(Coordinator.textChanged(_:)),
-            for: .editingChanged
-        )
-        return textField
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.delegate = context.coordinator
+        textView.font = .systemFont(ofSize: 18)
+        textView.backgroundColor = .clear
+        textView.textContainerInset = .zero
+        textView.textContainer.lineFragmentPadding = 0
+        textView.isScrollEnabled = false
+        textView.autocorrectionType = .default
+        textView.autocapitalizationType = .sentences
+        textView.returnKeyType = .done
+
+        let placeholder = UILabel()
+        placeholder.text = "Enter task"
+        placeholder.font = .systemFont(ofSize: 18)
+        placeholder.textColor = .placeholderText
+        placeholder.tag = 100
+        placeholder.translatesAutoresizingMaskIntoConstraints = false
+        textView.addSubview(placeholder)
+        NSLayoutConstraint.activate([
+            placeholder.leadingAnchor.constraint(equalTo: textView.leadingAnchor),
+            placeholder.topAnchor.constraint(equalTo: textView.topAnchor),
+        ])
+
+        return textView
     }
 
-    func updateUIView(_ textField: UITextField, context: Context) {
-        // Only update content when NOT editing to avoid interfering with active input
-        if !textField.isFirstResponder {
-            applyStyle(to: textField, text: text, isCompleted: isCompleted)
+    func updateUIView(_ textView: UITextView, context: Context) {
+        if !textView.isFirstResponder {
+            applyStyle(to: textView, text: text, isCompleted: isCompleted)
         }
-        textField.isEnabled = !isCompleted
+        textView.isEditable = !isCompleted
+        textView.isSelectable = !isCompleted
+        if let placeholder = textView.viewWithTag(100) as? UILabel {
+            placeholder.isHidden = !text.isEmpty
+        }
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
+        let width = proposal.width ?? UIScreen.main.bounds.width
+        return uiView.sizeThatFits(CGSize(width: width, height: .infinity))
     }
 
     func makeCoordinator() -> Coordinator {
         Coordinator(text: $text, onEditingChanged: onEditingChanged)
     }
 
-    private func applyStyle(to textField: UITextField, text: String, isCompleted: Bool) {
-        if text.isEmpty {
-            textField.attributedText = NSAttributedString(string: "")
-        } else {
-            var attributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 18),
-                .foregroundColor: isCompleted ? UIColor.secondaryLabel : UIColor.label,
-            ]
-            if isCompleted {
-                attributes[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
-                attributes[.strikethroughColor] = UIColor.secondaryLabel
-            }
-            textField.attributedText = NSAttributedString(string: text, attributes: attributes)
+    private func applyStyle(to textView: UITextView, text: String, isCompleted: Bool) {
+        var attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 18),
+            .foregroundColor: isCompleted ? UIColor.secondaryLabel : UIColor.label,
+        ]
+        if isCompleted {
+            attributes[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
+            attributes[.strikethroughColor] = UIColor.secondaryLabel
         }
+        textView.attributedText = NSAttributedString(string: text, attributes: attributes)
     }
 
-    final class Coordinator: NSObject, UITextFieldDelegate {
+    final class Coordinator: NSObject, UITextViewDelegate {
         @Binding var text: String
         let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
         var returnKeyPressed: Bool = false
@@ -73,29 +81,37 @@ struct TappableTextField: UIViewRepresentable {
             self.onEditingChanged = onEditingChanged
         }
 
-        @objc func textChanged(_ textField: UITextField) {
-            text = textField.text ?? ""
+        func textViewDidChange(_ textView: UITextView) {
+            text = textView.text
+            if let placeholder = textView.viewWithTag(100) as? UILabel {
+                placeholder.isHidden = !textView.text.isEmpty
+            }
         }
 
-        func textFieldDidBeginEditing(_ textField: UITextField) {
+        func textViewDidBeginEditing(_ textView: UITextView) {
             onEditingChanged(true, false)
         }
 
-        func textFieldDidEndEditing(_ textField: UITextField) {
+        func textViewDidEndEditing(_ textView: UITextView) {
             if returnKeyPressed {
-                // onEditingChanged(false, true) already fired in textFieldShouldReturn;
-                // skip the duplicate call here.
                 returnKeyPressed = false
                 return
             }
             onEditingChanged(false, false)
         }
 
-        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        func textView(
+            _ textView: UITextView,
+            shouldChangeTextIn range: NSRange,
+            replacementText text: String
+        ) -> Bool {
+            guard text == "\n" else { return true }
+            // Intercept Return: trigger new-task creation without inserting a newline.
+            // Return false keeps the text view as first responder, matching the UITextField
+            // behaviour where textFieldShouldReturn returned false — SwiftUI then
+            // transfers first responder atomically in the same render pass.
             returnKeyPressed = true
             onEditingChanged(false, true)
-            // Return false: UIKit does NOT auto-resign first responder, so the
-            // keyboard stays visible while SwiftUI focuses the next field.
             return false
         }
     }

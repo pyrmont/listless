@@ -36,15 +36,19 @@ final class TaskStore {
         }
     }
 
-    func createTask(title: String = "") -> TaskItem {
+    func createTask(title: String = "", atBeginning: Bool = false) -> TaskItem {
         let task = TaskItem(context: context)
         task.title = title
 
-        // Set sortOrder to end of active tasks
         context.processPendingChanges()
         let activeTasks = fetchTasks().filter { !$0.isCompleted }
-        let maxOrder = activeTasks.map(\.sortOrder).max() ?? -1000
-        task.sortOrder = maxOrder + 1000
+        if atBeginning {
+            let minOrder = activeTasks.map(\.sortOrder).min() ?? 0
+            task.sortOrder = minOrder - 1000
+        } else {
+            let maxOrder = activeTasks.map(\.sortOrder).max() ?? -1000
+            task.sortOrder = maxOrder + 1000
+        }
 
         save()
         return task

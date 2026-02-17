@@ -14,6 +14,7 @@
 		269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */; };
 		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
 		3D1F551A03B97ECF4E3DC8B0 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06485DBE35B60868E14202A /* TaskRowView.swift */; };
+		3FCEFB586D9A9085A201AE7D /* TaskListView+PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95BF73E1B8FE337B76D3E757 /* TaskListView+PullToCreate.swift */; };
 		42E4CDE1D17463554CC4F41F /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
 		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */; };
@@ -24,11 +25,14 @@
 		83378A0575640417ED41FC25 /* ClickableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2BB7ABCABA4EB67180A200 /* ClickableTextField.swift */; };
 		8E08F4C82D6F9E67667CB20A /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
 		8E680EC18B0339931E785F0C /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48AE1AE43296C1692FA6F755 /* PlatformScrollIndicatorsModifier.swift */; };
+		907478D07E5CCD4966579306 /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C28F7AF2AFAF677F678087 /* TaskListView+NavigationHeader.swift */; };
 		91EDF52C7C5C0B35E9D8B51E /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
+		92932AEC64B65AD6F95A1E42 /* TaskListView+PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF51ACA55E28AA1A11D3962C /* TaskListView+PullToCreate.swift */; };
 		96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		99977BFA37FBAAA49AF6B71E /* TaskStoreEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */; };
 		A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
 		A8D13DD6196772ECA146CF2A /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D74AE2501F35974F57D21F /* PlatformScrollIndicatorsModifier.swift */; };
+		AB5D681B98FC1D2FD7BF2FAA /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7AF738EEB6ABDF86B0B781F /* TaskListView+NavigationHeader.swift */; };
 		C1BD61D6DFA687E9CB9ACA60 /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 138612F350ECE29526F689B9 /* TaskRowDragGesture.swift */; };
 		C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
 		D6B3DBDD6A3F0A6E166CFFD5 /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B3D0B4710C7A0EE4F227851 /* TaskRowDragGesture.swift */; };
@@ -38,6 +42,7 @@
 		DC71C45D92524C3893BF9FDB /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81880970CCFC2CB00B65047E /* PlatformTextFieldWidthModifier.swift */; };
 		DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
 		E3C6D4AE5E729D34086F132D /* TappableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95568F6A132636D04B8CF593 /* TappableTextField.swift */; };
+		E47136CA7428927395D8C7C7 /* PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */; };
 		ECD5E7EA05AE1C00B38C939E /* TaskStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */; };
 		F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */; };
 		F50E8B8F73F64D8E641DC74C /* TaskStoreCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */; };
@@ -81,11 +86,15 @@
 		93FF5B9F5B979D54D5DEE192 /* TaskListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Toolbar.swift"; sourceTree = "<group>"; };
 		944BAE054AAC1B9C4FC954F9 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		95568F6A132636D04B8CF593 /* TappableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TappableTextField.swift; sourceTree = "<group>"; };
+		95BF73E1B8FE337B76D3E757 /* TaskListView+PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullToCreate.swift"; sourceTree = "<group>"; };
 		967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreTests.swift; sourceTree = "<group>"; };
 		9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreEdgeCaseTests.swift; sourceTree = "<group>"; };
 		9FBEB58DD41817F09B0EB9F0 /* Listless.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Listless.xcdatamodel; sourceTree = "<group>"; };
+		A0C28F7AF2AFAF677F678087 /* TaskListView+NavigationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+NavigationHeader.swift"; sourceTree = "<group>"; };
+		A7AF738EEB6ABDF86B0B781F /* TaskListView+NavigationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+NavigationHeader.swift"; sourceTree = "<group>"; };
 		AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSApp.swift; sourceTree = "<group>"; };
 		B4D74AE2501F35974F57D21F /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
+		BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToCreate.swift; sourceTree = "<group>"; };
 		C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Listless iOS Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9B14DC786A336008AAB78EE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
@@ -93,6 +102,7 @@
 		D123BB181208FC825777B0A7 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		D41D6E0CED14D79F31C45062 /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
 		DC3DEE364304587D280C5672 /* TaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStore.swift; sourceTree = "<group>"; };
+		DF51ACA55E28AA1A11D3962C /* TaskListView+PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullToCreate.swift"; sourceTree = "<group>"; };
 		E06485DBE35B60868E14202A /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		EF6B0195EA0176B72DE9B092 /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
 		FBB8A3BEB346267B30B4675F /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
@@ -138,7 +148,10 @@
 				82A3509AD32A54434BCC8017 /* HoverCursorModifier.swift */,
 				48AE1AE43296C1692FA6F755 /* PlatformScrollIndicatorsModifier.swift */,
 				81880970CCFC2CB00B65047E /* PlatformTextFieldWidthModifier.swift */,
+				BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */,
 				95568F6A132636D04B8CF593 /* TappableTextField.swift */,
+				A0C28F7AF2AFAF677F678087 /* TaskListView+NavigationHeader.swift */,
+				DF51ACA55E28AA1A11D3962C /* TaskListView+PullToCreate.swift */,
 				93FF5B9F5B979D54D5DEE192 /* TaskListView+Toolbar.swift */,
 				1B3D0B4710C7A0EE4F227851 /* TaskRowDragGesture.swift */,
 				44C16D36971A140364159FB9 /* TaskRowSwipeGesture.swift */,
@@ -184,6 +197,8 @@
 				D41D6E0CED14D79F31C45062 /* HoverCursorModifier.swift */,
 				B4D74AE2501F35974F57D21F /* PlatformScrollIndicatorsModifier.swift */,
 				EF6B0195EA0176B72DE9B092 /* PlatformTextFieldWidthModifier.swift */,
+				A7AF738EEB6ABDF86B0B781F /* TaskListView+NavigationHeader.swift */,
+				95BF73E1B8FE337B76D3E757 /* TaskListView+PullToCreate.swift */,
 				431B0EA72D590AF0CC868515 /* TaskListView+Toolbar.swift */,
 				138612F350ECE29526F689B9 /* TaskRowDragGesture.swift */,
 				E06485DBE35B60868E14202A /* TaskRowView.swift */,
@@ -359,6 +374,8 @@
 				A8D13DD6196772ECA146CF2A /* PlatformScrollIndicatorsModifier.swift in Sources */,
 				D878CD3A552C6A9685A30AA8 /* PlatformTextFieldWidthModifier.swift in Sources */,
 				C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */,
+				AB5D681B98FC1D2FD7BF2FAA /* TaskListView+NavigationHeader.swift in Sources */,
+				3FCEFB586D9A9085A201AE7D /* TaskListView+PullToCreate.swift in Sources */,
 				074A81D9DAF58E8E088CBC89 /* TaskListView+Toolbar.swift in Sources */,
 				8E08F4C82D6F9E67667CB20A /* TaskListView.swift in Sources */,
 				C1BD61D6DFA687E9CB9ACA60 /* TaskRowDragGesture.swift in Sources */,
@@ -379,8 +396,11 @@
 				DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */,
 				8E680EC18B0339931E785F0C /* PlatformScrollIndicatorsModifier.swift in Sources */,
 				DC71C45D92524C3893BF9FDB /* PlatformTextFieldWidthModifier.swift in Sources */,
+				E47136CA7428927395D8C7C7 /* PullToCreate.swift in Sources */,
 				E3C6D4AE5E729D34086F132D /* TappableTextField.swift in Sources */,
 				0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */,
+				907478D07E5CCD4966579306 /* TaskListView+NavigationHeader.swift in Sources */,
+				92932AEC64B65AD6F95A1E42 /* TaskListView+PullToCreate.swift in Sources */,
 				D9DA553485AD0CA28D5BE0C8 /* TaskListView+Toolbar.swift in Sources */,
 				42E4CDE1D17463554CC4F41F /* TaskListView.swift in Sources */,
 				D6B3DBDD6A3F0A6E166CFFD5 /* TaskRowDragGesture.swift in Sources */,

@@ -5,7 +5,9 @@ extension View {
     func taskDragGesture(
         isActive: Bool,
         taskID: UUID,
-        onDragStart: @escaping () -> Void
+        onDragStart: @escaping () -> Void,
+        onDragChanged: @escaping (CGPoint) -> Void = { _ in },
+        onDragEnded: @escaping () -> Void = { }
     ) -> some View {
         self.modifier(
             TaskRowDragGesture(
