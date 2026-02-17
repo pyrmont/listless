@@ -12,14 +12,12 @@
 		172F2DD978988E207610055F /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */; };
 		182D9FB61E3A3650D7D83D2A /* TaskRowSwipeGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */; };
 		1AA328A921EF8A7FDD03119A /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
-		2374527E3629DD87AE3D2761 /* TaskListView+PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A741111B4DEB3A7406A95C93 /* TaskListView+PullToCreate.swift */; };
 		269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */; };
 		26F609518DE1055DF09B0159 /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */; };
 		2C53717A0EAFA39240615C9A /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */; };
 		322EE74CBED492693B92AD59 /* TaskListView+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A440253D045A0896D94ADD0 /* TaskListView+Toolbar.swift */; };
 		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
 		3D1F551A03B97ECF4E3DC8B0 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06485DBE35B60868E14202A /* TaskRowView.swift */; };
-		42E4CDE1D17463554CC4F41F /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
 		5035EC4C7518A5FF9AD454CA /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = F416DD868A4C044F0D64F8D0 /* TaskRowDragGesture.swift */; };
 		5761B201BF46FCA9C5C98CEF /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */; };
 		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
@@ -30,25 +28,28 @@
 		77FE96F070B1F7FE31A9CE51 /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */; };
 		7E366008FF9335A77FE1636D /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199CC2F58DD7CBA3F2229366 /* TaskRowView.swift */; };
 		80BCA654FE694D8A77D9BF93 /* TaskListView+PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8D4C29E09FEE78AE5AB79 /* TaskListView+PullToCreate.swift */; };
+		82E75475E13FD847DDDC69D8 /* TaskListView+Drag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA75CA18C6270D68A755AEB /* TaskListView+Drag.swift */; };
 		882695E7AE463C0F39ACFF3C /* HoverCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5D8B5866362D422A2A331C /* HoverCursorModifier.swift */; };
-		8E08F4C82D6F9E67667CB20A /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537A913AC421BAEF60D26D9C /* TaskListView.swift */; };
 		91EDF52C7C5C0B35E9D8B51E /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
 		96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		99977BFA37FBAAA49AF6B71E /* TaskStoreEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */; };
 		99D17075DA3F00F52A18BB4D /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
 		BA6953E0EFE6F8255F05A3FD /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
+		C169823665158AA347A63990 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51B8129962E5CC78ECDDC2B /* TaskListView.swift */; };
 		C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
-		CAC6A40C680611163775CDFE /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E67FE94ED8E9B248A0C3A97 /* TaskListView+NavigationHeader.swift */; };
+		CAD142ED738A83371DFF8F5B /* TaskListView+Logic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */; };
 		DB5FF6C1AA57D4C9BDDD50FD /* ClickableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */; };
 		DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
 		DEE187A790A4058FE4AFDB2E /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8448C5778F75F52719114AF /* PlatformTextFieldWidthModifier.swift */; };
 		E47136CA7428927395D8C7C7 /* PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */; };
+		E5878BAA0EA66A94440E2B0F /* TaskListView+Logic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */; };
 		E60F81C7B930AACE67746759 /* HoverCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */; };
 		ECD5E7EA05AE1C00B38C939E /* TaskStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */; };
 		F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */; };
 		F50E8B8F73F64D8E641DC74C /* TaskStoreCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */; };
 		F6587B84ECC6BFE92A5FB493 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */; };
+		FDD09FECEED48EC9598538F4 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632DA39B24C4CF1528A1A24D /* TaskListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,15 +72,16 @@
 		2A440253D045A0896D94ADD0 /* TaskListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Toolbar.swift"; sourceTree = "<group>"; };
 		2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreOrderingTests.swift; sourceTree = "<group>"; };
 		3313FEDB101EECA4B344EEF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		3E67FE94ED8E9B248A0C3A97 /* TaskListView+NavigationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+NavigationHeader.swift"; sourceTree = "<group>"; };
+		3FA75CA18C6270D68A755AEB /* TaskListView+Drag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Drag.swift"; sourceTree = "<group>"; };
 		4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
 		466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
 		4FC64B9F9370041BEDBD1E14 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
-		537A913AC421BAEF60D26D9C /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		5B0E22B8F7B2B7283CAF749E /* Listless macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreCompletionTests.swift; sourceTree = "<group>"; };
+		632DA39B24C4CF1528A1A24D /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TappableTextField.swift; sourceTree = "<group>"; };
 		712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+NavigationHeader.swift"; sourceTree = "<group>"; };
+		72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Logic.swift"; sourceTree = "<group>"; };
 		74255E6B6C40899E9B17D927 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		75B048B19C5219862BBED2E7 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
@@ -90,7 +92,6 @@
 		9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreEdgeCaseTests.swift; sourceTree = "<group>"; };
 		9F5D8B5866362D422A2A331C /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
 		9FBEB58DD41817F09B0EB9F0 /* Listless.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Listless.xcdatamodel; sourceTree = "<group>"; };
-		A741111B4DEB3A7406A95C93 /* TaskListView+PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullToCreate.swift"; sourceTree = "<group>"; };
 		AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSApp.swift; sourceTree = "<group>"; };
 		B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
 		BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToCreate.swift; sourceTree = "<group>"; };
@@ -99,12 +100,12 @@
 		C9B14DC786A336008AAB78EE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Toolbar.swift"; sourceTree = "<group>"; };
 		D10B5491A53E77C80F8F75CD /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
-		D123BB181208FC825777B0A7 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowDragGesture.swift; sourceTree = "<group>"; };
 		D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickableTextField.swift; sourceTree = "<group>"; };
 		DC3DEE364304587D280C5672 /* TaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStore.swift; sourceTree = "<group>"; };
 		E06485DBE35B60868E14202A /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
+		E51B8129962E5CC78ECDDC2B /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		E8448C5778F75F52719114AF /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
 		F1E998119283F784B9ADEE28 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		F416DD868A4C044F0D64F8D0 /* TaskRowDragGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowDragGesture.swift; sourceTree = "<group>"; };
@@ -113,15 +114,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		14254B7ADE539045774E2A31 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				D123BB181208FC825777B0A7 /* .gitkeep */,
-				537A913AC421BAEF60D26D9C /* TaskListView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
 		19A2FAA566465414CA20E6D8 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -161,11 +153,11 @@
 		58051CBDE2390F9E13647235 /* Listless */ = {
 			isa = PBXGroup;
 			children = (
+				A1A9B54C4CBA03BEE12B34A9 /* Extensions */,
 				78E0184C210B140892690CD4 /* Helpers */,
 				AA563E991F69ED14DCD9A1AB /* Infrastructure */,
 				8656EEF3161BE20196B8042E /* Models */,
 				E98EF3B4638A9E8473EA62FA /* Sync */,
-				14254B7ADE539045774E2A31 /* Views */,
 			);
 			path = Listless;
 			sourceTree = "<group>";
@@ -174,6 +166,7 @@
 			isa = PBXGroup;
 			children = (
 				BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */,
+				E51B8129962E5CC78ECDDC2B /* TaskListView.swift */,
 				199CC2F58DD7CBA3F2229366 /* TaskRowView.swift */,
 			);
 			path = Views;
@@ -191,6 +184,7 @@
 		8629C1C94770B3B0D08B580D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				3FA75CA18C6270D68A755AEB /* TaskListView+Drag.swift */,
 				712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */,
 				9AD8D4C29E09FEE78AE5AB79 /* TaskListView+PullToCreate.swift */,
 				CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */,
@@ -222,6 +216,14 @@
 			path = ListlessiOS;
 			sourceTree = "<group>";
 		};
+		A1A9B54C4CBA03BEE12B34A9 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		AA563E991F69ED14DCD9A1AB /* Infrastructure */ = {
 			isa = PBXGroup;
 			children = (
@@ -233,6 +235,7 @@
 		D12ECC901ABED96B86CC85B5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				632DA39B24C4CF1528A1A24D /* TaskListView.swift */,
 				E06485DBE35B60868E14202A /* TaskRowView.swift */,
 			);
 			path = Views;
@@ -298,8 +301,6 @@
 		F7279CE4B2501F9F5111A3D8 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				3E67FE94ED8E9B248A0C3A97 /* TaskListView+NavigationHeader.swift */,
-				A741111B4DEB3A7406A95C93 /* TaskListView+PullToCreate.swift */,
 				2A440253D045A0896D94ADD0 /* TaskListView+Toolbar.swift */,
 			);
 			path = Extensions;
@@ -419,10 +420,9 @@
 				5761B201BF46FCA9C5C98CEF /* PlatformScrollIndicatorsModifier.swift in Sources */,
 				DEE187A790A4058FE4AFDB2E /* PlatformTextFieldWidthModifier.swift in Sources */,
 				C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */,
-				CAC6A40C680611163775CDFE /* TaskListView+NavigationHeader.swift in Sources */,
-				2374527E3629DD87AE3D2761 /* TaskListView+PullToCreate.swift in Sources */,
+				E5878BAA0EA66A94440E2B0F /* TaskListView+Logic.swift in Sources */,
 				322EE74CBED492693B92AD59 /* TaskListView+Toolbar.swift in Sources */,
-				8E08F4C82D6F9E67667CB20A /* TaskListView.swift in Sources */,
+				FDD09FECEED48EC9598538F4 /* TaskListView.swift in Sources */,
 				5035EC4C7518A5FF9AD454CA /* TaskRowDragGesture.swift in Sources */,
 				3D1F551A03B97ECF4E3DC8B0 /* TaskRowView.swift in Sources */,
 				3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */,
@@ -445,10 +445,12 @@
 				E47136CA7428927395D8C7C7 /* PullToCreate.swift in Sources */,
 				0F12D56A528FCBF8A67864CB /* TappableTextField.swift in Sources */,
 				0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */,
+				82E75475E13FD847DDDC69D8 /* TaskListView+Drag.swift in Sources */,
+				CAD142ED738A83371DFF8F5B /* TaskListView+Logic.swift in Sources */,
 				26F609518DE1055DF09B0159 /* TaskListView+NavigationHeader.swift in Sources */,
 				80BCA654FE694D8A77D9BF93 /* TaskListView+PullToCreate.swift in Sources */,
 				77970A2323A598E830D95301 /* TaskListView+Toolbar.swift in Sources */,
-				42E4CDE1D17463554CC4F41F /* TaskListView.swift in Sources */,
+				C169823665158AA347A63990 /* TaskListView.swift in Sources */,
 				2C53717A0EAFA39240615C9A /* TaskRowDragGesture.swift in Sources */,
 				182D9FB61E3A3650D7D83D2A /* TaskRowSwipeGesture.swift in Sources */,
 				7E366008FF9335A77FE1636D /* TaskRowView.swift in Sources */,
