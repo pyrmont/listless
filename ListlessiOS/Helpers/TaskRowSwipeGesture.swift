@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 extension View {
     func taskSwipeGesture(
@@ -33,6 +32,8 @@ struct TaskRowSwipeGesture: ViewModifier {
     let onComplete: () -> Void
     let onDelete: () -> Void
 
+    @State private var hapticTrigger = false
+
     enum SwipeDirection: Equatable {
         case left
         case right
@@ -57,21 +58,21 @@ struct TaskRowSwipeGesture: ViewModifier {
                 .animation(.spring(response: 0.3, dampingFraction: 0.8), value: swipeOffset)
                 .contentShape(Rectangle())
         }
-        .gesture(
-            SwipePanGesture(
-                isEnabled: !isDragging,
-                onChanged: { translation in
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10, coordinateSpace: .local)
+                .onChanged { value in
                     guard !isDragging else { return }
                     handleDragChanged(
-                        horizontalTranslation: translation.x,
-                        verticalTranslation: abs(translation.y)
+                        horizontalTranslation: value.translation.width,
+                        verticalTranslation: abs(value.translation.height)
                     )
-                },
-                onEnded: {
-                    handleDragEnded()
                 }
-            )
+                .onEnded { _ in
+                    handleDragEnded()
+                },
+            including: isDragging ? .none : .all
         )
+        .sensoryFeedback(.impact(weight: .medium), trigger: hapticTrigger)
         .onDisappear {
             resetSwipeState()
         }
@@ -150,17 +151,10 @@ struct TaskRowSwipeGesture: ViewModifier {
         }
     }
 
-    private func triggerAction(action: @escaping () -> Void) {
+    private func triggerAction(action: () -> Void) {
         isTriggered = true
-
-        // Trigger haptic feedback
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.impactOccurred()
-
-        // Execute action after a brief delay to show visual feedback
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            action()
-        }
+        hapticTrigger.toggle()
+        action()
     }
 
     private func resetSwipeState() {
@@ -172,61 +166,5 @@ struct TaskRowSwipeGesture: ViewModifier {
     private func backgroundOpacity(offset: CGFloat) -> CGFloat {
         let threshold = offset >= 0 ? completeThreshold : deleteThreshold
         return min(abs(offset) / threshold, 1.0)
-    }
-}
-
-// MARK: - UIKit Pan Gesture via UIGestureRecognizerRepresentable
-
-/// A UIPanGestureRecognizer bridged into SwiftUI. Each row gets its own
-/// recognizer; SwiftUI manages the lifecycle automatically — no manual
-/// UIView host-finding or marker-based hit-testing needed.
-private struct SwipePanGesture: UIGestureRecognizerRepresentable {
-    let isEnabled: Bool
-    let onChanged: (CGPoint) -> Void
-    let onEnded: () -> Void
-
-    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
-        let pan = UIPanGestureRecognizer()
-        pan.cancelsTouchesInView = false
-        pan.delaysTouchesBegan = false
-        pan.maximumNumberOfTouches = 1
-        pan.delegate = context.coordinator
-        return pan
-    }
-
-    func updateUIGestureRecognizer(_ recognizer: UIPanGestureRecognizer, context: Context) {
-        context.coordinator.isEnabled = isEnabled
-    }
-
-    func handleUIGestureRecognizerAction(
-        _ recognizer: UIPanGestureRecognizer, context: Context
-    ) {
-        switch recognizer.state {
-        case .began, .changed:
-            onChanged(recognizer.translation(in: recognizer.view))
-        case .ended, .cancelled, .failed:
-            onEnded()
-        default:
-            break
-        }
-    }
-
-    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
-        Coordinator()
-    }
-
-    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-        var isEnabled: Bool = true
-
-        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-            isEnabled
-        }
-
-        func gestureRecognizer(
-            _ gestureRecognizer: UIGestureRecognizer,
-            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
-        ) -> Bool {
-            true
-        }
     }
 }
