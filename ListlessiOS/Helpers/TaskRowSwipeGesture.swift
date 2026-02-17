@@ -5,14 +5,13 @@ extension View {
     func taskSwipeGesture(
         isActive: Bool,
         isEditing: Bool,
-        isDragging: Bool,
+        isDragging: Binding<Bool>,
         swipeOffset: Binding<CGFloat>,
         swipeDirection: Binding<TaskRowSwipeGesture.SwipeDirection>,
         isTriggered: Binding<Bool>,
         completeColor: Color = .green,
         onComplete: @escaping () -> Void,
-        onDelete: @escaping () -> Void,
-        onSwipeActiveChanged: @escaping (Bool) -> Void = { _ in }
+        onDelete: @escaping () -> Void
     ) -> some View {
         self.modifier(
             TaskRowSwipeGesture(
@@ -24,8 +23,7 @@ extension View {
                 isTriggered: isTriggered,
                 completeColor: completeColor,
                 onComplete: onComplete,
-                onDelete: onDelete,
-                onSwipeActiveChanged: onSwipeActiveChanged
+                onDelete: onDelete
             ))
     }
 }
@@ -33,14 +31,13 @@ extension View {
 struct TaskRowSwipeGesture: ViewModifier {
     let isActive: Bool
     let isEditing: Bool
-    let isDragging: Bool
+    @Binding var isDragging: Bool
     @Binding var swipeOffset: CGFloat
     @Binding var swipeDirection: SwipeDirection
     @Binding var isTriggered: Bool
     let completeColor: Color
     let onComplete: () -> Void
     let onDelete: () -> Void
-    let onSwipeActiveChanged: (Bool) -> Void
 
     enum SwipeDirection: Equatable {
         case left
@@ -68,6 +65,7 @@ struct TaskRowSwipeGesture: ViewModifier {
         }
         .gesture(
             SwipePanGesture(
+                isEnabled: isActive && !isDragging,
                 onChanged: { translation in
                     guard isActive, !isEditing, !isDragging else { return }
                     handleDragChanged(
@@ -111,11 +109,6 @@ struct TaskRowSwipeGesture: ViewModifier {
             return
         }
 
-        // Determine direction and notify that swipe is active
-        if swipeDirection == .none {
-            onSwipeActiveChanged(true)
-        }
-
         if horizontalTranslation > 0 {
             swipeDirection = .right
         } else if horizontalTranslation < 0 {
@@ -134,6 +127,13 @@ struct TaskRowSwipeGesture: ViewModifier {
     }
 
     private func handleDragEnded() {
+        guard !isDragging else {
+            // A drag-reorder started during or after this swipe — spring back, no action.
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                resetSwipeState()
+            }
+            return
+        }
         if isTriggered {
             if swipeDirection == .right {
                 // Complete: spring back and let SwiftUI animate the row to the completed section
@@ -170,9 +170,6 @@ struct TaskRowSwipeGesture: ViewModifier {
     }
 
     private func resetSwipeState() {
-        if swipeDirection != .none {
-            onSwipeActiveChanged(false)
-        }
         swipeOffset = 0
         swipeDirection = .none
         isTriggered = false
@@ -190,6 +187,7 @@ struct TaskRowSwipeGesture: ViewModifier {
 /// recognizer; SwiftUI manages the lifecycle automatically — no manual
 /// UIView host-finding or marker-based hit-testing needed.
 private struct SwipePanGesture: UIGestureRecognizerRepresentable {
+    let isEnabled: Bool
     let onChanged: (CGPoint) -> Void
     let onEnded: () -> Void
 
@@ -200,6 +198,10 @@ private struct SwipePanGesture: UIGestureRecognizerRepresentable {
         pan.maximumNumberOfTouches = 1
         pan.delegate = context.coordinator
         return pan
+    }
+
+    func updateUIGestureRecognizer(_ recognizer: UIPanGestureRecognizer, context: Context) {
+        context.coordinator.isEnabled = isEnabled
     }
 
     func handleUIGestureRecognizerAction(
@@ -220,6 +222,12 @@ private struct SwipePanGesture: UIGestureRecognizerRepresentable {
     }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var isEnabled: Bool = true
+
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            isEnabled
+        }
+
         func gestureRecognizer(
             _ gestureRecognizer: UIGestureRecognizer,
             shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
@@ -228,4 +236,3 @@ private struct SwipePanGesture: UIGestureRecognizerRepresentable {
         }
     }
 }
-

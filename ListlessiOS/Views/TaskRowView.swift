@@ -6,6 +6,7 @@ struct TaskRowView: View {
     let index: Int
     let totalTasks: Int
     let isSelected: Bool
+    @Binding var isDragging: Bool
     let onToggle: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
@@ -27,6 +28,7 @@ struct TaskRowView: View {
         index: Int = 0,
         totalTasks: Int = 1,
         isSelected: Bool,
+        isDragging: Binding<Bool> = .constant(false),
         isEditing: Bool = false,
         focusedField: FocusState<TaskListView.FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
@@ -41,6 +43,7 @@ struct TaskRowView: View {
         self.index = index
         self.totalTasks = totalTasks
         self.isSelected = isSelected
+        _isDragging = isDragging
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
@@ -142,10 +145,17 @@ struct TaskRowView: View {
         .onChange(of: totalTasks) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
+        .onChange(of: isDragging) { _, dragging in
+            if dragging {
+                swipeOffset = 0
+                swipeDirection = .none
+                isSwipeTriggered = false
+            }
+        }
         .taskSwipeGesture(
             isActive: true,
             isEditing: isCurrentlyEditing,
-            isDragging: false,
+            isDragging: $isDragging,
             swipeOffset: $swipeOffset,
             swipeDirection: $swipeDirection,
             isTriggered: $isSwipeTriggered,

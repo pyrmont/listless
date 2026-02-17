@@ -22,18 +22,12 @@ struct TaskListView: View {
     @State var selectedTaskID: UUID?
     @State private var refreshID = UUID()
     @State private var draggedTaskID: UUID?
-    @State private var swipingTaskID: UUID?
     @State private var visualOrder: [UUID]?
     @State private var pendingFocus: FocusField?
     @State var pullOffset: CGFloat = 0
     #if os(iOS)
-    private struct IOSDragState {
-        let taskID: UUID
-        var fingerPosition: CGPoint
-    }
-    @State private var iosDragState: IOSDragState? = nil
+    @State private var isDragging: Bool = false
     @State private var rowFrames: [UUID: CGRect] = [:]
-    @State private var scrollViewMinY: CGFloat = 0
     #endif
 
     init(store: TaskStore = TaskStore()) {
@@ -48,39 +42,34 @@ struct TaskListView: View {
                 ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
                     let taskID = task.id
                     #if os(iOS)
-                    Group {
-                        if iosDragState?.taskID == taskID {
-                            // Ghost spacer: placeholder silhouette while card is floating
-                            UnevenRoundedRectangle(
-                                topLeadingRadius: 0, bottomLeadingRadius: 0,
-                                bottomTrailingRadius: 14, topTrailingRadius: 14
-                            )
-                            .fill(Color.taskCard.opacity(0.4))
-                            .frame(height: rowFrames[taskID]?.height ?? 56)
-                        } else {
-                            TaskRowView(
-                                task: task,
-                                taskID: taskID,
-                                index: index,
-                                totalTasks: displayActiveTasks.count,
-                                isSelected: selectedTaskID == taskID,
-                                focusedField: $focusedField,
-                                onToggle: { toggleCompletion($0) },
-                                onTitleChange: { updateTitle($0, $1) },
-                                onDelete: { deleteTask($0) },
-                                onSelect: { selectTask($0) },
-                                onStartEdit: { startEditing($0) },
-                                onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
-                            )
-                            .taskDragGesture(
-                                isActive: !task.isCompleted && swipingTaskID == nil,
-                                taskID: taskID,
-                                onDragStart: { startDrag(taskID: taskID) },
-                                onDragChanged: { point in handleIOSDragChanged(taskID: taskID, point: point) },
-                                onDragEnded: { commitIOSDrag() }
-                            )
-                        }
-                    }
+                    TaskRowView(
+                        task: task,
+                        taskID: taskID,
+                        index: index,
+                        totalTasks: displayActiveTasks.count,
+                        isSelected: selectedTaskID == taskID,
+                        isDragging: $isDragging,
+                        focusedField: $focusedField,
+                        onToggle: { toggleCompletion($0) },
+                        onTitleChange: { updateTitle($0, $1) },
+                        onDelete: { deleteTask($0) },
+                        onSelect: { selectTask($0) },
+                        onStartEdit: { startEditing($0) },
+                        onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
+                    )
+                    .scaleEffect(draggedTaskID == taskID ? 1.03 : 1.0)
+                    .shadow(
+                        color: draggedTaskID == taskID ? .black.opacity(0.15) : .clear,
+                        radius: 8, y: 2
+                    )
+                    .zIndex(draggedTaskID == taskID ? 1 : 0)
+                    .taskDragGesture(
+                        isActive: !task.isCompleted,
+                        taskID: taskID,
+                        onDragStart: { startDrag(taskID: taskID) },
+                        onDragChanged: { point in handleIOSDragChanged(taskID: taskID, point: point) },
+                        onDragEnded: { commitIOSDrag() }
+                    )
                     .onGeometryChange(for: CGRect.self) { proxy in
                         proxy.frame(in: .global)
                     } action: { frame in
@@ -102,7 +91,7 @@ struct TaskListView: View {
                         onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
                     )
                     .taskDragGesture(
-                        isActive: !task.isCompleted && swipingTaskID == nil,
+                        isActive: !task.isCompleted,
                         taskID: task.id,
                         onDragStart: { startDrag(taskID: task.id) }
                     )
@@ -192,49 +181,9 @@ struct TaskListView: View {
             #endif
         }
         #if os(iOS)
+        .scrollDisabled(draggedTaskID != nil)
         .background {
             Color.outerBackground.ignoresSafeArea()
-        }
-        .overlay(alignment: .topLeading) {
-            if let state = iosDragState,
-               let task = activeTasks.first(where: { $0.id == state.taskID }),
-               let frame = rowFrames[state.taskID] {
-                HStack(spacing: 0) {
-                    Rectangle()
-                        .fill(
-                            taskColor(
-                                forIndex: visualOrder?.firstIndex(of: state.taskID) ?? 0,
-                                total: displayActiveTasks.count
-                            )
-                        )
-                        .frame(width: 8)
-                    Text(task.title.isEmpty ? "New task" : task.title)
-                        .font(.body)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.taskCard)
-                }
-                .clipShape(
-                    UnevenRoundedRectangle(
-                        topLeadingRadius: 0, bottomLeadingRadius: 0,
-                        bottomTrailingRadius: 14, topTrailingRadius: 14
-                    )
-                )
-                .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
-                .frame(width: frame.width, height: frame.height)
-                .position(
-                    x: UIScreen.main.bounds.midX,
-                    y: state.fingerPosition.y - scrollViewMinY
-                )
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
-                .zIndex(100)
-            }
-        }
-        .onGeometryChange(for: CGFloat.self) { proxy in
-            proxy.frame(in: .global).minY
-        } action: { minY in
-            scrollViewMinY = minY
         }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             max(0, -(geo.contentOffset.y + geo.contentInsets.top))
@@ -446,10 +395,6 @@ struct TaskListView: View {
         deleteTask(task)
     }
 
-    private func handleSwipeActiveChanged(_ taskID: UUID, _ isActive: Bool) {
-        swipingTaskID = isActive ? taskID : nil
-    }
-
     private func selectTask(_ taskID: UUID) {
         selectedTaskID = taskID
     }
@@ -631,10 +576,13 @@ struct TaskListView: View {
     // MARK: - Drag and Drop
 
     private func startDrag(taskID: UUID) {
+        guard draggedTaskID == nil else { return }
         draggedTaskID = taskID
         visualOrder = activeTasks.map(\.id)
         #if os(iOS)
-        iosDragState = IOSDragState(taskID: taskID, fingerPosition: .zero)
+        isDragging = true
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
         #endif
     }
 
@@ -730,45 +678,45 @@ struct TaskListView: View {
     // MARK: - iOS Drag Helpers
 
     #if os(iOS)
-    private func dropIndexForY(_ y: CGFloat) -> Int {
-        let midpoints = displayActiveTasks.enumerated().compactMap { i, task -> (Int, CGFloat)? in
-            guard let frame = rowFrames[task.id] else { return nil }
-            return (i, frame.midY)
-        }
-        return midpoints.first(where: { $0.1 > y })?.0 ?? displayActiveTasks.count
-    }
+    private func handleIOSDragChanged(taskID: UUID, point: CGPoint) {
+        guard let draggedID = draggedTaskID,
+              var order = visualOrder,
+              let currentIndex = order.firstIndex(of: draggedID),
+              let draggedFrame = rowFrames[draggedID] else { return }
 
-    private func updateVisualOrderToIndex(_ index: Int) {
-        guard let draggedID = draggedTaskID, let order = visualOrder else { return }
-        var newOrder = order.filter { $0 != draggedID }
-        let clamped = min(max(0, index), newOrder.count)
-        newOrder.insert(draggedID, at: clamped)
-        if newOrder != visualOrder {
+        let threshold = draggedFrame.height * 0.2
+
+        // Swap down: finger moved past the bottom edge of the dragged row
+        if currentIndex < order.count - 1 && point.y > draggedFrame.maxY + threshold {
+            order.swapAt(currentIndex, currentIndex + 1)
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                visualOrder = newOrder
+                visualOrder = order
+            }
+            return
+        }
+
+        // Swap up: finger moved past the top edge of the dragged row
+        if currentIndex > 0 && point.y < draggedFrame.minY - threshold {
+            order.swapAt(currentIndex, currentIndex - 1)
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                visualOrder = order
             }
         }
     }
 
-    private func handleIOSDragChanged(taskID: UUID, point: CGPoint) {
-        iosDragState?.fingerPosition = point
-        let index = dropIndexForY(point.y)
-        updateVisualOrderToIndex(index)
-    }
-
     private func commitIOSDrag() {
-        guard let state = iosDragState,
+        guard let draggedID = draggedTaskID,
               let order = visualOrder,
-              let finalIndex = order.firstIndex(of: state.taskID) else {
-            iosDragState = nil
+              let finalIndex = order.firstIndex(of: draggedID) else {
             draggedTaskID = nil
             visualOrder = nil
+            isDragging = false
             return
         }
-        store.moveTask(taskID: state.taskID, toIndex: finalIndex)
-        iosDragState = nil
+        store.moveTask(taskID: draggedID, toIndex: finalIndex)
         draggedTaskID = nil
         visualOrder = nil
+        isDragging = false
     }
 
     #endif
