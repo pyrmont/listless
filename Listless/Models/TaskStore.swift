@@ -27,19 +27,21 @@ final class TaskStore {
     }
 
     func fetchTasks() throws -> [TaskItem] {
-        let request = TaskItem.fetchRequest()
-        request.sortDescriptors = []
-
         do {
-            let allTasks = try context.fetch(request)
+            let activeRequest = TaskItem.fetchRequest()
+            activeRequest.predicate = NSPredicate(format: "isCompleted == NO")
+            activeRequest.sortDescriptors = [
+                NSSortDescriptor(keyPath: \TaskItem.sortOrder, ascending: true)
+            ]
 
-            // Active tasks sorted by sortOrder
-            let activeTasks = allTasks.filter { !$0.isCompleted }
-                .sorted { $0.sortOrder < $1.sortOrder }
+            let completedRequest = TaskItem.fetchRequest()
+            completedRequest.predicate = NSPredicate(format: "isCompleted == YES")
+            completedRequest.sortDescriptors = [
+                NSSortDescriptor(keyPath: \TaskItem.updatedAt, ascending: false)
+            ]
 
-            // Completed tasks sorted by updatedAt (most recently completed first)
-            let completedTasks = allTasks.filter { $0.isCompleted }
-                .sorted { $0.updatedAt > $1.updatedAt }
+            let activeTasks = try context.fetch(activeRequest)
+            let completedTasks = try context.fetch(completedRequest)
 
             return activeTasks + completedTasks
         } catch {
