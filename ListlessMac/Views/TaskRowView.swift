@@ -26,9 +26,10 @@ struct TaskRowView: View {
         horizontalPadding + checkboxSize + checkboxTextSpacing
     }
 
+    @MainActor
     private func computeAccentColor() -> Color {
         guard !task.isCompleted else { return .clear }
-        return taskColor(forIndex: index, total: totalTasks)
+        return cachedTaskColor(forIndex: index, total: totalTasks)
     }
 
     init(

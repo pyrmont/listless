@@ -1,5 +1,15 @@
 import SwiftUI
 
+private struct TaskAccentColorKey: Hashable {
+    let index: Int
+    let total: Int
+}
+
+@MainActor
+private enum TaskAccentColorCache {
+    static var colors: [TaskAccentColorKey: Color] = [:]
+}
+
 func taskColor(forIndex index: Int, total: Int) -> Color {
     guard total > 1 else { return Color(hue: 0.98, saturation: 0.85, brightness: 1.0) }
 
@@ -14,6 +24,18 @@ func taskColor(forIndex index: Int, total: Int) -> Color {
     } else {
         return interpolateHSB(from: mid, to: bottom, progress: (progress - 0.5) * 2.0)
     }
+}
+
+@MainActor
+func cachedTaskColor(forIndex index: Int, total: Int) -> Color {
+    let key = TaskAccentColorKey(index: index, total: total)
+    if let cached = TaskAccentColorCache.colors[key] {
+        return cached
+    }
+
+    let computed = taskColor(forIndex: index, total: total)
+    TaskAccentColorCache.colors[key] = computed
+    return computed
 }
 
 private func interpolateHSB(
