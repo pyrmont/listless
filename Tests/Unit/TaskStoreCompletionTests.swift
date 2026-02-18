@@ -145,4 +145,45 @@ struct TaskStoreCompletionTests {
         #expect(tasks.allSatisfy { $0.isCompleted })
         #expect(tasks.count == 5)
     }
+
+    @Test("Uncomplete restores previous sortOrder when no active conflict")
+    func uncompleteRestoresPreviousSortOrderWhenNoConflict() async throws {
+        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
+        let taskToRestoreID = taskIDs[1]
+
+        let originalSortOrder = store.fetchTasks().first { $0.id == taskToRestoreID }?.sortOrder
+        #expect(originalSortOrder != nil)
+
+        store.complete(taskID: taskToRestoreID)
+        store.uncomplete(taskID: taskToRestoreID)
+
+        let activeTasks = store.fetchTasks().filter { !$0.isCompleted }
+        let restoredTask = activeTasks.first { $0.id == taskToRestoreID }
+
+        #expect(restoredTask != nil)
+        #expect(restoredTask?.sortOrder == originalSortOrder)
+        #expect(activeTasks.count == 3)
+    }
+
+    @Test("Uncomplete appends task when restored sortOrder conflicts with active task")
+    func uncompleteAppendsWhenRestoredSortOrderConflicts() async throws {
+        let store = makeTestStore()
+        let activeTask = store.createTask(title: "Active task")
+        let completedTask = store.createTask(title: "Completed task")
+
+        store.complete(taskID: completedTask.id)
+        store.moveTask(taskID: activeTask.id, toIndex: 0)
+        completedTask.sortOrder = activeTask.sortOrder
+        store.save()
+
+        store.uncomplete(taskID: completedTask.id)
+
+        let activeTasks = store.fetchTasks().filter { !$0.isCompleted }
+            .sorted { $0.sortOrder < $1.sortOrder }
+        let lastActiveTask = activeTasks.last
+
+        #expect(activeTasks.count == 2)
+        #expect(lastActiveTask?.id == completedTask.id)
+        #expect(lastActiveTask?.sortOrder ?? 0 > activeTask.sortOrder)
+    }
 }

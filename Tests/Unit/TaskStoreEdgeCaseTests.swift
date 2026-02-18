@@ -160,4 +160,25 @@ struct TaskStoreEdgeCaseTests {
         #expect(activeTasks.count == 3)
         #expect(activeTasks.contains { $0.id == taskIDs[1] })
     }
+
+    @Test("Uncomplete legacy sortOrder zero conflict appends to end")
+    func uncompleteLegacyZeroConflictAppendsToEnd() async throws {
+        let store = makeTestStore()
+        let activeTask = store.createTask(title: "Active")
+        let completedTask = store.createTask(title: "Completed")
+
+        activeTask.sortOrder = 0
+        store.complete(taskID: completedTask.id)
+        completedTask.sortOrder = 0
+        store.save()
+
+        store.uncomplete(taskID: completedTask.id)
+
+        let activeTasks = store.fetchTasks().filter { !$0.isCompleted }
+            .sorted { $0.sortOrder < $1.sortOrder }
+        #expect(activeTasks.count == 2)
+        #expect(activeTasks[0].id == activeTask.id)
+        #expect(activeTasks[1].id == completedTask.id)
+        #expect(activeTasks[1].sortOrder > activeTasks[0].sortOrder)
+    }
 }

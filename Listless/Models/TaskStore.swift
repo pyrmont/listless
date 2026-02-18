@@ -62,6 +62,15 @@ final class TaskStore {
 
     func uncomplete(taskID: UUID) {
         guard let task = findTask(id: taskID) else { return }
+        let restoredSortOrder = task.sortOrder
+        let activeTasks = fetchTasks().filter { !$0.isCompleted && $0.id != task.id }
+        let hasSortOrderConflict = activeTasks.contains { $0.sortOrder == restoredSortOrder }
+
+        if hasSortOrderConflict {
+            let maxSortOrder = activeTasks.map(\.sortOrder).max() ?? -1000
+            task.sortOrder = maxSortOrder + 1000
+        }
+
         task.isCompleted = false
         save()
     }
