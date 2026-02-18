@@ -9,7 +9,7 @@ struct TaskListView: View {
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 
-    @State var store: TaskStore
+    let store: TaskStore
     @FetchRequest(
         sortDescriptors: [
             NSSortDescriptor(keyPath: \TaskItem.isCompleted, ascending: true),
@@ -33,7 +33,7 @@ struct TaskListView: View {
     var pullCreateThreshold: CGFloat { 70 }
 
     init(store: TaskStore = TaskStore()) {
-        _store = State(wrappedValue: store)
+        self.store = store
     }
 
     func didStartDrag() {

@@ -1,9 +1,7 @@
 import CoreData
 import Foundation
-import Observation
 
 @MainActor
-@Observable
 final class TaskStore {
     private let persistenceController: PersistenceController
     private var context: NSManagedObjectContext {
