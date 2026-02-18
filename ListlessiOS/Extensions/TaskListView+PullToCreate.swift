@@ -2,8 +2,10 @@ import SwiftUI
 
 extension TaskListView {
     @ViewBuilder var pullToCreateIndicatorRow: some View {
-        if pullOffset > 0 {
-            PullToCreateIndicator(pullOffset: pullOffset)
+        if createIndicatorOffset > 0 || isCreateInsertionPending {
+            PullToCreateIndicator(
+                pullOffset: isCreateInsertionPending ? pullCreateThreshold : createIndicatorOffset
+            )
         }
     }
 }

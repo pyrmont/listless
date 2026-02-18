@@ -81,7 +81,8 @@ struct TaskRowView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.vertical, 14)
-        .padding(.horizontal, 16)
+        .padding(.trailing, 16)
+        .padding(.leading, task.isCompleted ? 16 : 24)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture {

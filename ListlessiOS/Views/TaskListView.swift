@@ -25,8 +25,12 @@ struct TaskListView: View {
     @State var visualOrder: [UUID]?
     @State var pendingFocus: FocusField?
     @State var pullOffset: CGFloat = 0
+    @State var createIndicatorOffset: CGFloat = 0
+    @State var isCreateInsertionPending: Bool = false
+    @State var activeTaskCountBeforeCreate: Int = 0
     @State var pullUpOffset: CGFloat = 0
     @State var isDragging: Bool = false
+    @State var isScrollInteracting: Bool = false
     @State var rowFrames: [UUID: CGRect] = [:]
 
     var vStackSpacing: CGFloat { 12 }
@@ -158,6 +162,9 @@ struct TaskListView: View {
             max(0, -(geo.contentOffset.y + geo.contentInsets.top))
         } action: { _, pullDistance in
             pullOffset = pullDistance
+            if isScrollInteracting {
+                createIndicatorOffset = pullDistance
+            }
         }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             let maxOffset = max(
@@ -169,11 +176,35 @@ struct TaskListView: View {
             pullUpOffset = pullDistance
         }
         .onScrollPhaseChange { oldPhase, newPhase in
+            isScrollInteracting = (newPhase == .interacting)
+
             if oldPhase == .interacting && newPhase != .interacting {
-                if pullOffset >= pullCreateThreshold { createNewTaskAtTop() }
+                if pullOffset >= pullCreateThreshold {
+                    activeTaskCountBeforeCreate = activeTasks.count
+                    isCreateInsertionPending = true
+                    var transaction = Transaction(animation: .spring(response: 0.28, dampingFraction: 0.9))
+                    transaction.disablesAnimations = false
+                    withTransaction(transaction) {
+                        createNewTaskAtTop()
+                    }
+                } else {
+                    isCreateInsertionPending = false
+                    withAnimation(.spring(response: 0.22, dampingFraction: 0.95)) {
+                        createIndicatorOffset = 0
+                    }
+                }
                 if pullUpOffset >= pullClearThreshold && !completedTasks.isEmpty { clearCompletedTasks() }
-                pullOffset = 0
                 pullUpOffset = 0
+            }
+        }
+        .onChange(of: activeTasks.count) { _, newCount in
+            guard isCreateInsertionPending else { return }
+            guard newCount > activeTaskCountBeforeCreate else { return }
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                isCreateInsertionPending = false
+                createIndicatorOffset = 0
             }
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: pullOffset >= pullCreateThreshold) { old, new in
