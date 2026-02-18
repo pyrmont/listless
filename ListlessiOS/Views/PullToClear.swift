@@ -8,17 +8,33 @@ struct PullToClearIndicator: View {
 
     private var progress: CGFloat { min(1, pullOffset / pullClearThreshold) }
     private var isReady: Bool { pullOffset >= pullClearThreshold }
+    private let textSlideDistance: CGFloat = 22
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: isReady ? "checkmark" : "trash")
-                .foregroundStyle(.secondary)
-                .fontWeight(.semibold)
-                .animation(.easeInOut(duration: 0.15), value: isReady)
-            Text(isReady ? "Release to clear" : "Clear completed")
-                .foregroundStyle(.secondary)
-                .font(.body)
-                .animation(.easeInOut(duration: 0.15), value: isReady)
+            ZStack {
+                Image(systemName: "checkmark")
+                    .offset(y: isReady ? 0 : -textSlideDistance)
+                Image(systemName: "tray")
+                    .offset(y: isReady ? textSlideDistance : 0)
+            }
+            .frame(width: 26, height: textSlideDistance, alignment: .leading)
+            .clipped()
+            .foregroundStyle(.secondary)
+            .font(.system(size: 17))
+            .fontWeight(.semibold)
+            .animation(.easeInOut(duration: 0.15), value: isReady)
+            ZStack(alignment: .leading) {
+                Text("Release to clear")
+                    .offset(y: isReady ? 0 : -textSlideDistance)
+                Text("Clear completed")
+                    .offset(y: isReady ? textSlideDistance : 0)
+            }
+            .foregroundStyle(.secondary)
+            .font(.body)
+            .frame(height: textSlideDistance, alignment: .topLeading)
+            .clipped()
+            .animation(.easeInOut(duration: 0.15), value: isReady)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 56)

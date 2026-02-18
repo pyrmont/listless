@@ -7,5 +7,5 @@ enum TaskRowMetrics {
     static let contentVerticalPadding: CGFloat = 14
     static let contentHorizontalPadding: CGFloat = 16
     static let activeLeadingPadding: CGFloat = 24
-    static let completedLeadingPadding: CGFloat = 16
+    static let completedLeadingPadding: CGFloat = 24
 }
