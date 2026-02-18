@@ -6,7 +6,10 @@ struct ListlessiOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TaskListView(store: TaskStore(persistenceController: persistenceController))
+            TaskListView(
+                store: TaskStore(persistenceController: persistenceController),
+                syncMonitor: persistenceController.syncMonitor
+            )
                 .safeAreaInset(edge: .top) {
                     Color.clear.frame(height: 8)
                 }

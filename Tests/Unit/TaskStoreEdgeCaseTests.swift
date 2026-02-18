@@ -14,9 +14,9 @@ struct TaskStoreEdgeCaseTests {
     func taskWithEmptyTitle() async throws {
         let store = makeTestStore()
 
-        let task = store.createTask(title: "")
+        let task = try store.createTask(title: "")
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.first?.title == "")
     }
 
@@ -25,9 +25,9 @@ struct TaskStoreEdgeCaseTests {
         let store = makeTestStore()
         let longTitle = String(repeating: "A", count: 10_000)
 
-        let task = store.createTask(title: longTitle)
+        let task = try store.createTask(title: longTitle)
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.first?.title.count == 10_000)
     }
 
@@ -36,9 +36,9 @@ struct TaskStoreEdgeCaseTests {
         let store = makeTestStore()
         let specialTitle = "Test 🎉 with émojis & spëcial çharacters! @#$%^&*()"
 
-        let task = store.createTask(title: specialTitle)
+        let task = try store.createTask(title: specialTitle)
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.first?.title == specialTitle)
     }
 
@@ -47,9 +47,9 @@ struct TaskStoreEdgeCaseTests {
         let store = makeTestStore()
         let multilineTitle = "Line 1\nLine 2\tTabbed"
 
-        let task = store.createTask(title: multilineTitle)
+        let task = try store.createTask(title: multilineTitle)
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.first?.title == multilineTitle)
     }
 
@@ -61,10 +61,10 @@ struct TaskStoreEdgeCaseTests {
         let count = 100
 
         for i in 0..<count {
-            _ = store.createTask(title: "Task \(i)")
+            _ = try store.createTask(title: "Task \(i)")
         }
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.count == count)
     }
 
@@ -74,15 +74,15 @@ struct TaskStoreEdgeCaseTests {
         var taskIDs: [UUID] = []
 
         for i in 0..<50 {
-            let task = store.createTask(title: "Task \(i)")
+            let task = try store.createTask(title: "Task \(i)")
             taskIDs.append(task.id)
         }
 
         for id in taskIDs {
-            store.delete(taskID: id)
+            try store.delete(taskID: id)
         }
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.isEmpty)
     }
 
@@ -90,15 +90,15 @@ struct TaskStoreEdgeCaseTests {
 
     @Test("Create task after completing all tasks")
     func createTaskAfterCompletingAllTasks() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
 
         for id in taskIDs {
-            store.complete(taskID: id)
+            try store.complete(taskID: id)
         }
 
-        let newTask = store.createTask(title: "New task")
+        let newTask = try store.createTask(title: "New task")
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         let activeTasks = tasks.filter { !$0.isCompleted }
         #expect(activeTasks.count == 1)
         #expect(activeTasks[0].id == newTask.id)
@@ -107,13 +107,13 @@ struct TaskStoreEdgeCaseTests {
     @Test("Rapid updates to same task")
     func rapidUpdatesToSameTask() async throws {
         let store = makeTestStore()
-        let task = store.createTask(title: "Original")
+        let task = try store.createTask(title: "Original")
 
         for i in 0..<10 {
-            store.update(taskID: task.id, title: "Update \(i)")
+            try store.update(taskID: task.id, title: "Update \(i)")
         }
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.first?.title == "Update 9")
     }
 
@@ -121,29 +121,29 @@ struct TaskStoreEdgeCaseTests {
 
     @Test("Store with only completed tasks")
     func storeWithOnlyCompletedTasks() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 5)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 5)
 
         for id in taskIDs {
-            store.complete(taskID: id)
+            try store.complete(taskID: id)
         }
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.allSatisfy { $0.isCompleted })
         #expect(tasks.count == 5)
     }
 
     @Test("SortOrder after completing all tasks")
     func sortOrderAfterCompletingAllTasks() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
 
         for id in taskIDs {
-            store.complete(taskID: id)
+            try store.complete(taskID: id)
         }
 
-        let newTask1 = store.createTask(title: "New 1")
-        let newTask2 = store.createTask(title: "New 2")
+        let newTask1 = try store.createTask(title: "New 1")
+        let newTask2 = try store.createTask(title: "New 2")
 
-        let activeTasks = store.fetchTasks().filter { !$0.isCompleted }
+        let activeTasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(activeTasks[0].id == newTask1.id)
         #expect(activeTasks[1].id == newTask2.id)
         #expect(activeTasks[1].sortOrder > activeTasks[0].sortOrder)
@@ -151,12 +151,12 @@ struct TaskStoreEdgeCaseTests {
 
     @Test("Uncompleting task moves it back to active")
     func uncompletingTaskMovesItBackToActive() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
-        store.complete(taskID: taskIDs[1])
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
+        try store.complete(taskID: taskIDs[1])
 
-        store.uncomplete(taskID: taskIDs[1])
+        try store.uncomplete(taskID: taskIDs[1])
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         let activeTasks = tasks.filter { !$0.isCompleted }
         #expect(activeTasks.count == 3)
         #expect(activeTasks.contains { $0.id == taskIDs[1] })
@@ -165,17 +165,17 @@ struct TaskStoreEdgeCaseTests {
     @Test("Uncomplete legacy sortOrder zero conflict appends to end")
     func uncompleteLegacyZeroConflictAppendsToEnd() async throws {
         let store = makeTestStore()
-        let activeTask = store.createTask(title: "Active")
-        let completedTask = store.createTask(title: "Completed")
+        let activeTask = try store.createTask(title: "Active")
+        let completedTask = try store.createTask(title: "Completed")
 
         activeTask.sortOrder = 0
-        store.complete(taskID: completedTask.id)
+        try store.complete(taskID: completedTask.id)
         completedTask.sortOrder = 0
-        store.save()
+        try store.save()
 
-        store.uncomplete(taskID: completedTask.id)
+        try store.uncomplete(taskID: completedTask.id)
 
-        let activeTasks = store.fetchTasks().filter { !$0.isCompleted }
+        let activeTasks = try store.fetchTasks().filter { !$0.isCompleted }
             .sorted { $0.sortOrder < $1.sortOrder }
         #expect(activeTasks.count == 2)
         #expect(activeTasks[0].id == activeTask.id)

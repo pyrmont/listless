@@ -35,6 +35,10 @@ extension TaskListView {
         return nil
     }
 
+    func presentStoreError(_ error: Error) {
+        syncMonitor.ingest(error: error)
+    }
+
     private func isLastActiveTask(_ taskID: UUID) -> Bool {
         guard let lastTask = activeTasks.last else { return false }
         return lastTask.id == taskID
@@ -45,20 +49,29 @@ extension TaskListView {
     func createNewTaskAtTop() -> UUID {
         draggedTaskID = nil
         visualOrder = nil
-        let task = store.createTask(title: "", atBeginning: true)
-        pendingFocus = .task(task.id)
-        focusedField = .task(task.id)
-        selectedTaskID = task.id
-        return task.id
+        do {
+            let task = try store.createTask(title: "", atBeginning: true)
+            pendingFocus = .task(task.id)
+            focusedField = .task(task.id)
+            selectedTaskID = task.id
+            return task.id
+        } catch {
+            presentStoreError(error)
+            return UUID()
+        }
     }
 
     func createNewTask() {
         draggedTaskID = nil
         visualOrder = nil
-        let task = store.createTask(title: "")
-        pendingFocus = .task(task.id)
-        focusedField = .task(task.id)
-        selectedTaskID = task.id
+        do {
+            let task = try store.createTask(title: "")
+            pendingFocus = .task(task.id)
+            focusedField = .task(task.id)
+            selectedTaskID = task.id
+        } catch {
+            presentStoreError(error)
+        }
     }
 
     // MARK: - Interaction Handlers
@@ -115,14 +128,22 @@ extension TaskListView {
 
     func updateTitle(_ task: TaskItem, _ title: String) {
         guard task.title != title else { return }
-        store.updateWithoutSaving(taskID: task.id, title: title)
+        do {
+            try store.updateWithoutSaving(taskID: task.id, title: title)
+        } catch {
+            presentStoreError(error)
+        }
     }
 
     func toggleCompletion(_ task: TaskItem) {
-        if task.isCompleted {
-            store.uncomplete(taskID: task.id)
-        } else {
-            store.complete(taskID: task.id)
+        do {
+            if task.isCompleted {
+                try store.uncomplete(taskID: task.id)
+            } else {
+                try store.complete(taskID: task.id)
+            }
+        } catch {
+            presentStoreError(error)
         }
     }
 
@@ -143,19 +164,25 @@ extension TaskListView {
     func deleteTask(_ task: TaskItem) {
         let taskID = task.id
         print("🔴 deleteTask() called for task \(taskID)")
-
-        if selectedTaskID == taskID {
-            print("🔴 deleteTask() clearing selectedTaskID")
-            selectedTaskID = nil
+        do {
+            try store.delete(taskID: taskID)
+            if selectedTaskID == taskID {
+                print("🔴 deleteTask() clearing selectedTaskID")
+                selectedTaskID = nil
+            }
+            print("🔴 deleteTask() completed")
+        } catch {
+            presentStoreError(error)
         }
-
-        store.delete(taskID: taskID)
-        print("🔴 deleteTask() completed")
     }
 
     func clearCompletedTasks() {
         for task in completedTasks.reversed() {
-            store.delete(taskID: task.id)
+            do {
+                try store.delete(taskID: task.id)
+            } catch {
+                presentStoreError(error)
+            }
         }
     }
 
@@ -265,7 +292,11 @@ extension TaskListView {
         print(
             "🟢 endEditing() called for task \(taskID), shouldCreateNewTask: \(shouldCreateNewTask)"
         )
-        store.save()
+        do {
+            try store.save()
+        } catch {
+            presentStoreError(error)
+        }
 
         let wasLastActiveTask = isLastActiveTask(taskID)
         let willBeDeleted = shouldDeleteIfEmpty(taskID: taskID)
@@ -383,7 +414,11 @@ extension TaskListView {
             return false
         }
 
-        store.moveTask(taskID: droppedUUID, toIndex: finalIndex)
+        do {
+            try store.moveTask(taskID: droppedUUID, toIndex: finalIndex)
+        } catch {
+            presentStoreError(error)
+        }
         draggedTaskID = nil
         visualOrder = nil
 

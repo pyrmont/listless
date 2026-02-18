@@ -49,6 +49,7 @@ final class PersistenceController {
     static let shared = PersistenceController()
 
     let container: NSPersistentCloudKitContainer
+    let syncMonitor: CloudKitSyncMonitor
 
     var viewContext: NSManagedObjectContext {
         container.viewContext
@@ -56,6 +57,7 @@ final class PersistenceController {
 
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "Listless")
+        syncMonitor = CloudKitSyncMonitor()
 
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
@@ -83,18 +85,22 @@ final class PersistenceController {
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = UpdatedAtMergePolicy()
 
+        if !inMemory {
+            syncMonitor.startMonitoring(container: container)
+        }
+
         performDataMigrationIfNeeded()
     }
 
-    func save() {
+    func save() throws {
         let context = container.viewContext
 
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                print("Failed to save context: \(error.localizedDescription)")
-            }
+        guard context.hasChanges else { return }
+
+        do {
+            try context.save()
+        } catch {
+            throw TaskStoreError.saveFailed(error)
         }
     }
 

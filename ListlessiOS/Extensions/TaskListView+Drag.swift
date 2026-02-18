@@ -36,7 +36,11 @@ extension TaskListView {
             isDragging = false
             return
         }
-        store.moveTask(taskID: draggedID, toIndex: finalIndex)
+        do {
+            try store.moveTask(taskID: draggedID, toIndex: finalIndex)
+        } catch {
+            presentStoreError(error)
+        }
         draggedTaskID = nil
         visualOrder = nil
         isDragging = false

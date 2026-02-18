@@ -12,7 +12,10 @@ struct ListlessMacApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TaskListView(store: TaskStore(persistenceController: persistenceController))
+            TaskListView(
+                store: TaskStore(persistenceController: persistenceController),
+                syncMonitor: persistenceController.syncMonitor
+            )
                 .environment(\.managedObjectContext, persistenceController.viewContext)
         }
         .windowStyle(.hiddenTitleBar)

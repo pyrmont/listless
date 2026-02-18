@@ -13,11 +13,11 @@ struct TaskStoreOrderingTests {
     func initialSortOrderHasThousandPointGaps() async throws {
         let store = makeTestStore()
 
-        let task1 = store.createTask(title: "Task 1")
-        let task2 = store.createTask(title: "Task 2")
-        let task3 = store.createTask(title: "Task 3")
+        let task1 = try store.createTask(title: "Task 1")
+        let task2 = try store.createTask(title: "Task 2")
+        let task3 = try store.createTask(title: "Task 3")
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
 
         // All tasks are active, so they should be the first 3
         #expect(tasks.count == 3)
@@ -42,12 +42,12 @@ struct TaskStoreOrderingTests {
         (from: 2, to: 1),
     ])
     func moveTaskToDifferentPositions(from: Int, to: Int) async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
         let taskToMove = taskIDs[from]
 
-        store.moveTask(taskID: taskToMove, toIndex: to)
+        try store.moveTask(taskID: taskToMove, toIndex: to)
 
-        let tasks = store.fetchTasks().filter { !$0.isCompleted }
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(tasks[to].id == taskToMove)
     }
 
@@ -55,11 +55,11 @@ struct TaskStoreOrderingTests {
 
     @Test("Moving maintains 1000-point gaps")
     func movingMaintainsThousandPointGaps() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 4)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 4)
 
-        store.moveTask(taskID: taskIDs[0], toIndex: 2)
+        try store.moveTask(taskID: taskIDs[0], toIndex: 2)
 
-        let tasks = store.fetchTasks().filter { !$0.isCompleted }
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(tasks[0].sortOrder == 0)
         #expect(tasks[1].sortOrder == 1000)
         #expect(tasks[2].sortOrder == 2000)
@@ -68,12 +68,12 @@ struct TaskStoreOrderingTests {
 
     @Test("Move task to same index does nothing")
     func moveTaskToSameIndexDoesNothing() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
-        let originalTasks = store.fetchTasks().filter { !$0.isCompleted }
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
+        let originalTasks = try store.fetchTasks().filter { !$0.isCompleted }
 
-        store.moveTask(taskID: taskIDs[1], toIndex: 1)
+        try store.moveTask(taskID: taskIDs[1], toIndex: 1)
 
-        let tasks = store.fetchTasks().filter { !$0.isCompleted }
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(tasks[0].id == originalTasks[0].id)
         #expect(tasks[1].id == originalTasks[1].id)
         #expect(tasks[2].id == originalTasks[2].id)
@@ -83,13 +83,13 @@ struct TaskStoreOrderingTests {
 
     @Test("Move with invalid ID does nothing")
     func moveWithInvalidIDDoesNothing() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
-        let originalTasks = store.fetchTasks().filter { !$0.isCompleted }
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
+        let originalTasks = try store.fetchTasks().filter { !$0.isCompleted }
         let invalidID = UUID()
 
-        store.moveTask(taskID: invalidID, toIndex: 0)
+        try store.moveTask(taskID: invalidID, toIndex: 0)
 
-        let tasks = store.fetchTasks().filter { !$0.isCompleted }
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(tasks[0].id == originalTasks[0].id)
         #expect(tasks[1].id == originalTasks[1].id)
         #expect(tasks[2].id == originalTasks[2].id)
@@ -97,21 +97,21 @@ struct TaskStoreOrderingTests {
 
     @Test("Move to negative index clamps to 0")
     func moveToNegativeIndexClampsToZero() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
 
-        store.moveTask(taskID: taskIDs[2], toIndex: -5)
+        try store.moveTask(taskID: taskIDs[2], toIndex: -5)
 
-        let tasks = store.fetchTasks().filter { !$0.isCompleted }
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(tasks[0].id == taskIDs[2])
     }
 
     @Test("Move to out-of-bounds index clamps to end")
     func moveToOutOfBoundsIndexClampsToEnd() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
 
-        store.moveTask(taskID: taskIDs[0], toIndex: 999)
+        try store.moveTask(taskID: taskIDs[0], toIndex: 999)
 
-        let tasks = store.fetchTasks().filter { !$0.isCompleted }
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(tasks[2].id == taskIDs[0])
     }
 
@@ -119,12 +119,12 @@ struct TaskStoreOrderingTests {
 
     @Test("Moving only affects active tasks")
     func movingOnlyAffectsActiveTasks() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 4)
-        store.complete(taskID: taskIDs[3])
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 4)
+        try store.complete(taskID: taskIDs[3])
 
-        store.moveTask(taskID: taskIDs[0], toIndex: 2)
+        try store.moveTask(taskID: taskIDs[0], toIndex: 2)
 
-        let allTasks = store.fetchTasks()
+        let allTasks = try store.fetchTasks()
         let activeTasks = allTasks.filter { !$0.isCompleted }
         let completedTasks = allTasks.filter { $0.isCompleted }
 
@@ -135,13 +135,13 @@ struct TaskStoreOrderingTests {
 
     @Test("Moving completed task does nothing")
     func movingCompletedTaskDoesNothing() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 3)
-        store.complete(taskID: taskIDs[0])
-        let originalTasks = store.fetchTasks()
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 3)
+        try store.complete(taskID: taskIDs[0])
+        let originalTasks = try store.fetchTasks()
 
-        store.moveTask(taskID: taskIDs[0], toIndex: 1)
+        try store.moveTask(taskID: taskIDs[0], toIndex: 1)
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks[0].id == originalTasks[0].id)
         #expect(tasks[1].id == originalTasks[1].id)
         #expect(tasks[2].id == originalTasks[2].id)
@@ -152,11 +152,11 @@ struct TaskStoreOrderingTests {
     @Test("Move single task does nothing")
     func moveSingleTaskDoesNothing() async throws {
         let store = makeTestStore()
-        let task = store.createTask(title: "Only task")
+        let task = try store.createTask(title: "Only task")
 
-        store.moveTask(taskID: task.id, toIndex: 0)
+        try store.moveTask(taskID: task.id, toIndex: 0)
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.count == 1)
         #expect(tasks[0].id == task.id)
     }
@@ -166,20 +166,20 @@ struct TaskStoreOrderingTests {
         let store = makeTestStore()
         let randomID = UUID()
 
-        store.moveTask(taskID: randomID, toIndex: 0)
+        try store.moveTask(taskID: randomID, toIndex: 0)
 
-        let tasks = store.fetchTasks()
+        let tasks = try store.fetchTasks()
         #expect(tasks.isEmpty)
     }
 
     @Test("Multiple moves maintain order")
     func multipleMoveMaintainOrder() async throws {
-        let (store, taskIDs) = makeTestStoreWithTasks(count: 4)
+        let (store, taskIDs) = try makeTestStoreWithTasks(count: 4)
 
-        store.moveTask(taskID: taskIDs[0], toIndex: 3)
-        store.moveTask(taskID: taskIDs[2], toIndex: 0)
+        try store.moveTask(taskID: taskIDs[0], toIndex: 3)
+        try store.moveTask(taskID: taskIDs[2], toIndex: 0)
 
-        let tasks = store.fetchTasks().filter { !$0.isCompleted }
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
         #expect(tasks[0].id == taskIDs[2])
         #expect(tasks[3].id == taskIDs[0])
     }

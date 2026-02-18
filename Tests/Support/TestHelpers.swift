@@ -16,13 +16,13 @@ func makeTestStore() -> TaskStore {
 ///   - titles: Optional array of titles; if nil, generates "Task 1", "Task 2", etc.
 /// - Returns: Tuple of (store, array of created task IDs)
 @MainActor
-func makeTestStoreWithTasks(count: Int = 3, titles: [String]? = nil) -> (TaskStore, [UUID]) {
+func makeTestStoreWithTasks(count: Int = 3, titles: [String]? = nil) throws -> (TaskStore, [UUID]) {
     let store = makeTestStore()
     var taskIDs: [UUID] = []
 
     for i in 0..<count {
         let title = titles?[safe: i] ?? "Task \(i + 1)"
-        let task = store.createTask(title: title)
+        let task = try store.createTask(title: title)
         taskIDs.append(task.id)
     }
 

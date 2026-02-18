@@ -1,6 +1,20 @@
 import CoreData
 import Foundation
 
+enum TaskStoreError: LocalizedError {
+    case fetchFailed(Error)
+    case saveFailed(Error)
+
+    var errorDescription: String? {
+        switch self {
+        case .fetchFailed(let error):
+            return "Failed to fetch tasks: \(error.localizedDescription)"
+        case .saveFailed(let error):
+            return "Failed to save changes: \(error.localizedDescription)"
+        }
+    }
+}
+
 @MainActor
 final class TaskStore {
     private let persistenceController: PersistenceController
@@ -12,7 +26,7 @@ final class TaskStore {
         self.persistenceController = persistenceController
     }
 
-    func fetchTasks() -> [TaskItem] {
+    func fetchTasks() throws -> [TaskItem] {
         let request = TaskItem.fetchRequest()
         request.sortDescriptors = []
 
@@ -29,17 +43,17 @@ final class TaskStore {
 
             return activeTasks + completedTasks
         } catch {
-            print("Failed to fetch tasks: \(error)")
-            return []
+            throw TaskStoreError.fetchFailed(error)
         }
     }
 
-    func createTask(title: String = "", atBeginning: Bool = false) -> TaskItem {
+    func createTask(title: String = "", atBeginning: Bool = false) throws -> TaskItem {
         let task = TaskItem(context: context)
         task.title = title
 
         context.processPendingChanges()
-        let activeTasks = fetchTasks().filter { !$0.isCompleted }
+        let activeTasks = try fetchTasks().filter { !$0.isCompleted }
+
         if atBeginning {
             let minOrder = activeTasks.map(\.sortOrder).min() ?? 0
             task.sortOrder = minOrder - 1000
@@ -48,20 +62,20 @@ final class TaskStore {
             task.sortOrder = maxOrder + 1000
         }
 
-        save()
+        try save()
         return task
     }
 
-    func complete(taskID: UUID) {
-        guard let task = findTask(id: taskID) else { return }
+    func complete(taskID: UUID) throws {
+        guard let task = try findTask(id: taskID) else { return }
         task.isCompleted = true
-        save()
+        try save()
     }
 
-    func uncomplete(taskID: UUID) {
-        guard let task = findTask(id: taskID) else { return }
+    func uncomplete(taskID: UUID) throws {
+        guard let task = try findTask(id: taskID) else { return }
         let restoredSortOrder = task.sortOrder
-        let activeTasks = fetchTasks().filter { !$0.isCompleted && $0.id != task.id }
+        let activeTasks = try fetchTasks().filter { !$0.isCompleted && $0.id != task.id }
         let hasSortOrderConflict = activeTasks.contains { $0.sortOrder == restoredSortOrder }
 
         if hasSortOrderConflict {
@@ -70,29 +84,29 @@ final class TaskStore {
         }
 
         task.isCompleted = false
-        save()
+        try save()
     }
 
-    func update(taskID: UUID, title: String) {
-        guard let task = findTask(id: taskID) else { return }
+    func update(taskID: UUID, title: String) throws {
+        guard let task = try findTask(id: taskID) else { return }
         task.title = title
-        save()
+        try save()
     }
 
-    func updateWithoutSaving(taskID: UUID, title: String) {
-        guard let task = findTask(id: taskID) else { return }
+    func updateWithoutSaving(taskID: UUID, title: String) throws {
+        guard let task = try findTask(id: taskID) else { return }
         task.title = title
         // Don't save - will be saved when editing ends
     }
 
-    func delete(taskID: UUID) {
-        guard let task = findTask(id: taskID) else { return }
+    func delete(taskID: UUID) throws {
+        guard let task = try findTask(id: taskID) else { return }
         context.delete(task)
-        save()
+        try save()
     }
 
-    func moveTask(taskID: UUID, toIndex: Int) {
-        let activeTasks = fetchTasks().filter { !$0.isCompleted }
+    func moveTask(taskID: UUID, toIndex: Int) throws {
+        let activeTasks = try fetchTasks().filter { !$0.isCompleted }
             .sorted { $0.sortOrder < $1.sortOrder }
 
         guard let currentIndex = activeTasks.firstIndex(where: { $0.id == taskID }) else { return }
@@ -110,10 +124,10 @@ final class TaskStore {
             task.sortOrder = Int64(index) * 1000
         }
 
-        save()
+        try save()
     }
 
-    private func findTask(id: UUID) -> TaskItem? {
+    private func findTask(id: UUID) throws -> TaskItem? {
         let request = TaskItem.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         request.fetchLimit = 1
@@ -121,12 +135,11 @@ final class TaskStore {
         do {
             return try context.fetch(request).first
         } catch {
-            print("Failed to find task: \(error)")
-            return nil
+            throw TaskStoreError.fetchFailed(error)
         }
     }
 
-    func save() {
-        persistenceController.save()
+    func save() throws {
+        try persistenceController.save()
     }
 }

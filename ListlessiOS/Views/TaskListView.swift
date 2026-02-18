@@ -10,6 +10,7 @@ struct TaskListView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
 
     let store: TaskStore
+    @ObservedObject var syncMonitor: CloudKitSyncMonitor
     @FetchRequest(
         sortDescriptors: [
             NSSortDescriptor(keyPath: \TaskItem.isCompleted, ascending: true),
@@ -32,8 +33,9 @@ struct TaskListView: View {
     var vStackSpacing: CGFloat { 12 }
     var pullCreateThreshold: CGFloat { 70 }
 
-    init(store: TaskStore = TaskStore()) {
+    init(store: TaskStore, syncMonitor: CloudKitSyncMonitor) {
         self.store = store
+        self.syncMonitor = syncMonitor
     }
 
     func didStartDrag() {
@@ -83,6 +85,36 @@ struct TaskListView: View {
             }
             .toolbar {
                 platformToolbar
+            }
+            .overlay(alignment: .top) {
+                syncErrorBanner
+            }
+            .alert(
+                item: Binding(
+                    get: { syncMonitor.actionableAlert },
+                    set: { if $0 == nil { syncMonitor.clearActionableAlert() } }
+                )
+            ) { alert in
+                switch alert.action {
+                case .openSettings:
+                    return Alert(
+                        title: Text(alert.title),
+                        message: Text(alert.message),
+                        primaryButton: .default(Text("Open Settings")) { openSystemSettings() },
+                        secondaryButton: .cancel(Text("OK")) {
+                            syncMonitor.clearActionableAlert()
+                        }
+                    )
+
+                case .none:
+                    return Alert(
+                        title: Text(alert.title),
+                        message: Text(alert.message),
+                        dismissButton: .default(Text("OK")) {
+                            syncMonitor.clearActionableAlert()
+                        }
+                    )
+                }
             }
     }
 
