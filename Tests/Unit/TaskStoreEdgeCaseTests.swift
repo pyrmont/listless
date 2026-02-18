@@ -1,4 +1,5 @@
 import Foundation
+import CoreData
 import Testing
 
 @testable import Listless_iOS
@@ -180,5 +181,101 @@ struct TaskStoreEdgeCaseTests {
         #expect(activeTasks[0].id == activeTask.id)
         #expect(activeTasks[1].id == completedTask.id)
         #expect(activeTasks[1].sortOrder > activeTasks[0].sortOrder)
+    }
+
+    @Test("Merge policy prefers store when store updatedAt is newer")
+    func mergePolicyPrefersStoreWhenStoreIsNewer() async throws {
+        let controller = PersistenceController(inMemory: true)
+        let viewContext = controller.viewContext
+        viewContext.automaticallyMergesChangesFromParent = false
+
+        let task = TaskItem(context: viewContext)
+        task.title = "Original"
+        task.updatedAt = Date(timeIntervalSince1970: 100)
+        try viewContext.save()
+
+        let taskID = task.id
+
+        let backgroundContext = controller.container.newBackgroundContext()
+        try await backgroundContext.perform {
+            let request = TaskItem.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", taskID as CVarArg)
+            request.fetchLimit = 1
+
+            guard let remote = try backgroundContext.fetch(request).first else {
+                Issue.record("Expected task to exist in background context")
+                return
+            }
+
+            remote.title = "Remote newer"
+            remote.updatedAt = Date(timeIntervalSince1970: 200)
+            try backgroundContext.save()
+        }
+
+        task.updatedAt = Date(timeIntervalSince1970: 150)
+        try viewContext.save()
+
+        let verifyContext = controller.container.newBackgroundContext()
+        try await verifyContext.perform {
+            let request = TaskItem.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", taskID as CVarArg)
+            request.fetchLimit = 1
+
+            guard let resolved = try verifyContext.fetch(request).first else {
+                Issue.record("Expected task to exist in verify context")
+                return
+            }
+
+            #expect(resolved.title == "Remote newer")
+            #expect(resolved.updatedAt == Date(timeIntervalSince1970: 200))
+        }
+    }
+
+    @Test("Merge policy prefers local when local updatedAt is newer")
+    func mergePolicyPrefersLocalWhenLocalIsNewer() async throws {
+        let controller = PersistenceController(inMemory: true)
+        let viewContext = controller.viewContext
+        viewContext.automaticallyMergesChangesFromParent = false
+
+        let task = TaskItem(context: viewContext)
+        task.title = "Original"
+        task.updatedAt = Date(timeIntervalSince1970: 100)
+        try viewContext.save()
+
+        let taskID = task.id
+
+        let backgroundContext = controller.container.newBackgroundContext()
+        try await backgroundContext.perform {
+            let request = TaskItem.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", taskID as CVarArg)
+            request.fetchLimit = 1
+
+            guard let remote = try backgroundContext.fetch(request).first else {
+                Issue.record("Expected task to exist in background context")
+                return
+            }
+
+            remote.title = "Remote older"
+            remote.updatedAt = Date(timeIntervalSince1970: 200)
+            try backgroundContext.save()
+        }
+
+        task.updatedAt = Date(timeIntervalSince1970: 300)
+        try viewContext.save()
+
+        let verifyContext = controller.container.newBackgroundContext()
+        try await verifyContext.perform {
+            let request = TaskItem.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", taskID as CVarArg)
+            request.fetchLimit = 1
+
+            guard let resolved = try verifyContext.fetch(request).first else {
+                Issue.record("Expected task to exist in verify context")
+                return
+            }
+
+            #expect(resolved.title == "Original")
+            #expect(resolved.updatedAt == Date(timeIntervalSince1970: 300))
+        }
     }
 }

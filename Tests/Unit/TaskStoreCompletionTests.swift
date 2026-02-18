@@ -109,10 +109,10 @@ struct TaskStoreCompletionTests {
         store.complete(taskID: task3.id)
 
         let tasks = store.fetchTasks()
-        // All completed, should be sorted by updatedAt (completion order)
-        #expect(tasks[0].id == task2.id)
+        // All completed, should be sorted by updatedAt (most recently completed first)
+        #expect(tasks[0].id == task3.id)
         #expect(tasks[1].id == task1.id)
-        #expect(tasks[2].id == task3.id)
+        #expect(tasks[2].id == task2.id)
     }
 
     @Test("Toggle completion multiple times")

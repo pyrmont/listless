@@ -1,6 +1,49 @@
 import CoreData
 import Foundation
 
+private final class UpdatedAtMergePolicy: NSMergePolicy {
+    private let fallbackPolicy = NSMergePolicy(merge: .mergeByPropertyStoreTrumpMergePolicyType)
+
+    init() {
+        super.init(merge: .mergeByPropertyStoreTrumpMergePolicyType)
+    }
+
+    override func resolve(mergeConflicts list: [Any]) throws {
+        var fallbackConflicts: [Any] = []
+
+        for item in list {
+            guard
+                let conflict = item as? NSMergeConflict,
+                let task = conflict.sourceObject as? TaskItem,
+                let objectSnapshot = conflict.objectSnapshot,
+                let persistedSnapshot = conflict.persistedSnapshot,
+                let storeUpdatedAt = persistedSnapshot["updatedAt"] as? Date
+            else {
+                fallbackConflicts.append(item)
+                continue
+            }
+
+            let localUpdatedAt = (objectSnapshot["updatedAt"] as? Date) ?? task.updatedAt
+
+            // Keep local in-memory values if they are newer or equal.
+            guard storeUpdatedAt > localUpdatedAt else { continue }
+
+            // Persisted values are newer; copy them onto the object to resolve conflict.
+            for (key, value) in persistedSnapshot {
+                if value is NSNull {
+                    task.setValue(nil, forKey: key)
+                } else {
+                    task.setValue(value, forKey: key)
+                }
+            }
+        }
+
+        if !fallbackConflicts.isEmpty {
+            try fallbackPolicy.resolve(mergeConflicts: fallbackConflicts)
+        }
+    }
+}
+
 @MainActor
 final class PersistenceController {
     static let shared = PersistenceController()
@@ -38,8 +81,7 @@ final class PersistenceController {
         }
 
         container.viewContext.automaticallyMergesChangesFromParent = true
-        container.viewContext.mergePolicy = NSMergePolicy(
-            merge: .mergeByPropertyObjectTrumpMergePolicyType)
+        container.viewContext.mergePolicy = UpdatedAtMergePolicy()
 
         performDataMigrationIfNeeded()
     }
