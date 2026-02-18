@@ -53,7 +53,7 @@ struct TaskRowView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
             Button {
                 onToggle(task)
             } label: {
@@ -80,9 +80,12 @@ struct TaskRowView: View {
             .focused($focusedField, equals: .task(taskID))
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, 14)
-        .padding(.trailing, 16)
-        .padding(.leading, task.isCompleted ? 16 : 24)
+        .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
+        .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
+        .padding(
+            .leading,
+            task.isCompleted ? TaskRowMetrics.completedLeadingPadding : TaskRowMetrics.activeLeadingPadding
+        )
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture {
@@ -106,15 +109,16 @@ struct TaskRowView: View {
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: task.isCompleted ? 0 : 14,
-                topTrailingRadius: task.isCompleted ? 0 : 14
+                bottomTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius,
+                topTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius
             )
         )
         .overlay {
             if isSelected && !task.isCompleted {
                 UnevenRoundedRectangle(
                     topLeadingRadius: 0, bottomLeadingRadius: 0,
-                    bottomTrailingRadius: 14, topTrailingRadius: 14
+                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
                 )
                 .strokeBorder(Color.accentColor, lineWidth: 2)
             }
@@ -123,7 +127,7 @@ struct TaskRowView: View {
             if !task.isCompleted {
                 Rectangle()
                     .fill(cachedAccentColor)
-                    .frame(width: 8)
+                    .frame(width: TaskRowMetrics.accentBarWidth)
             }
         }
         .onAppear {
@@ -164,8 +168,8 @@ struct TaskRowView: View {
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: task.isCompleted ? 0 : 14,
-                topTrailingRadius: task.isCompleted ? 0 : 14
+                bottomTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius,
+                topTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius
             )
         )
     }

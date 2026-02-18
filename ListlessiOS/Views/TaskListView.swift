@@ -30,6 +30,7 @@ struct TaskListView: View {
     @State var rowFrames: [UUID: CGRect] = [:]
 
     var vStackSpacing: CGFloat { 12 }
+    var pullCreateThreshold: CGFloat { 70 }
 
     init(store: TaskStore = TaskStore()) {
         _store = State(wrappedValue: store)
@@ -157,7 +158,7 @@ struct TaskListView: View {
         .pullCreationGesture(
             pullToCreate: $pullToCreate,
             pullUpOffset: $pullUpOffset,
-            activeTaskCount: activeTasks.count,
+            activeTaskIDs: activeTasks.map(\.id),
             hasCompletedTasks: !completedTasks.isEmpty,
             pullCreateThreshold: pullCreateThreshold,
             pullClearThreshold: pullClearThreshold,

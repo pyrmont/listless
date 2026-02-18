@@ -53,6 +53,7 @@
 		F50E8B8F73F64D8E641DC74C /* TaskStoreCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */; };
 		F6587B84ECC6BFE92A5FB493 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */; };
 		FDD09FECEED48EC9598538F4 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632DA39B24C4CF1528A1A24D /* TaskListView.swift */; };
+		FF58A3AB2BCFFA42BF2F6413 /* TaskRowMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2EF927F09D67532F44BB80D /* TaskRowMetrics.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +98,7 @@
 		9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreEdgeCaseTests.swift; sourceTree = "<group>"; };
 		9F5D8B5866362D422A2A331C /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
 		9FBEB58DD41817F09B0EB9F0 /* Listless.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Listless.xcdatamodel; sourceTree = "<group>"; };
+		A2EF927F09D67532F44BB80D /* TaskRowMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowMetrics.swift; sourceTree = "<group>"; };
 		AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSApp.swift; sourceTree = "<group>"; };
 		B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
 		BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToCreate.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 				E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */,
 				6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */,
 				D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */,
+				A2EF927F09D67532F44BB80D /* TaskRowMetrics.swift */,
 				067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */,
 			);
 			path = Helpers;
@@ -464,6 +467,7 @@
 				77970A2323A598E830D95301 /* TaskListView+Toolbar.swift in Sources */,
 				C169823665158AA347A63990 /* TaskListView.swift in Sources */,
 				2C53717A0EAFA39240615C9A /* TaskRowDragGesture.swift in Sources */,
+				FF58A3AB2BCFFA42BF2F6413 /* TaskRowMetrics.swift in Sources */,
 				182D9FB61E3A3650D7D83D2A /* TaskRowSwipeGesture.swift in Sources */,
 				7E366008FF9335A77FE1636D /* TaskRowView.swift in Sources */,
 				91EDF52C7C5C0B35E9D8B51E /* TaskStore.swift in Sources */,

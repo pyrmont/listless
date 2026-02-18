@@ -11,7 +11,7 @@ extension TaskListView {
         var pullOffset: CGFloat = 0
         var indicatorOffset: CGFloat = 0
         var isInsertionPending: Bool = false
-        var activeTaskCountBeforeCreate: Int = 0
+        var pendingTaskID: UUID?
         var isScrollInteracting: Bool = false
 
         var shouldShowIndicator: Bool {
@@ -32,25 +32,27 @@ extension TaskListView {
         mutating func handlePhaseChange(
             from oldPhase: ScrollPhase,
             to newPhase: ScrollPhase,
-            activeTaskCount: Int,
             threshold: CGFloat
         ) -> Action {
             isScrollInteracting = (newPhase == .interacting)
             guard oldPhase == .interacting, newPhase != .interacting else { return .none }
 
             if pullOffset >= threshold {
-                activeTaskCountBeforeCreate = activeTaskCount
                 isInsertionPending = true
+                pendingTaskID = nil
                 return .createTask
             }
 
             isInsertionPending = false
+            pendingTaskID = nil
             return .collapseIndicator
         }
 
-        mutating func resolvePendingInsertion(activeTaskCount: Int) {
-            guard isInsertionPending, activeTaskCount > activeTaskCountBeforeCreate else { return }
+        mutating func resolvePendingInsertion(activeTaskIDs: [UUID]) {
+            guard isInsertionPending, let pendingTaskID else { return }
+            guard activeTaskIDs.contains(pendingTaskID) else { return }
             isInsertionPending = false
+            self.pendingTaskID = nil
             indicatorOffset = 0
         }
     }
@@ -60,11 +62,11 @@ private struct PullCreationGestureModifier: ViewModifier {
     @Binding var pullToCreate: TaskListView.PullToCreateState
     @Binding var pullUpOffset: CGFloat
 
-    let activeTaskCount: Int
+    let activeTaskIDs: [UUID]
     let hasCompletedTasks: Bool
     let pullCreateThreshold: CGFloat
     let pullClearThreshold: CGFloat
-    let onCreateTaskAtTop: () -> Void
+    let onCreateTaskAtTop: () -> UUID
     let onClearCompleted: () -> Void
 
     func body(content: Content) -> some View {
@@ -86,11 +88,11 @@ private struct PullCreationGestureModifier: ViewModifier {
             .onScrollPhaseChange { oldPhase, newPhase in
                 handlePullToCreateScrollPhaseChange(from: oldPhase, to: newPhase)
             }
-            .onChange(of: activeTaskCount) { _, newCount in
+            .onChange(of: activeTaskIDs) { _, newIDs in
                 var transaction = Transaction(animation: nil)
                 transaction.disablesAnimations = true
                 withTransaction(transaction) {
-                    pullToCreate.resolvePendingInsertion(activeTaskCount: newCount)
+                    pullToCreate.resolvePendingInsertion(activeTaskIDs: newIDs)
                 }
             }
             .sensoryFeedback(
@@ -108,7 +110,6 @@ private struct PullCreationGestureModifier: ViewModifier {
         let action = pullToCreate.handlePhaseChange(
             from: oldPhase,
             to: newPhase,
-            activeTaskCount: activeTaskCount,
             threshold: pullCreateThreshold
         )
 
@@ -118,8 +119,12 @@ private struct PullCreationGestureModifier: ViewModifier {
         case .createTask:
             var transaction = Transaction(animation: .spring(response: 0.28, dampingFraction: 0.9))
             transaction.disablesAnimations = false
+            var createdTaskID: UUID?
             withTransaction(transaction) {
-                onCreateTaskAtTop()
+                createdTaskID = onCreateTaskAtTop()
+            }
+            if let createdTaskID {
+                pullToCreate.pendingTaskID = createdTaskID
             }
         case .collapseIndicator:
             withAnimation(.spring(response: 0.22, dampingFraction: 0.95)) {
@@ -140,18 +145,18 @@ extension View {
     func pullCreationGesture(
         pullToCreate: Binding<TaskListView.PullToCreateState>,
         pullUpOffset: Binding<CGFloat>,
-        activeTaskCount: Int,
+        activeTaskIDs: [UUID],
         hasCompletedTasks: Bool,
         pullCreateThreshold: CGFloat,
         pullClearThreshold: CGFloat,
-        onCreateTaskAtTop: @escaping () -> Void,
+        onCreateTaskAtTop: @escaping () -> UUID,
         onClearCompleted: @escaping () -> Void
     ) -> some View {
         modifier(
             PullCreationGestureModifier(
                 pullToCreate: pullToCreate,
                 pullUpOffset: pullUpOffset,
-                activeTaskCount: activeTaskCount,
+                activeTaskIDs: activeTaskIDs,
                 hasCompletedTasks: hasCompletedTasks,
                 pullCreateThreshold: pullCreateThreshold,
                 pullClearThreshold: pullClearThreshold,

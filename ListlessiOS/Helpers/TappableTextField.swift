@@ -48,8 +48,10 @@ struct TappableTextField: UIViewRepresentable {
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
-        let width = proposal.width ?? UIScreen.main.bounds.width
-        return uiView.sizeThatFits(CGSize(width: width, height: .infinity))
+        let proposedWidth = proposal.width ?? uiView.bounds.width
+        let width = proposedWidth > 0 ? proposedWidth : (uiView.window?.bounds.width ?? 0)
+        guard width > 0 else { return nil }
+        return uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
     }
 
     func makeCoordinator() -> Coordinator {

@@ -1,13 +1,11 @@
 import SwiftUI
 
-/// Pull distance at which the indicator signals readiness and task creation triggers.
-let pullCreateThreshold: CGFloat = 70
-
 struct PullToCreateIndicator: View {
     let pullOffset: CGFloat
+    let threshold: CGFloat
 
-    private var progress: CGFloat { min(1, pullOffset / pullCreateThreshold) }
-    private var isReady: Bool { pullOffset >= pullCreateThreshold }
+    private var progress: CGFloat { min(1, pullOffset / threshold) }
+    private var isReady: Bool { pullOffset >= threshold }
     private let indicatorHeight: CGFloat = 48
     private let textSlideDistance: CGFloat = 22
 
@@ -18,8 +16,8 @@ struct PullToCreateIndicator: View {
         HStack(spacing: 0) {
             Rectangle()
                 .fill(accentColor)
-                .frame(width: 8)
-            HStack(alignment: .center, spacing: 12) {
+                .frame(width: TaskRowMetrics.accentBarWidth)
+            HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
                 Image(systemName: "circle")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 17))
@@ -37,8 +35,8 @@ struct PullToCreateIndicator: View {
                 .animation(.easeInOut(duration: 0.18), value: isReady)
                 Spacer()
             }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 16)
+            .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
+            .padding(.horizontal, TaskRowMetrics.contentHorizontalPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.taskCard)
         }
@@ -46,7 +44,8 @@ struct PullToCreateIndicator: View {
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: 14, topTrailingRadius: 14
+                bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
             )
         )
         // Reveal from the top downward as the user pulls

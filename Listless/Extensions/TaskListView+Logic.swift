@@ -42,13 +42,14 @@ extension TaskListView {
 
     // MARK: - Task Creation
 
-    func createNewTaskAtTop() {
+    func createNewTaskAtTop() -> UUID {
         draggedTaskID = nil
         visualOrder = nil
         let task = store.createTask(title: "", atBeginning: true)
         pendingFocus = .task(task.id)
         focusedField = .task(task.id)
         selectedTaskID = task.id
+        return task.id
     }
 
     func createNewTask() {
