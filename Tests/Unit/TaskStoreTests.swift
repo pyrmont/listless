@@ -58,6 +58,21 @@ struct TaskStoreTests {
         #expect(task.updatedAt <= afterCreate)
     }
 
+    @Test("Create task at beginning prepends to active tasks")
+    func createTaskAtBeginningPrepends() async throws {
+        let store = makeTestStore()
+
+        let first = try store.createTask(title: "First")
+        let second = try store.createTask(title: "Second")
+        let prepended = try store.createTask(title: "Prepended", atBeginning: true)
+
+        let tasks = try store.fetchTasks().filter { !$0.isCompleted }
+
+        #expect(tasks.map(\.title) == ["Prepended", "First", "Second"])
+        #expect(prepended.sortOrder < first.sortOrder)
+        #expect(first.sortOrder < second.sortOrder)
+    }
+
     // MARK: - Fetch Tests
 
     @Test("Fetch tasks from empty store")
