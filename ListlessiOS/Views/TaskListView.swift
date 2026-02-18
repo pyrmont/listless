@@ -24,13 +24,9 @@ struct TaskListView: View {
     @State var draggedTaskID: UUID?
     @State var visualOrder: [UUID]?
     @State var pendingFocus: FocusField?
-    @State var pullOffset: CGFloat = 0
-    @State var createIndicatorOffset: CGFloat = 0
-    @State var isCreateInsertionPending: Bool = false
-    @State var activeTaskCountBeforeCreate: Int = 0
+    @State var pullToCreate = PullToCreateState()
     @State var pullUpOffset: CGFloat = 0
     @State var isDragging: Bool = false
-    @State var isScrollInteracting: Bool = false
     @State var rowFrames: [UUID: CGRect] = [:]
 
     var vStackSpacing: CGFloat { 12 }
@@ -148,7 +144,7 @@ struct TaskListView: View {
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.trailing, 16)
             .padding(.vertical, 12)
-            .offset(y: -pullOffset)
+            .offset(y: -pullToCreate.pullOffset)
         }
         .scrollDisabled(draggedTaskID != nil)
         .scrollBounceBehavior(.always)
@@ -161,10 +157,7 @@ struct TaskListView: View {
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             max(0, -(geo.contentOffset.y + geo.contentInsets.top))
         } action: { _, pullDistance in
-            pullOffset = pullDistance
-            if isScrollInteracting {
-                createIndicatorOffset = pullDistance
-            }
+            pullToCreate.updatePullDistance(pullDistance)
         }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             let maxOffset = max(
@@ -176,38 +169,40 @@ struct TaskListView: View {
             pullUpOffset = pullDistance
         }
         .onScrollPhaseChange { oldPhase, newPhase in
-            isScrollInteracting = (newPhase == .interacting)
+            let action = pullToCreate.handlePhaseChange(
+                from: oldPhase,
+                to: newPhase,
+                activeTaskCount: activeTasks.count,
+                threshold: pullCreateThreshold
+            )
 
             if oldPhase == .interacting && newPhase != .interacting {
-                if pullOffset >= pullCreateThreshold {
-                    activeTaskCountBeforeCreate = activeTasks.count
-                    isCreateInsertionPending = true
+                switch action {
+                case .createTask:
                     var transaction = Transaction(animation: .spring(response: 0.28, dampingFraction: 0.9))
                     transaction.disablesAnimations = false
                     withTransaction(transaction) {
                         createNewTaskAtTop()
                     }
-                } else {
-                    isCreateInsertionPending = false
+                case .collapseIndicator:
                     withAnimation(.spring(response: 0.22, dampingFraction: 0.95)) {
-                        createIndicatorOffset = 0
+                        pullToCreate.indicatorOffset = 0
                     }
+                case .none:
+                    break
                 }
                 if pullUpOffset >= pullClearThreshold && !completedTasks.isEmpty { clearCompletedTasks() }
                 pullUpOffset = 0
             }
         }
         .onChange(of: activeTasks.count) { _, newCount in
-            guard isCreateInsertionPending else { return }
-            guard newCount > activeTaskCountBeforeCreate else { return }
             var transaction = Transaction(animation: nil)
             transaction.disablesAnimations = true
             withTransaction(transaction) {
-                isCreateInsertionPending = false
-                createIndicatorOffset = 0
+                _ = pullToCreate.resolvePendingInsertion(activeTaskCount: newCount)
             }
         }
-        .sensoryFeedback(.impact(weight: .medium), trigger: pullOffset >= pullCreateThreshold) { old, new in
+        .sensoryFeedback(.impact(weight: .medium), trigger: pullToCreate.pullOffset >= pullCreateThreshold) { old, new in
             !old && new
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: pullUpOffset >= pullClearThreshold) { old, new in

@@ -40,6 +40,7 @@
 		BA6953E0EFE6F8255F05A3FD /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		C169823665158AA347A63990 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51B8129962E5CC78ECDDC2B /* TaskListView.swift */; };
 		C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
+		CAC36F0ED35740AB74A2BB15 /* PullToCreateState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D48D898398DB472D4321B91 /* PullToCreateState.swift */; };
 		CAD142ED738A83371DFF8F5B /* TaskListView+Logic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */; };
 		DB5FF6C1AA57D4C9BDDD50FD /* ClickableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */; };
 		DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
@@ -89,6 +90,7 @@
 		74255E6B6C40899E9B17D927 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		75B048B19C5219862BBED2E7 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
+		8D48D898398DB472D4321B91 /* PullToCreateState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToCreateState.swift; sourceTree = "<group>"; };
 		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		944BAE054AAC1B9C4FC954F9 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreTests.swift; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 				B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */,
 				FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */,
 				E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */,
+				8D48D898398DB472D4321B91 /* PullToCreateState.swift */,
 				6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */,
 				D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */,
 				067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */,
@@ -450,6 +453,7 @@
 				77FE96F070B1F7FE31A9CE51 /* PlatformTextFieldWidthModifier.swift in Sources */,
 				785721EB774EAC6BBA26C038 /* PullToClear.swift in Sources */,
 				E47136CA7428927395D8C7C7 /* PullToCreate.swift in Sources */,
+				CAC36F0ED35740AB74A2BB15 /* PullToCreateState.swift in Sources */,
 				0F12D56A528FCBF8A67864CB /* TappableTextField.swift in Sources */,
 				0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */,
 				82E75475E13FD847DDDC69D8 /* TaskListView+Drag.swift in Sources */,

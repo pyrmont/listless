@@ -2,9 +2,9 @@ import SwiftUI
 
 extension TaskListView {
     @ViewBuilder var pullToCreateIndicatorRow: some View {
-        if createIndicatorOffset > 0 || isCreateInsertionPending {
+        if pullToCreate.shouldShowIndicator {
             PullToCreateIndicator(
-                pullOffset: isCreateInsertionPending ? pullCreateThreshold : createIndicatorOffset
+                pullOffset: pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold)
             )
         }
     }
