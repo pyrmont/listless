@@ -154,59 +154,15 @@ struct TaskListView: View {
         .overlay(alignment: .bottom) {
             pullToClearIndicatorRow
         }
-        .onScrollGeometryChange(for: CGFloat.self) { geo in
-            max(0, -(geo.contentOffset.y + geo.contentInsets.top))
-        } action: { _, pullDistance in
-            pullToCreate.updatePullDistance(pullDistance)
-        }
-        .onScrollGeometryChange(for: CGFloat.self) { geo in
-            let maxOffset = max(
-                -geo.contentInsets.top,
-                geo.contentSize.height - geo.bounds.size.height + geo.contentInsets.bottom
-            )
-            return max(0, geo.contentOffset.y - maxOffset)
-        } action: { _, pullDistance in
-            pullUpOffset = pullDistance
-        }
-        .onScrollPhaseChange { oldPhase, newPhase in
-            let action = pullToCreate.handlePhaseChange(
-                from: oldPhase,
-                to: newPhase,
-                activeTaskCount: activeTasks.count,
-                threshold: pullCreateThreshold
-            )
-
-            if oldPhase == .interacting && newPhase != .interacting {
-                switch action {
-                case .createTask:
-                    var transaction = Transaction(animation: .spring(response: 0.28, dampingFraction: 0.9))
-                    transaction.disablesAnimations = false
-                    withTransaction(transaction) {
-                        createNewTaskAtTop()
-                    }
-                case .collapseIndicator:
-                    withAnimation(.spring(response: 0.22, dampingFraction: 0.95)) {
-                        pullToCreate.indicatorOffset = 0
-                    }
-                case .none:
-                    break
-                }
-                if pullUpOffset >= pullClearThreshold && !completedTasks.isEmpty { clearCompletedTasks() }
-                pullUpOffset = 0
-            }
-        }
-        .onChange(of: activeTasks.count) { _, newCount in
-            var transaction = Transaction(animation: nil)
-            transaction.disablesAnimations = true
-            withTransaction(transaction) {
-                _ = pullToCreate.resolvePendingInsertion(activeTaskCount: newCount)
-            }
-        }
-        .sensoryFeedback(.impact(weight: .medium), trigger: pullToCreate.pullOffset >= pullCreateThreshold) { old, new in
-            !old && new
-        }
-        .sensoryFeedback(.impact(weight: .medium), trigger: pullUpOffset >= pullClearThreshold) { old, new in
-            !old && new
-        }
+        .pullCreationGesture(
+            pullToCreate: $pullToCreate,
+            pullUpOffset: $pullUpOffset,
+            activeTaskCount: activeTasks.count,
+            hasCompletedTasks: !completedTasks.isEmpty,
+            pullCreateThreshold: pullCreateThreshold,
+            pullClearThreshold: pullClearThreshold,
+            onCreateTaskAtTop: { createNewTaskAtTop() },
+            onClearCompleted: { clearCompletedTasks() }
+        )
     }
 }
