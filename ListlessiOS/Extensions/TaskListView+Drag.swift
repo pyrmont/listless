@@ -13,7 +13,7 @@ extension TaskListView {
         if currentIndex < order.count - 1 && point.y > draggedFrame.maxY + threshold {
             order.swapAt(currentIndex, currentIndex + 1)
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                visualOrder = order
+                setDragOrder(order)
             }
             return
         }
@@ -22,7 +22,7 @@ extension TaskListView {
         if currentIndex > 0 && point.y < draggedFrame.minY - threshold {
             order.swapAt(currentIndex, currentIndex - 1)
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                visualOrder = order
+                setDragOrder(order)
             }
         }
     }
@@ -31,8 +31,7 @@ extension TaskListView {
         guard let draggedID = draggedTaskID,
               let order = visualOrder,
               let finalIndex = order.firstIndex(of: draggedID) else {
-            draggedTaskID = nil
-            visualOrder = nil
+            clearDragState()
             isDragging = false
             return
         }
@@ -41,8 +40,7 @@ extension TaskListView {
         } catch {
             presentStoreError(error)
         }
-        draggedTaskID = nil
-        visualOrder = nil
+        clearDragState()
         isDragging = false
     }
 }

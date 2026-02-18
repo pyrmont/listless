@@ -6,6 +6,11 @@ struct TaskListView: View {
         case scrollView
     }
 
+    enum DragState: Equatable {
+        case idle
+        case dragging(id: UUID, order: [UUID])
+    }
+
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 
@@ -22,8 +27,7 @@ struct TaskListView: View {
     @FocusState var focusedField: FocusField?
     @State var selectedTaskID: UUID?
     @State private var refreshID = UUID()
-    @State var draggedTaskID: UUID?
-    @State var visualOrder: [UUID]?
+    @State var dragState: DragState = .idle
     @State var pendingFocus: FocusField?
     @State var pullToCreate = PullToCreateState()
     @State var pullUpOffset: CGFloat = 0

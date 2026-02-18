@@ -10,7 +10,7 @@ extension TaskListView {
     }
 
     var displayActiveTasks: [TaskItem] {
-        guard let visualOrder = visualOrder else {
+        guard let visualOrder else {
             return activeTasks
         }
 
@@ -35,6 +35,20 @@ extension TaskListView {
         return nil
     }
 
+    var draggedTaskID: UUID? {
+        if case .dragging(let id, _) = dragState {
+            return id
+        }
+        return nil
+    }
+
+    var visualOrder: [UUID]? {
+        if case .dragging(_, let order) = dragState {
+            return order
+        }
+        return nil
+    }
+
     func presentStoreError(_ error: Error) {
         syncMonitor.ingest(error: error)
     }
@@ -47,8 +61,7 @@ extension TaskListView {
     // MARK: - Task Creation
 
     func createNewTaskAtTop() -> UUID {
-        draggedTaskID = nil
-        visualOrder = nil
+        clearDragState()
         do {
             let task = try store.createTask(title: "", atBeginning: true)
             pendingFocus = .task(task.id)
@@ -62,8 +75,7 @@ extension TaskListView {
     }
 
     func createNewTask() {
-        draggedTaskID = nil
-        visualOrder = nil
+        clearDragState()
         do {
             let task = try store.createTask(title: "")
             pendingFocus = .task(task.id)
@@ -332,9 +344,8 @@ extension TaskListView {
     // MARK: - Drag and Drop
 
     func startDrag(taskID: UUID) {
-        guard draggedTaskID == nil else { return }
-        draggedTaskID = taskID
-        visualOrder = activeTasks.map(\.id)
+        guard case .idle = dragState else { return }
+        dragState = .dragging(id: taskID, order: activeTasks.map(\.id))
         didStartDrag()
     }
 
@@ -348,9 +359,9 @@ extension TaskListView {
             newOrder.insert(draggedID, at: targetIndex)
         }
 
-        if newOrder != visualOrder {
+        if newOrder != order {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                visualOrder = newOrder
+                setDragOrder(newOrder)
             }
         }
     }
@@ -365,9 +376,9 @@ extension TaskListView {
             newOrder.insert(draggedID, at: targetIndex + 1)
         }
 
-        if newOrder != visualOrder {
+        if newOrder != order {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                visualOrder = newOrder
+                setDragOrder(newOrder)
             }
         }
     }
@@ -396,9 +407,9 @@ extension TaskListView {
         var newOrder = order.filter { $0 != draggedID }
         newOrder.append(draggedID)
 
-        if newOrder != visualOrder {
+        if newOrder != order {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                visualOrder = newOrder
+                setDragOrder(newOrder)
             }
         }
     }
@@ -409,8 +420,7 @@ extension TaskListView {
             let order = visualOrder,
             let finalIndex = order.firstIndex(of: droppedUUID)
         else {
-            draggedTaskID = nil
-            visualOrder = nil
+            clearDragState()
             return false
         }
 
@@ -419,9 +429,17 @@ extension TaskListView {
         } catch {
             presentStoreError(error)
         }
-        draggedTaskID = nil
-        visualOrder = nil
+        clearDragState()
 
         return true
+    }
+
+    func setDragOrder(_ order: [UUID]) {
+        guard case .dragging(let id, _) = dragState else { return }
+        dragState = .dragging(id: id, order: order)
+    }
+
+    func clearDragState() {
+        dragState = .idle
     }
 }
