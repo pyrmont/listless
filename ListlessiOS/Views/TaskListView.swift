@@ -25,6 +25,7 @@ struct TaskListView: View {
     @State var visualOrder: [UUID]?
     @State var pendingFocus: FocusField?
     @State var pullOffset: CGFloat = 0
+    @State var pullUpOffset: CGFloat = 0
     @State var isDragging: Bool = false
     @State var rowFrames: [UUID: CGRect] = [:]
 
@@ -41,6 +42,50 @@ struct TaskListView: View {
     }
 
     var body: some View {
+        taskScrollView
+            .contentShape(Rectangle())
+            .onTapGesture {
+                handleBackgroundTap()
+            }
+            .focusable()
+            .focused($focusedField, equals: .scrollView)
+            .focusEffectDisabled()
+            .accessibilityIdentifier("task-list-scrollview")
+            .keyboardNavigation([
+                ShortcutKey(key: .upArrow): navigateUp,
+                ShortcutKey(key: .downArrow): navigateDown,
+                ShortcutKey(key: .space): toggleSelectedTask,
+                ShortcutKey(key: .return): focusSelectedTask,
+                ShortcutKey(key: .delete): deleteSelectedTask,
+            ])
+            .onAppear {
+                if focusedField == nil {
+                    focusedField = .scrollView
+                }
+            }
+            .onChange(of: focusedField) { oldValue, newValue in
+                handleFocusChange(from: oldValue, to: newValue)
+
+                if newValue == nil {
+                    if let pending = pendingFocus {
+                        print("🟣 onChange resolving pendingFocus: \(pending)")
+                        focusedField = pending
+                        pendingFocus = nil
+                    } else {
+                        print("🟣 onChange repairing nil focus to .scrollView")
+                        focusedField = .scrollView
+                    }
+                }
+            }
+            .onChange(of: undoManager, initial: true) { _, newValue in
+                managedObjectContext.undoManager = newValue
+            }
+            .toolbar {
+                platformToolbar
+            }
+    }
+
+    private var taskScrollView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: vStackSpacing) {
                 navigationHeader
@@ -102,62 +147,40 @@ struct TaskListView: View {
             .offset(y: -pullOffset)
         }
         .scrollDisabled(draggedTaskID != nil)
+        .scrollBounceBehavior(.always)
         .background {
             Color.outerBackground.ignoresSafeArea()
+        }
+        .overlay(alignment: .bottom) {
+            pullToClearIndicatorRow
         }
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             max(0, -(geo.contentOffset.y + geo.contentInsets.top))
         } action: { _, pullDistance in
             pullOffset = pullDistance
         }
+        .onScrollGeometryChange(for: CGFloat.self) { geo in
+            let maxOffset = max(
+                -geo.contentInsets.top,
+                geo.contentSize.height - geo.bounds.size.height + geo.contentInsets.bottom
+            )
+            return max(0, geo.contentOffset.y - maxOffset)
+        } action: { _, pullDistance in
+            pullUpOffset = pullDistance
+        }
         .onScrollPhaseChange { oldPhase, newPhase in
             if oldPhase == .interacting && newPhase != .interacting {
                 if pullOffset >= pullCreateThreshold { createNewTaskAtTop() }
+                if pullUpOffset >= pullClearThreshold && !completedTasks.isEmpty { clearCompletedTasks() }
                 pullOffset = 0
+                pullUpOffset = 0
             }
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: pullOffset >= pullCreateThreshold) { old, new in
             !old && new
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            handleBackgroundTap()
-        }
-        .focusable()
-        .focused($focusedField, equals: .scrollView)
-        .focusEffectDisabled()
-        .accessibilityIdentifier("task-list-scrollview")
-        .keyboardNavigation([
-            ShortcutKey(key: .upArrow): navigateUp,
-            ShortcutKey(key: .downArrow): navigateDown,
-            ShortcutKey(key: .space): toggleSelectedTask,
-            ShortcutKey(key: .return): focusSelectedTask,
-            ShortcutKey(key: .delete): deleteSelectedTask,
-        ])
-        .onAppear {
-            if focusedField == nil {
-                focusedField = .scrollView
-            }
-        }
-        .onChange(of: focusedField) { oldValue, newValue in
-            handleFocusChange(from: oldValue, to: newValue)
-
-            if newValue == nil {
-                if let pending = pendingFocus {
-                    print("🟣 onChange resolving pendingFocus: \(pending)")
-                    focusedField = pending
-                    pendingFocus = nil
-                } else {
-                    print("🟣 onChange repairing nil focus to .scrollView")
-                    focusedField = .scrollView
-                }
-            }
-        }
-        .onChange(of: undoManager, initial: true) { _, newValue in
-            managedObjectContext.undoManager = newValue
-        }
-        .toolbar {
-            platformToolbar
+        .sensoryFeedback(.impact(weight: .medium), trigger: pullUpOffset >= pullClearThreshold) { old, new in
+            !old && new
         }
     }
 }
