@@ -36,6 +36,7 @@ struct TaskListView: View {
 
     var vStackSpacing: CGFloat { 12 }
     var pullCreateThreshold: CGFloat { 70 }
+    var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
 
     init(store: TaskStore, syncMonitor: CloudKitSyncMonitor) {
         self.store = store
@@ -187,6 +188,15 @@ struct TaskListView: View {
         .scrollBounceBehavior(.always)
         .background {
             Color.outerBackground.ignoresSafeArea()
+        }
+        .overlay {
+            if isCompletelyEmpty {
+                Text("Pull down to create")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 24)
+                    .allowsHitTesting(false)
+            }
         }
         .overlay(alignment: .bottom) {
             pullToClearIndicatorRow
