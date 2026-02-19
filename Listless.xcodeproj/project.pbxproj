@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
 		0F12D56A528FCBF8A67864CB /* TappableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */; };
+		11AA75BE98CFBE44AEAB7100 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9404C09EE1A4D91DFF338464 /* Media.xcassets */; };
 		172F2DD978988E207610055F /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */; };
 		182D9FB61E3A3650D7D83D2A /* TaskRowSwipeGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */; };
 		1AA328A921EF8A7FDD03119A /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
@@ -54,6 +55,7 @@
 		E4BD761E34CBB84CE80F7F49 /* CloudKitErrorClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */; };
 		E5878BAA0EA66A94440E2B0F /* TaskListView+Logic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */; };
 		E60F81C7B930AACE67746759 /* HoverCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */; };
+		EA5E6FC7D61E235B70A139FA /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9404C09EE1A4D91DFF338464 /* Media.xcassets */; };
 		ECD5E7EA05AE1C00B38C939E /* TaskStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */; };
 		F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */; };
 		F50E8B8F73F64D8E641DC74C /* TaskStoreCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */; };
@@ -101,6 +103,7 @@
 		7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+SyncUI.swift"; sourceTree = "<group>"; };
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
+		9404C09EE1A4D91DFF338464 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		944BAE054AAC1B9C4FC954F9 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreTests.swift; sourceTree = "<group>"; };
 		9AD8D4C29E09FEE78AE5AB79 /* TaskListView+PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullToCreate.swift"; sourceTree = "<group>"; };
@@ -300,6 +303,7 @@
 		ED4862258A8A70025EE14416 = {
 			isa = PBXGroup;
 			children = (
+				9404C09EE1A4D91DFF338464 /* Media.xcassets */,
 				58051CBDE2390F9E13647235 /* Listless */,
 				954AAB8DDFF6E6D6FD6A0A2C /* ListlessiOS */,
 				D5B197AFF26144948D032299 /* ListlessMac */,
@@ -338,6 +342,7 @@
 			buildConfigurationList = 4D46AAEA40BF3A5A8C4E1999 /* Build configuration list for PBXNativeTarget "Listless macOS" */;
 			buildPhases = (
 				409D108909CBEC2F69B56D0E /* Sources */,
+				6BCB6F65428622E5AA66936D /* Resources */,
 			);
 			buildRules = (
 			);
@@ -355,6 +360,7 @@
 			buildConfigurationList = B7581C7E1D90658668F3AAE2 /* Build configuration list for PBXNativeTarget "Listless iOS" */;
 			buildPhases = (
 				67F773566AF3BC117AA393B9 /* Sources */,
+				EC5CE716D5948EC163595BF2 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -428,6 +434,25 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6BCB6F65428622E5AA66936D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA5E6FC7D61E235B70A139FA /* Media.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EC5CE716D5948EC163595BF2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11AA75BE98CFBE44AEAB7100 /* Media.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		409D108909CBEC2F69B56D0E /* Sources */ = {
