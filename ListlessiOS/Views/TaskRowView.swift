@@ -72,9 +72,13 @@ struct TaskRowView: View {
                 text: $editingTitle,
                 isCompleted: task.isCompleted,
                 onEditingChanged: { editing, shouldCreateNewTask in
-                    isCurrentlyEditing = editing
-                    if editing { onStartEdit(taskID) }
-                    else { onEndEdit(taskID, shouldCreateNewTask) }
+                    // TappableTextField is UIKit-backed; defer state mutations to avoid
+                    // "Modifying state during view update" warnings from SwiftUI.
+                    DispatchQueue.main.async {
+                        isCurrentlyEditing = editing
+                        if editing { onStartEdit(taskID) }
+                        else { onEndEdit(taskID, shouldCreateNewTask) }
+                    }
                 }
             )
             .focused($focusedField, equals: .task(taskID))

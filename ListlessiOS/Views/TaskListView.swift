@@ -11,6 +11,24 @@ struct TaskListView: View {
         case dragging(id: UUID, order: [UUID])
     }
 
+    struct FocusStateData {
+        var focusedField: FocusField?
+        var selectedTaskID: UUID?
+        var pendingFocus: FocusField?
+    }
+
+    struct InteractionStateData {
+        var dragState: DragState = .idle
+        var pullToCreate = PullToCreateState()
+        var pullUpOffset: CGFloat = 0
+        var isDragging: Bool = false
+        var rowFrames: [UUID: CGRect] = [:]
+    }
+
+    struct TaskStateData {
+        var refreshID = UUID()
+    }
+
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 
@@ -24,15 +42,79 @@ struct TaskListView: View {
         animation: .default
     )
     var tasks: FetchedResults<TaskItem>
-    @FocusState var focusedField: FocusField?
-    @State var selectedTaskID: UUID?
-    @State private var refreshID = UUID()
-    @State var dragState: DragState = .idle
-    @State var pendingFocus: FocusField?
-    @State var pullToCreate = PullToCreateState()
-    @State var pullUpOffset: CGFloat = 0
-    @State var isDragging: Bool = false
-    @State var rowFrames: [UUID: CGRect] = [:]
+    @FocusState private var focusedFieldBinding: FocusField?
+    @State private var fState = FocusStateData()
+    @State private var iState = InteractionStateData()
+    @State private var tState = TaskStateData()
+
+    var focusedField: FocusField? {
+        get { fState.focusedField }
+        nonmutating set {
+            fState.focusedField = newValue
+            focusedFieldBinding = newValue
+        }
+    }
+
+    var selectedTaskID: UUID? {
+        get { fState.selectedTaskID }
+        nonmutating set { fState.selectedTaskID = newValue }
+    }
+
+    var pendingFocus: FocusField? {
+        get { fState.pendingFocus }
+        nonmutating set { fState.pendingFocus = newValue }
+    }
+
+    var dragState: DragState {
+        get { iState.dragState }
+        nonmutating set { iState.dragState = newValue }
+    }
+
+    var pullToCreate: PullToCreateState {
+        get { iState.pullToCreate }
+        nonmutating set { iState.pullToCreate = newValue }
+    }
+
+    var pullUpOffset: CGFloat {
+        get { iState.pullUpOffset }
+        nonmutating set { iState.pullUpOffset = newValue }
+    }
+
+    var isDragging: Bool {
+        get { iState.isDragging }
+        nonmutating set { iState.isDragging = newValue }
+    }
+
+    var rowFrames: [UUID: CGRect] {
+        get { iState.rowFrames }
+        nonmutating set { iState.rowFrames = newValue }
+    }
+
+    var refreshID: UUID {
+        get { tState.refreshID }
+        nonmutating set { tState.refreshID = newValue }
+    }
+
+    private var isDraggingStateBinding: Binding<Bool> {
+        Binding(
+            get: { iState.isDragging },
+            set: { iState.isDragging = $0 }
+        )
+    }
+
+    private var pullToCreateStateBinding: Binding<PullToCreateState> {
+        Binding(
+            get: { iState.pullToCreate },
+            set: { iState.pullToCreate = $0 }
+        )
+    }
+
+    private var pullUpOffsetStateBinding: Binding<CGFloat> {
+        Binding(
+            get: { iState.pullUpOffset },
+            set: { iState.pullUpOffset = $0 }
+        )
+    }
 
     var vStackSpacing: CGFloat { 12 }
     var pullCreateThreshold: CGFloat { 70 }
@@ -56,7 +138,7 @@ struct TaskListView: View {
                 handleBackgroundTap()
             }
             .focusable()
-            .focused($focusedField, equals: .scrollView)
+            .focused($focusedFieldBinding, equals: .scrollView)
             .focusEffectDisabled()
             .accessibilityIdentifier("task-list-scrollview")
             .keyboardNavigation([
@@ -67,21 +149,25 @@ struct TaskListView: View {
                 ShortcutKey(key: .delete): deleteSelectedTask,
             ])
             .onAppear {
-                if focusedField == nil {
-                    focusedField = .scrollView
+                if focusedFieldBinding == nil {
+                    focusedFieldBinding = .scrollView
                 }
+                fState.focusedField = focusedFieldBinding
             }
-            .onChange(of: focusedField) { oldValue, newValue in
+            .onChange(of: focusedFieldBinding) { oldValue, newValue in
+                fState.focusedField = newValue
                 handleFocusChange(from: oldValue, to: newValue)
 
                 if newValue == nil {
                     if let pending = pendingFocus {
                         print("🟣 onChange resolving pendingFocus: \(pending)")
-                        focusedField = pending
+                        focusedFieldBinding = pending
+                        fState.focusedField = pending
                         pendingFocus = nil
                     } else {
                         print("🟣 onChange repairing nil focus to .scrollView")
-                        focusedField = .scrollView
+                        focusedFieldBinding = .scrollView
+                        fState.focusedField = .scrollView
                     }
                 }
             }
@@ -136,8 +222,8 @@ struct TaskListView: View {
                         index: index,
                         totalTasks: displayActiveTasks.count,
                         isSelected: selectedTaskID == taskID,
-                        isDragging: $isDragging,
-                        focusedField: $focusedField,
+                        isDragging: isDraggingStateBinding,
+                        focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
                         onDelete: { deleteTask($0) },
@@ -171,7 +257,7 @@ struct TaskListView: View {
                         task: task,
                         taskID: taskID,
                         isSelected: selectedTaskID == taskID,
-                        focusedField: $focusedField,
+                        focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
                         onDelete: { deleteTask($0) },
@@ -202,8 +288,8 @@ struct TaskListView: View {
             pullToClearIndicatorRow
         }
         .pullCreationGesture(
-            pullToCreate: $pullToCreate,
-            pullUpOffset: $pullUpOffset,
+            pullToCreate: pullToCreateStateBinding,
+            pullUpOffset: pullUpOffsetStateBinding,
             activeTaskIDs: activeTasks.map(\.id),
             hasCompletedTasks: !completedTasks.isEmpty,
             pullCreateThreshold: pullCreateThreshold,
