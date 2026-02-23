@@ -8,6 +8,7 @@ final class MenuCoordinator {
 
     // Actions — set by TaskListView on each relevant state change.
     var newTask: (() -> Void)?
+    var newWindow: (() -> Void)?
     var deleteSelectedTask: (() -> Void)?
     var moveSelectedTaskUp: (() -> Void)?
     var moveSelectedTaskDown: (() -> Void)?

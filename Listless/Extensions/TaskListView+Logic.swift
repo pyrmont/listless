@@ -101,17 +101,12 @@ extension TaskListView {
     }
 
     func handleFocusChange(from oldValue: FocusField?, to newValue: FocusField?) {
-        print(
-            "🟣 handleFocusChange() from: \(String(describing: oldValue)) to: \(String(describing: newValue))"
-        )
         let oldID = taskID(from: oldValue)
         let newID = taskID(from: newValue)
 
         guard oldID != newID, let oldID else {
-            print("🟣 handleFocusChange() no action needed")
             return
         }
-        print("🟣 handleFocusChange() calling deleteIfEmpty for task \(oldID)")
         deleteIfEmpty(taskID: oldID)
     }
 
@@ -122,7 +117,6 @@ extension TaskListView {
 
     private func deleteIfEmpty(taskID: UUID) {
         if case .task(let pendingTaskID) = pendingFocus, pendingTaskID == taskID {
-            print("🔴 deleteIfEmpty() skipping - task is pending focus")
             return
         }
 
@@ -175,14 +169,11 @@ extension TaskListView {
 
     func deleteTask(_ task: TaskItem) {
         let taskID = task.id
-        print("🔴 deleteTask() called for task \(taskID)")
         do {
             try store.delete(taskID: taskID)
             if selectedTaskID == taskID {
-                print("🔴 deleteTask() clearing selectedTaskID")
                 selectedTaskID = nil
             }
-            print("🔴 deleteTask() completed")
         } catch {
             presentStoreError(error)
         }
@@ -201,9 +192,7 @@ extension TaskListView {
     // MARK: - Keyboard Navigation
 
     func navigateUp() -> KeyPress.Result {
-        print("⬆️ navigateUp() called, focusedField: \(String(describing: focusedField))")
         guard focusedField == .scrollView else {
-            print("⬆️ navigateUp() IGNORED - focus is not .scrollView")
             return .ignored
         }
 
@@ -224,9 +213,7 @@ extension TaskListView {
     }
 
     func navigateDown() -> KeyPress.Result {
-        print("⬇️ navigateDown() called, focusedField: \(String(describing: focusedField))")
         guard focusedField == .scrollView else {
-            print("⬇️ navigateDown() IGNORED - focus is not .scrollView")
             return .ignored
         }
 
@@ -256,24 +243,6 @@ extension TaskListView {
         return .handled
     }
 
-    func createNewTaskFromShortcut() -> KeyPress.Result {
-        createNewTask()
-        focusedField = nil
-        return .handled
-    }
-
-    func moveSelectedTaskUpFromShortcut() -> KeyPress.Result {
-        guard focusedField == .scrollView else { return .ignored }
-        moveSelectedTaskUp()
-        return .handled
-    }
-
-    func moveSelectedTaskDownFromShortcut() -> KeyPress.Result {
-        guard focusedField == .scrollView else { return .ignored }
-        moveSelectedTaskDown()
-        return .handled
-    }
-
     func focusSelectedTask() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
         guard let currentID = selectedTaskID else { return .handled }
@@ -286,20 +255,15 @@ extension TaskListView {
     }
 
     func deleteSelectedTask() -> KeyPress.Result {
-        print("🗑️ deleteSelectedTask() called, focusedField: \(String(describing: focusedField))")
         guard focusedField == .scrollView else {
-            print("🗑️ deleteSelectedTask() IGNORED - focus is not .scrollView")
             return .ignored
         }
         guard let currentID = selectedTaskID else {
-            print("🗑️ deleteSelectedTask() no task selected")
             return .handled
         }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
-            print("🗑️ deleteSelectedTask() task not found")
             return .handled
         }
-        print("🗑️ deleteSelectedTask() deleting task \(currentID)")
         deleteTask(task)
         return .handled
     }
@@ -344,17 +308,12 @@ extension TaskListView {
     }
 
     func startEditing(_ taskID: UUID) {
-        print("🟢 startEditing called for task \(taskID)")
         selectedTaskID = taskID
         focusedField = .task(taskID)
         pendingFocus = nil
-        print("🟢 startEditing set focusedField = .task(\(taskID))")
     }
 
     func endEditing(_ taskID: UUID, shouldCreateNewTask: Bool) {
-        print(
-            "🟢 endEditing() called for task \(taskID), shouldCreateNewTask: \(shouldCreateNewTask)"
-        )
         do {
             try store.save()
         } catch {
@@ -363,25 +322,15 @@ extension TaskListView {
 
         let wasLastActiveTask = isLastActiveTask(taskID)
         let willBeDeleted = shouldDeleteIfEmpty(taskID: taskID)
-        print(
-            "🟢 endEditing() wasLastActiveTask: \(wasLastActiveTask), willBeDeleted: \(willBeDeleted)"
-        )
 
         if willBeDeleted {
-            print("🟢 endEditing() deleting task - focus will be repaired automatically by onChange")
             selectedTaskID = nil
             deleteIfEmpty(taskID: taskID)
         } else if wasLastActiveTask && shouldCreateNewTask {
-            print("🟢 endEditing() creating new task")
             createNewTask()
         } else if shouldCreateNewTask {
-            print("🟢 endEditing() Return on non-last task — dismiss keyboard, enter navigation mode")
             focusedField = .scrollView
-        } else {
-            print("🟢 endEditing() done, selection unchanged")
         }
-
-        print("🟢 endEditing() completed, final focus: \(String(describing: focusedField))")
     }
 
     private func shouldDeleteIfEmpty(taskID: UUID) -> Bool {

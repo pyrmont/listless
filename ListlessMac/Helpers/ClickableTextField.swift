@@ -156,12 +156,10 @@ struct ClickableTextField: NSViewRepresentable {
         }
 
         func handleBecomeFirstResponder() {
-            print("🟡 ClickableTextField.becomeFirstResponder - calling onEditingChanged(true)")
             onEditingChanged(true, false)
         }
 
         func controlTextDidEndEditing(_ obj: Notification) {
-            print("🟡 ClickableTextField.controlTextDidEndEditing fired - reason: \(editEndReason)")
             let shouldCreateNewTask = editEndReason == .returnKey
             editEndReason = .focusLost  // Reset for next time
             onEditingChanged(false, shouldCreateNewTask)
@@ -177,22 +175,18 @@ struct ClickableTextField: NSViewRepresentable {
         )
             -> Bool
         {
-            print("🟡 ClickableTextField.doCommandBy selector: \(commandSelector)")
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
                 // Return key pressed
-                print("🟡 ClickableTextField.doCommandBy RETURN key detected")
                 editEndReason = .returnKey
                 control.window?.makeFirstResponder(nil)
                 return true  // Prevent newline insertion
             }
             if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
                 // Escape key pressed
-                print("🟡 ClickableTextField.doCommandBy ESCAPE key detected")
                 editEndReason = .escape
                 control.window?.makeFirstResponder(nil)
                 return true
             }
-            print("🟡 ClickableTextField.doCommandBy unhandled selector, returning false")
             return false
         }
     }

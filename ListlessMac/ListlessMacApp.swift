@@ -1,160 +1,18 @@
 import SwiftUI
 import AppKit
 
-private let customMenuTag = 1001
+private enum MenuSelectors {
+    static let showSettingsWindow = Selector(("showSettingsWindow:"))
+    static let closeAll = Selector(("closeAll:"))
+    static let undo = Selector(("undo:"))
+    static let redo = Selector(("redo:"))
+}
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        removeFormatMenu()
-
-        // SwiftUI builds menus asynchronously; watch for items appearing.
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleMenuDidAddItem(_:)),
-            name: NSMenu.didAddItemNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleAppDidBecomeActive(_:)),
-            name: NSApplication.didBecomeActiveNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleWindowDidBecomeKey(_:)),
-            name: NSWindow.didBecomeKeyNotification,
-            object: nil
-        )
-
-        // SwiftUI/AppKit can finish menu construction after launch callbacks; apply
-        // our menu patch repeatedly in the first moments to avoid startup races.
-        refreshMenus()
-        let startupDelays: [TimeInterval] = [0.0, 0.05, 0.15, 0.35]
-        for delay in startupDelays {
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-                self?.refreshMenus()
-            }
-        }
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
-    @objc private func handleMenuDidAddItem(_ notification: Notification) {
-        Task { @MainActor [weak self] in
-            self?.removeFormatMenu()
-            self?.setupFileMenuIfNeeded()
-            self?.setupEditMenuIfNeeded()
-        }
-    }
-
-    @objc private func handleAppDidBecomeActive(_ notification: Notification) {
-        refreshMenus()
-    }
-
-    @objc private func handleWindowDidBecomeKey(_ notification: Notification) {
-        refreshMenus()
-    }
-
-    private func refreshMenus() {
-        removeFormatMenu()
-        setupFileMenuIfNeeded()
-        setupEditMenuIfNeeded()
-    }
-
-    // MARK: - Menu Setup
-
-    @MainActor private func removeFormatMenu() {
-        guard let mainMenu = NSApp.mainMenu else { return }
-        mainMenu.items
-            .filter { $0.title == "Format" }
-            .forEach { mainMenu.removeItem($0) }
-    }
-
-    @MainActor private func setupFileMenuIfNeeded() {
-        guard let fileMenu = NSApp.mainMenu?.items.first(where: { $0.title == "File" })?.submenu else { return }
-
-        // Always update the New Window shortcut in-place — runs on every notification
-        // in case SwiftUI re-adds a fresh item. Never remove it; removal causes SwiftUI
-        // to re-add it at the bottom with the original shortcut.
-        if let newWindowItem = fileMenu.items.first(where: { $0.action == NSSelectorFromString("menuAction:") }) {
-            newWindowItem.keyEquivalent = "n"
-            newWindowItem.keyEquivalentModifierMask = [.command, .shift]
-        }
-
-        guard !fileMenu.items.contains(where: { $0.tag == customMenuTag }) else { return }
-
-        // Defer until both Close and Close All are present — the build order of these
-        // items is non-deterministic, so we wait for both before touching anything.
-        guard fileMenu.items.contains(where: { $0.action == NSSelectorFromString("performClose:") }),
-              fileMenu.items.contains(where: { $0.action == NSSelectorFromString("closeAll:") }) else { return }
-
-        guard let newWindowItem = fileMenu.items.first(where: { $0.action == NSSelectorFromString("menuAction:") }) else { return }
-        let insertIndex = fileMenu.index(of: newWindowItem)
-
-        // Insert sep1 and New Task before New Window, then sep2 immediately after it.
-        // We own both separators so the layout is stable regardless of where the
-        // system separator between Close/Close All ends up.
-        let sep1 = NSMenuItem.separator()
-        sep1.tag = customMenuTag
-        fileMenu.insertItem(sep1, at: insertIndex)
-
-        let newTaskItem = NSMenuItem(title: "New Task", action: #selector(handleNewTask), keyEquivalent: "n")
-        newTaskItem.keyEquivalentModifierMask = .command
-        newTaskItem.target = self
-        newTaskItem.tag = customMenuTag
-        fileMenu.insertItem(newTaskItem, at: insertIndex)
-
-        // New Window is now at insertIndex + 2; place sep2 immediately after it.
-        let sep2 = NSMenuItem.separator()
-        sep2.tag = customMenuTag
-        fileMenu.insertItem(sep2, at: insertIndex + 3)
-    }
-
-    @MainActor private func setupEditMenuIfNeeded() {
-        guard let editMenu = NSApp.mainMenu?.items.first(where: { $0.title == "Edit" })?.submenu else { return }
-
-        // NOTE: Any new menu key equivalents added in this file should also be mapped in
-        // TaskListView.keyboardNavigation(...). SwiftUI's onKeyPress layer can intercept
-        // events before AppKit key equivalents, so duplicating shortcut bindings at the
-        // SwiftUI layer keeps shortcut handling reliable.
-
-        // Modify the system "Delete" item in-place so it stays in its expected position
-        // but dispatches our action with our preferred shortcut (⌫). Runs on every
-        // notification in case SwiftUI re-adds a fresh item; left untagged so the guard
-        // below can still fire correctly on first setup.
-        if let systemDelete = editMenu.items.first(where: { $0.action == NSSelectorFromString("delete:") }) {
-            systemDelete.action = #selector(handleDeleteTask)
-            systemDelete.target = self
-            systemDelete.keyEquivalent = "\u{08}"
-            systemDelete.keyEquivalentModifierMask = []
-        }
-
-        guard !editMenu.items.contains(where: { $0.tag == customMenuTag }) else { return }
-
-        func addSep() {
-            let s = NSMenuItem.separator()
-            s.tag = customMenuTag
-            editMenu.addItem(s)
-        }
-
-        func addItem(title: String, action: Selector, key: String, modifiers: NSEvent.ModifierFlags) {
-            let i = NSMenuItem(title: title, action: action, keyEquivalent: key)
-            i.keyEquivalentModifierMask = modifiers
-            i.target = self
-            i.tag = customMenuTag
-            editMenu.addItem(i)
-        }
-
-        addSep()
-        addItem(title: "Move Up",           action: #selector(handleMoveUp),         key: "\u{F700}", modifiers: .command)
-        addItem(title: "Move Down",         action: #selector(handleMoveDown),        key: "\u{F701}", modifiers: .command)
-        addItem(title: "Mark as Completed", action: #selector(handleMarkCompleted),   key: " ",        modifiers: [])
-        addSep()
-        addItem(title: "Clear Completed",   action: #selector(handleClearCompleted),  key: "",         modifiers: [])
+        NSWindow.allowsAutomaticWindowTabbing = false
+        installMainMenu()
     }
 
     // MARK: - NSMenuItemValidation
@@ -164,6 +22,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         let coord = MenuCoordinator.shared
         switch menuItem.action {
+        case #selector(handleNewWindow):      return coord.newWindow != nil
         case #selector(handleDeleteTask):     return coord.canDeleteSelectedTask
         case #selector(handleMoveUp):         return coord.canMoveSelectedTaskUp
         case #selector(handleMoveDown):       return coord.canMoveSelectedTaskDown
@@ -185,6 +44,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         MenuCoordinator.shared.deleteSelectedTask?()
     }
 
+    @objc private func handleNewWindow() {
+        MenuCoordinator.shared.newWindow?()
+    }
+
     @objc private func handleMoveUp() {
         MenuCoordinator.shared.moveSelectedTaskUp?()
     }
@@ -199,6 +62,142 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     @objc private func handleClearCompleted() {
         MenuCoordinator.shared.clearCompletedTasks?()
+    }
+
+    // MARK: - Main Menu
+
+    private func installMainMenu() {
+        let mainMenu = NSMenu()
+        let appName = ProcessInfo.processInfo.processName
+
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "About \(appName)", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(NSMenuItem.separator())
+
+        let settingsItem = NSMenuItem(
+            title: "Settings…",
+            action: MenuSelectors.showSettingsWindow,
+            keyEquivalent: ","
+        )
+        settingsItem.target = nil
+        appMenu.addItem(settingsItem)
+        appMenu.addItem(NSMenuItem.separator())
+
+        let servicesItem = NSMenuItem(title: "Services", action: nil, keyEquivalent: "")
+        let servicesMenu = NSMenu(title: "Services")
+        servicesItem.submenu = servicesMenu
+        appMenu.addItem(servicesItem)
+        NSApp.servicesMenu = servicesMenu
+
+        appMenu.addItem(NSMenuItem.separator())
+        appMenu.addItem(withTitle: "Hide \(appName)", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+
+        let hideOthersItem = NSMenuItem(
+            title: "Hide Others",
+            action: #selector(NSApplication.hideOtherApplications(_:)),
+            keyEquivalent: "h"
+        )
+        hideOthersItem.keyEquivalentModifierMask = [.command, .option]
+        appMenu.addItem(hideOthersItem)
+        appMenu.addItem(withTitle: "Show All", action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
+        appMenu.addItem(NSMenuItem.separator())
+        appMenu.addItem(withTitle: "Quit \(appName)", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+
+        let appMenuItem = NSMenuItem()
+        appMenuItem.submenu = appMenu
+        mainMenu.addItem(appMenuItem)
+
+        let fileMenu = NSMenu(title: "File")
+        let newTaskItem = NSMenuItem(title: "New Task", action: #selector(handleNewTask), keyEquivalent: "n")
+        newTaskItem.keyEquivalentModifierMask = [.command]
+        newTaskItem.target = self
+        fileMenu.addItem(newTaskItem)
+        fileMenu.addItem(NSMenuItem.separator())
+
+        let newWindowItem = NSMenuItem(title: "New Window", action: #selector(handleNewWindow), keyEquivalent: "n")
+        newWindowItem.keyEquivalentModifierMask = [.command, .shift]
+        newWindowItem.target = self
+        fileMenu.addItem(newWindowItem)
+        fileMenu.addItem(NSMenuItem.separator())
+        fileMenu.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+
+        let closeAllItem = NSMenuItem(title: "Close All", action: MenuSelectors.closeAll, keyEquivalent: "w")
+        closeAllItem.keyEquivalentModifierMask = [.command, .option]
+        closeAllItem.target = nil
+        fileMenu.addItem(closeAllItem)
+
+        let fileMenuItem = NSMenuItem(title: "File", action: nil, keyEquivalent: "")
+        fileMenuItem.submenu = fileMenu
+        mainMenu.addItem(fileMenuItem)
+
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Undo", action: MenuSelectors.undo, keyEquivalent: "z")
+        let redoItem = NSMenuItem(title: "Redo", action: MenuSelectors.redo, keyEquivalent: "z")
+        redoItem.keyEquivalentModifierMask = [.command, .shift]
+        editMenu.addItem(redoItem)
+        editMenu.addItem(NSMenuItem.separator())
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let deleteItem = NSMenuItem(title: "Delete", action: #selector(handleDeleteTask), keyEquivalent: "\u{08}")
+        deleteItem.keyEquivalentModifierMask = []
+        deleteItem.target = self
+        editMenu.addItem(deleteItem)
+
+        editMenu.addItem(NSMenuItem.separator())
+
+        let moveUpItem = NSMenuItem(title: "Move Up", action: #selector(handleMoveUp), keyEquivalent: "\u{F700}")
+        moveUpItem.keyEquivalentModifierMask = [.command]
+        moveUpItem.target = self
+        editMenu.addItem(moveUpItem)
+
+        let moveDownItem = NSMenuItem(title: "Move Down", action: #selector(handleMoveDown), keyEquivalent: "\u{F701}")
+        moveDownItem.keyEquivalentModifierMask = [.command]
+        moveDownItem.target = self
+        editMenu.addItem(moveDownItem)
+
+        let markCompletedItem = NSMenuItem(title: "Mark as Completed", action: #selector(handleMarkCompleted), keyEquivalent: " ")
+        markCompletedItem.keyEquivalentModifierMask = []
+        markCompletedItem.target = self
+        editMenu.addItem(markCompletedItem)
+
+        editMenu.addItem(NSMenuItem.separator())
+
+        let clearCompletedItem = NSMenuItem(title: "Clear Completed", action: #selector(handleClearCompleted), keyEquivalent: "")
+        clearCompletedItem.target = self
+        editMenu.addItem(clearCompletedItem)
+
+        let editMenuItem = NSMenuItem(title: "Edit", action: nil, keyEquivalent: "")
+        editMenuItem.submenu = editMenu
+        mainMenu.addItem(editMenuItem)
+
+        let viewMenu = NSMenu(title: "View")
+        let fullScreenItem = NSMenuItem(title: "Enter Full Screen", action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")
+        fullScreenItem.keyEquivalentModifierMask = [.command, .control]
+        viewMenu.addItem(fullScreenItem)
+        let viewMenuItem = NSMenuItem(title: "View", action: nil, keyEquivalent: "")
+        viewMenuItem.submenu = viewMenu
+        mainMenu.addItem(viewMenuItem)
+
+        let windowMenu = NSMenu(title: "Window")
+        windowMenu.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(NSMenuItem.separator())
+        windowMenu.addItem(withTitle: "Bring All to Front", action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
+        let windowMenuItem = NSMenuItem(title: "Window", action: nil, keyEquivalent: "")
+        windowMenuItem.submenu = windowMenu
+        mainMenu.addItem(windowMenuItem)
+        NSApp.windowsMenu = windowMenu
+
+        let helpMenu = NSMenu(title: "Help")
+        helpMenu.addItem(withTitle: "\(appName) Help", action: #selector(NSApplication.showHelp(_:)), keyEquivalent: "?")
+        let helpMenuItem = NSMenuItem(title: "Help", action: nil, keyEquivalent: "")
+        helpMenuItem.submenu = helpMenu
+        mainMenu.addItem(helpMenuItem)
+        NSApp.helpMenu = helpMenu
+
+        NSApp.mainMenu = mainMenu
     }
 }
 
@@ -221,5 +220,6 @@ struct ListlessMacApp: App {
             .environment(\.managedObjectContext, persistenceController.viewContext)
         }
         .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 400, height: 350)
     }
 }

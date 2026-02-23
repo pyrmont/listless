@@ -13,6 +13,7 @@ struct TaskListView: View {
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
+    @Environment(\.openWindow) var openWindow
 
     let store: TaskStore
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
@@ -89,6 +90,7 @@ struct TaskListView: View {
     func updateMenuCoordinator() {
         let coord = MenuCoordinator.shared
         coord.newTask = { createNewTask(); focusedField = nil }
+        coord.newWindow = { openWindow(id: "main") }
         coord.deleteSelectedTask = { _ = deleteSelectedTask() }
         coord.moveSelectedTaskUp = { moveSelectedTaskUp() }
         coord.moveSelectedTaskDown = { moveSelectedTaskDown() }
@@ -218,14 +220,9 @@ struct TaskListView: View {
         .focusEffectDisabled()
         .accessibilityIdentifier("task-list-scrollview")
         .keyboardNavigation([
-            ShortcutKey(key: "n", modifiers: .command): createNewTaskFromShortcut,
             ShortcutKey(key: .upArrow): navigateUp,
             ShortcutKey(key: .downArrow): navigateDown,
-            ShortcutKey(key: .upArrow, modifiers: .command): moveSelectedTaskUpFromShortcut,
-            ShortcutKey(key: .downArrow, modifiers: .command): moveSelectedTaskDownFromShortcut,
             ShortcutKey(key: .return): focusSelectedTask,
-            ShortcutKey(key: .space): toggleSelectedTask,
-            ShortcutKey(key: .delete): deleteSelectedTask,
         ])
         .onAppear {
             if focusedField == nil {
@@ -238,11 +235,9 @@ struct TaskListView: View {
 
             if newValue == nil {
                 if let pending = pendingFocus {
-                    print("🟣 onChange resolving pendingFocus: \(pending)")
                     focusedField = pending
                     pendingFocus = nil
                 } else {
-                    print("🟣 onChange repairing nil focus to .scrollView")
                     focusedField = .scrollView
                 }
             }
