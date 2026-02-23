@@ -160,12 +160,10 @@ struct TaskListView: View {
 
                 if newValue == nil {
                     if let pending = pendingFocus {
-                        print("🟣 onChange resolving pendingFocus: \(pending)")
                         focusedFieldBinding = pending
                         fState.focusedField = pending
                         pendingFocus = nil
                     } else {
-                        print("🟣 onChange repairing nil focus to .scrollView")
                         focusedFieldBinding = .scrollView
                         fState.focusedField = .scrollView
                     }
