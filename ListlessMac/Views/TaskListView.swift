@@ -33,6 +33,7 @@ struct TaskListView: View {
     @State var pullOffset: CGFloat = 0
 
     var vStackSpacing: CGFloat { 0 }
+    var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
     var selectedIndex: Int? {
         guard let currentID = selectedTaskID else { return nil }
         return activeTasks.firstIndex(where: { $0.id == currentID })
@@ -214,6 +215,14 @@ struct TaskListView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             handleBackgroundTap()
+        }
+        .overlay {
+            if isCompletelyEmpty {
+                Text("Click to create")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .allowsHitTesting(false)
+            }
         }
         .focusable()
         .focused($focusedField, equals: .scrollView)
