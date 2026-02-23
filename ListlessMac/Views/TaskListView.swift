@@ -11,6 +11,21 @@ struct TaskListView: View {
         case dragging(id: UUID, order: [UUID])
     }
 
+    struct FocusStateData {
+        var focusedField: FocusField?
+        var selectedTaskID: UUID?
+        var pendingFocus: FocusField?
+    }
+
+    struct InteractionStateData {
+        var dragState: DragState = .idle
+        var pullOffset: CGFloat = 0
+    }
+
+    struct TaskStateData {
+        var refreshID = UUID()
+    }
+
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
     @Environment(\.openWindow) var openWindow
@@ -25,12 +40,43 @@ struct TaskListView: View {
         animation: .default
     )
     var tasks: FetchedResults<TaskItem>
-    @FocusState var focusedField: FocusField?
-    @State var selectedTaskID: UUID?
-    @State private var refreshID = UUID()
-    @State var dragState: DragState = .idle
-    @State var pendingFocus: FocusField?
-    @State var pullOffset: CGFloat = 0
+    @FocusState private var focusedFieldBinding: FocusField?
+    @State private var fState = FocusStateData()
+    @State private var iState = InteractionStateData()
+    @State private var tState = TaskStateData()
+
+    var focusedField: FocusField? {
+        get { fState.focusedField }
+        nonmutating set {
+            fState.focusedField = newValue
+            focusedFieldBinding = newValue
+        }
+    }
+
+    var selectedTaskID: UUID? {
+        get { fState.selectedTaskID }
+        nonmutating set { fState.selectedTaskID = newValue }
+    }
+
+    var pendingFocus: FocusField? {
+        get { fState.pendingFocus }
+        nonmutating set { fState.pendingFocus = newValue }
+    }
+
+    var dragState: DragState {
+        get { iState.dragState }
+        nonmutating set { iState.dragState = newValue }
+    }
+
+    var pullOffset: CGFloat {
+        get { iState.pullOffset }
+        nonmutating set { iState.pullOffset = newValue }
+    }
+
+    var refreshID: UUID {
+        get { tState.refreshID }
+        nonmutating set { tState.refreshID = newValue }
+    }
 
     var vStackSpacing: CGFloat { 0 }
     var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
@@ -123,7 +169,7 @@ struct TaskListView: View {
                         index: index,
                         totalTasks: displayActiveTasks.count,
                         isSelected: selectedTaskID == taskID,
-                        focusedField: $focusedField,
+                        focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
                         onDelete: { deleteTask($0) },
@@ -198,7 +244,7 @@ struct TaskListView: View {
                         task: task,
                         taskID: taskID,
                         isSelected: selectedTaskID == taskID,
-                        focusedField: $focusedField,
+                        focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
                         onDelete: { deleteTask($0) },
@@ -225,7 +271,7 @@ struct TaskListView: View {
             }
         }
         .focusable()
-        .focused($focusedField, equals: .scrollView)
+        .focused($focusedFieldBinding, equals: .scrollView)
         .focusEffectDisabled()
         .accessibilityIdentifier("task-list-scrollview")
         .keyboardNavigation([
@@ -234,20 +280,24 @@ struct TaskListView: View {
             ShortcutKey(key: .return): focusSelectedTask,
         ])
         .onAppear {
-            if focusedField == nil {
-                focusedField = .scrollView
+            if focusedFieldBinding == nil {
+                focusedFieldBinding = .scrollView
             }
+            fState.focusedField = focusedFieldBinding
             updateMenuCoordinator()
         }
-        .onChange(of: focusedField) { oldValue, newValue in
+        .onChange(of: focusedFieldBinding) { oldValue, newValue in
+            fState.focusedField = newValue
             handleFocusChange(from: oldValue, to: newValue)
 
             if newValue == nil {
                 if let pending = pendingFocus {
-                    focusedField = pending
+                    focusedFieldBinding = pending
+                    fState.focusedField = pending
                     pendingFocus = nil
                 } else {
-                    focusedField = .scrollView
+                    focusedFieldBinding = .scrollView
+                    fState.focusedField = .scrollView
                 }
             }
 
