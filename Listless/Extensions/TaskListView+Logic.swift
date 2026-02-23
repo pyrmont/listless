@@ -256,6 +256,24 @@ extension TaskListView {
         return .handled
     }
 
+    func createNewTaskFromShortcut() -> KeyPress.Result {
+        createNewTask()
+        focusedField = nil
+        return .handled
+    }
+
+    func moveSelectedTaskUpFromShortcut() -> KeyPress.Result {
+        guard focusedField == .scrollView else { return .ignored }
+        moveSelectedTaskUp()
+        return .handled
+    }
+
+    func moveSelectedTaskDownFromShortcut() -> KeyPress.Result {
+        guard focusedField == .scrollView else { return .ignored }
+        moveSelectedTaskDown()
+        return .handled
+    }
+
     func focusSelectedTask() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
         guard let currentID = selectedTaskID else { return .handled }
@@ -284,6 +302,39 @@ extension TaskListView {
         print("🗑️ deleteSelectedTask() deleting task \(currentID)")
         deleteTask(task)
         return .handled
+    }
+
+    func moveSelectedTaskUp() {
+        guard focusedField == .scrollView else { return }
+        guard let currentID = selectedTaskID else { return }
+        guard let currentIndex = activeTasks.firstIndex(where: { $0.id == currentID }) else { return }
+        guard currentIndex > 0 else { return }
+
+        do {
+            try store.moveTask(taskID: currentID, toIndex: currentIndex - 1)
+        } catch {
+            presentStoreError(error)
+        }
+    }
+
+    func moveSelectedTaskDown() {
+        guard focusedField == .scrollView else { return }
+        guard let currentID = selectedTaskID else { return }
+        guard let currentIndex = activeTasks.firstIndex(where: { $0.id == currentID }) else { return }
+        guard currentIndex < activeTasks.count - 1 else { return }
+
+        do {
+            try store.moveTask(taskID: currentID, toIndex: currentIndex + 1)
+        } catch {
+            presentStoreError(error)
+        }
+    }
+
+    func markSelectedTaskCompleted() {
+        guard focusedField == .scrollView else { return }
+        guard let currentID = selectedTaskID else { return }
+        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return }
+        toggleCompletion(task)
     }
 
     // MARK: - Focus Management

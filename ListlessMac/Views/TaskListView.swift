@@ -32,6 +32,75 @@ struct TaskListView: View {
     @State var pullOffset: CGFloat = 0
 
     var vStackSpacing: CGFloat { 0 }
+    var selectedIndex: Int? {
+        guard let currentID = selectedTaskID else { return nil }
+        return activeTasks.firstIndex(where: { $0.id == currentID })
+    }
+
+    var canDeleteSelectionFromList: Bool {
+        selectedTaskID != nil && focusedField == .scrollView
+    }
+
+    var canMarkSelectionCompleted: Bool {
+        guard focusedField == .scrollView else { return false }
+        guard let currentID = selectedTaskID else { return false }
+        return allTasksInDisplayOrder.contains(where: { $0.id == currentID })
+    }
+
+    var markCompletedMenuTitle: String {
+        guard let currentID = selectedTaskID,
+              let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }),
+              task.isCompleted else {
+            return "Mark as Completed"
+        }
+        return "Mark as Incomplete"
+    }
+
+    var canMoveSelectionUp: Bool {
+        guard focusedField == .scrollView else { return false }
+        guard let index = selectedIndex else { return false }
+        return index > 0
+    }
+
+    var canMoveSelectionDown: Bool {
+        guard focusedField == .scrollView else { return false }
+        guard let index = selectedIndex else { return false }
+        return index < activeTasks.count - 1
+    }
+
+    struct MenuState: Equatable {
+        let selectedTaskID: UUID?
+        let isScrollViewFocused: Bool
+        let activeTaskCount: Int
+        let completedTaskCount: Int
+        let selectedIndex: Int?
+    }
+
+    var menuCoordinatorTrigger: MenuState {
+        MenuState(
+            selectedTaskID: selectedTaskID,
+            isScrollViewFocused: focusedField == .scrollView,
+            activeTaskCount: activeTasks.count,
+            completedTaskCount: completedTasks.count,
+            selectedIndex: selectedIndex
+        )
+    }
+
+    func updateMenuCoordinator() {
+        let coord = MenuCoordinator.shared
+        coord.newTask = { createNewTask(); focusedField = nil }
+        coord.deleteSelectedTask = { _ = deleteSelectedTask() }
+        coord.moveSelectedTaskUp = { moveSelectedTaskUp() }
+        coord.moveSelectedTaskDown = { moveSelectedTaskDown() }
+        coord.markSelectedTaskCompleted = { markSelectedTaskCompleted() }
+        coord.clearCompletedTasks = { clearCompletedTasks() }
+        coord.canDeleteSelectedTask = canDeleteSelectionFromList
+        coord.canMoveSelectedTaskUp = canMoveSelectionUp
+        coord.canMoveSelectedTaskDown = canMoveSelectionDown
+        coord.canMarkSelectedTaskCompleted = canMarkSelectionCompleted
+        coord.markCompletedTitle = markCompletedMenuTitle
+        coord.canClearCompletedTasks = !completedTasks.isEmpty
+    }
 
     init(store: TaskStore, syncMonitor: CloudKitSyncMonitor) {
         self.store = store
@@ -149,16 +218,20 @@ struct TaskListView: View {
         .focusEffectDisabled()
         .accessibilityIdentifier("task-list-scrollview")
         .keyboardNavigation([
+            ShortcutKey(key: "n", modifiers: .command): createNewTaskFromShortcut,
             ShortcutKey(key: .upArrow): navigateUp,
             ShortcutKey(key: .downArrow): navigateDown,
-            ShortcutKey(key: .space): toggleSelectedTask,
+            ShortcutKey(key: .upArrow, modifiers: .command): moveSelectedTaskUpFromShortcut,
+            ShortcutKey(key: .downArrow, modifiers: .command): moveSelectedTaskDownFromShortcut,
             ShortcutKey(key: .return): focusSelectedTask,
+            ShortcutKey(key: .space): toggleSelectedTask,
             ShortcutKey(key: .delete): deleteSelectedTask,
         ])
         .onAppear {
             if focusedField == nil {
                 focusedField = .scrollView
             }
+            updateMenuCoordinator()
         }
         .onChange(of: focusedField) { oldValue, newValue in
             handleFocusChange(from: oldValue, to: newValue)
@@ -173,7 +246,10 @@ struct TaskListView: View {
                     focusedField = .scrollView
                 }
             }
+
+            updateMenuCoordinator()
         }
+        .onChange(of: menuCoordinatorTrigger) { _, _ in updateMenuCoordinator() }
         .onChange(of: undoManager, initial: true) { _, newValue in
             managedObjectContext.undoManager = newValue
         }

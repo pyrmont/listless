@@ -42,6 +42,7 @@
 		99977BFA37FBAAA49AF6B71E /* TaskStoreEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */; };
 		99D17075DA3F00F52A18BB4D /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
+		B7CFDCA5EA48EDE1C768FA21 /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C79ABB39A40D3E1828716C7 /* AppCommands.swift */; };
 		BA6953E0EFE6F8255F05A3FD /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		C169823665158AA347A63990 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51B8129962E5CC78ECDDC2B /* TaskListView.swift */; };
 		C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
@@ -87,6 +88,7 @@
 		3FA75CA18C6270D68A755AEB /* TaskListView+Drag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Drag.swift"; sourceTree = "<group>"; };
 		4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
 		466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
+		4C79ABB39A40D3E1828716C7 /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		4FC64B9F9370041BEDBD1E14 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		567DBAC2A39FA2760D006AAB /* PullToClear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToClear.swift; sourceTree = "<group>"; };
 		5A6D74EDDD7E3FC150064FB5 /* TaskListView+PullToClear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullToClear.swift"; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 		42CC0393E2524624AEC54D03 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				4C79ABB39A40D3E1828716C7 /* AppCommands.swift */,
 				D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */,
 				9F5D8B5866362D422A2A331C /* HoverCursorModifier.swift */,
 				466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */,
@@ -460,6 +463,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99D17075DA3F00F52A18BB4D /* AccentColor.swift in Sources */,
+				B7CFDCA5EA48EDE1C768FA21 /* AppCommands.swift in Sources */,
 				DB5FF6C1AA57D4C9BDDD50FD /* ClickableTextField.swift in Sources */,
 				E4BD761E34CBB84CE80F7F49 /* CloudKitErrorClassifier.swift in Sources */,
 				E429067963379F99DD184FED /* CloudKitSyncMonitor.swift in Sources */,
@@ -554,6 +558,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.mac;
+				PRODUCT_NAME = Listless;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -572,6 +577,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.mac;
+				PRODUCT_NAME = Listless;
 				SDKROOT = macosx;
 			};
 			name = Release;
