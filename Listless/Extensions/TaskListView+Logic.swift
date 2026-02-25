@@ -414,9 +414,8 @@ extension TaskListView {
         }
     }
 
-    func handleDrop(items: [String]) -> Bool {
-        guard let droppedUUIDString = items.first,
-            let droppedUUID = UUID(uuidString: droppedUUIDString),
+    func commitCurrentDrag() -> Bool {
+        guard let droppedUUID = draggedTaskID,
             let order = visualOrder,
             let finalIndex = order.firstIndex(of: droppedUUID)
         else {

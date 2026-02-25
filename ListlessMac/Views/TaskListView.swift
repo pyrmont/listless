@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct TaskListView: View {
     enum FocusField: Hashable {
@@ -181,37 +182,37 @@ struct TaskListView: View {
                                 Color.clear
                                     .frame(maxHeight: .infinity)
                                     .layoutPriority(1)
-                                    .dropDestination(
-                                        for: String.self, action: { _, _ in false },
-                                        isTargeted: { isTargeted in
-                                            if isTargeted {
-                                                updateVisualOrder(insertBefore: task.id)
-                                            }
-                                        })
+                                    .onDrop(
+                                        of: [UTType.text],
+                                        delegate: TaskReorderDropDelegate(
+                                            onTargeted: { updateVisualOrder(insertBefore: task.id) },
+                                            onPerform: { commitCurrentDrag() }
+                                        )
+                                    )
 
                                 // Middle 2/3 - insert based on direction
                                 Color.clear
                                     .frame(maxHeight: .infinity)
                                     .layoutPriority(4)
-                                    .dropDestination(
-                                        for: String.self, action: { _, _ in false },
-                                        isTargeted: { isTargeted in
-                                            if isTargeted {
-                                                updateVisualOrderSmart(relativeTo: task.id)
-                                            }
-                                        })
+                                    .onDrop(
+                                        of: [UTType.text],
+                                        delegate: TaskReorderDropDelegate(
+                                            onTargeted: { updateVisualOrderSmart(relativeTo: task.id) },
+                                            onPerform: { commitCurrentDrag() }
+                                        )
+                                    )
 
                                 // Bottom 1/6 - insert AFTER
                                 Color.clear
                                     .frame(maxHeight: .infinity)
                                     .layoutPriority(1)
-                                    .dropDestination(
-                                        for: String.self, action: { _, _ in false },
-                                        isTargeted: { isTargeted in
-                                            if isTargeted {
-                                                updateVisualOrder(insertAfter: task.id)
-                                            }
-                                        })
+                                    .onDrop(
+                                        of: [UTType.text],
+                                        delegate: TaskReorderDropDelegate(
+                                            onTargeted: { updateVisualOrder(insertAfter: task.id) },
+                                            onPerform: { commitCurrentDrag() }
+                                        )
+                                    )
                             }
                         }
                     }
@@ -221,13 +222,13 @@ struct TaskListView: View {
                 if !activeTasks.isEmpty && draggedTaskID != nil {
                     Color.clear
                         .frame(height: 44)
-                        .dropDestination(
-                            for: String.self, action: { _, _ in false },
-                            isTargeted: { isTargeted in
-                                if isTargeted {
-                                    updateVisualOrder(insertAtEnd: true)
-                                }
-                            })
+                        .onDrop(
+                            of: [UTType.text],
+                            delegate: TaskReorderDropDelegate(
+                                onTargeted: { updateVisualOrder(insertAtEnd: true) },
+                                onPerform: { commitCurrentDrag() }
+                            )
+                        )
                 }
 
                 ForEach(completedTasks) { task in
@@ -245,9 +246,13 @@ struct TaskListView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .dropDestination(for: String.self) { items, location in
-                handleDrop(items: items)
-            }
+            .onDrop(
+                of: [UTType.text],
+                delegate: TaskReorderDropDelegate(
+                    onTargeted: {},
+                    onPerform: { commitCurrentDrag() }
+                )
+            )
         }
         .contentShape(Rectangle())
         .onTapGesture {
@@ -331,5 +336,26 @@ struct TaskListView: View {
                 )
             }
         }
+    }
+}
+
+private struct TaskReorderDropDelegate: DropDelegate {
+    let onTargeted: () -> Void
+    let onPerform: () -> Bool
+
+    func validateDrop(info: DropInfo) -> Bool {
+        true
+    }
+
+    func dropEntered(info: DropInfo) {
+        onTargeted()
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        return DropProposal(operation: .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        onPerform()
     }
 }
