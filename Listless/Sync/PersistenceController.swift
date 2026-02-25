@@ -29,11 +29,13 @@ private final class UpdatedAtMergePolicy: NSMergePolicy {
             guard storeUpdatedAt > localUpdatedAt else { continue }
 
             // Persisted values are newer; copy them onto the object to resolve conflict.
+            // Use setPrimitiveValue to bypass KVC change tracking so willSave() does not
+            // see these keys in changedValues() and overwrite updatedAt with Date().
             for (key, value) in persistedSnapshot {
                 if value is NSNull {
-                    task.setValue(nil, forKey: key)
+                    task.setPrimitiveValue(nil, forKey: key)
                 } else {
-                    task.setValue(value, forKey: key)
+                    task.setPrimitiveValue(value, forKey: key)
                 }
             }
         }
