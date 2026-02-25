@@ -86,6 +86,30 @@ extension TaskListView {
         }
     }
 
+    func createTask(title: String, afterTaskID: UUID) {
+        clearDragState()
+        do {
+            let newTask = try store.createTask(title: title, sortOrder: sortOrderAfter(taskID: afterTaskID))
+            selectedTaskID = newTask.id
+            focusedField = .scrollView
+        } catch {
+            presentStoreError(error)
+        }
+    }
+
+    private func sortOrderAfter(taskID: UUID) -> Int64? {
+        guard let afterIndex = activeTasks.firstIndex(where: { $0.id == taskID }) else {
+            return nil
+        }
+        let afterTask = activeTasks[afterIndex]
+        if afterIndex + 1 < activeTasks.count {
+            let nextTask = activeTasks[afterIndex + 1]
+            return (afterTask.sortOrder + nextTask.sortOrder) / 2
+        } else {
+            return afterTask.sortOrder + 1000
+        }
+    }
+
     // MARK: - Interaction Handlers
 
     func handleBackgroundTap() {

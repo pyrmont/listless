@@ -131,11 +131,35 @@ struct TaskListView: View {
     func updateMenuCoordinator() {
         let coord = MenuCoordinator.shared
         coord.newTask = { createNewTask(); focusedField = nil }
+        coord.copySelectedTask = {
+            guard let taskID = selectedTaskID,
+                  let task = tasks.first(where: { $0.id == taskID }) else { return }
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(task.title, forType: .string)
+        }
+        coord.cutSelectedTask = {
+            guard let taskID = selectedTaskID,
+                  let task = tasks.first(where: { $0.id == taskID }) else { return }
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(task.title, forType: .string)
+            deleteTask(task)
+        }
+        coord.pasteAfterSelectedTask = {
+            guard let taskID = selectedTaskID,
+                  let string = NSPasteboard.general.string(forType: .string) else { return }
+            createTask(title: string, afterTaskID: taskID)
+        }
         coord.deleteSelectedTask = { _ = deleteSelectedTask() }
         coord.moveSelectedTaskUp = { moveSelectedTaskUp() }
         coord.moveSelectedTaskDown = { moveSelectedTaskDown() }
         coord.markSelectedTaskCompleted = { markSelectedTaskCompleted() }
         coord.clearCompletedTasks = { clearCompletedTasks() }
+        let inNavMode = focusedField == .scrollView
+        coord.canCopySelectedTask = selectedTaskID != nil && inNavMode
+        coord.canCutSelectedTask = selectedTaskID != nil && inNavMode
+        coord.canPasteAfterSelectedTask = selectedTaskID != nil && inNavMode
         coord.canDeleteSelectedTask = canDeleteSelectionFromList
         coord.canMoveSelectedTaskUp = canMoveSelectionUp
         coord.canMoveSelectedTaskDown = canMoveSelectionDown
@@ -168,7 +192,8 @@ struct TaskListView: View {
                         onDelete: { deleteTask($0) },
                         onSelect: { selectTask($0) },
                         onStartEdit: { startEditing($0) },
-                        onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
+                        onEndEdit: { endEditing($0, shouldCreateNewTask: $1) },
+                        onPaste: { createTask(title: $0, afterTaskID: taskID) }
                     )
                     .taskDragGesture(
                         isActive: !task.isCompleted,

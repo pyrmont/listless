@@ -32,6 +32,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let coord = MenuCoordinator.shared
         switch menuItem.action {
         case #selector(handleNewWindow):      return true
+        case #selector(cut(_:)):              return coord.canCutSelectedTask
+        case #selector(copy(_:)):             return coord.canCopySelectedTask
+        case #selector(paste(_:)):            return coord.canPasteAfterSelectedTask
         case #selector(handleDeleteTask):     return coord.canDeleteSelectedTask
         case #selector(handleMoveUp):         return coord.canMoveSelectedTaskUp
         case #selector(handleMoveDown):       return coord.canMoveSelectedTaskDown
@@ -47,6 +50,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     @objc private func handleNewTask() {
         MenuCoordinator.shared.newTask?()
+    }
+
+    @objc func cut(_ sender: Any?) {
+        MenuCoordinator.shared.cutSelectedTask?()
+    }
+
+    @objc func copy(_ sender: Any?) {
+        MenuCoordinator.shared.copySelectedTask?()
+    }
+
+    @objc func paste(_ sender: Any?) {
+        MenuCoordinator.shared.pasteAfterSelectedTask?()
     }
 
     @objc private func handleDeleteTask() {

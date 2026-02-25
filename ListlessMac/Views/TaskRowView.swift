@@ -12,6 +12,7 @@ struct TaskRowView: View {
     let onSelect: (UUID) -> Void
     let onStartEdit: (UUID) -> Void
     let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
+    let onPaste: (String) -> Void
     @FocusState.Binding var focusedField: TaskListView.FocusField?
 
     @State private var editingTitle: String = ""
@@ -44,7 +45,8 @@ struct TaskRowView: View {
         onDelete: @escaping (TaskItem) -> Void,
         onSelect: @escaping (UUID) -> Void,
         onStartEdit: @escaping (UUID) -> Void = { _ in },
-        onEndEdit: @escaping (UUID, _ shouldCreateNewTask: Bool) -> Void = { _, _ in }
+        onEndEdit: @escaping (UUID, _ shouldCreateNewTask: Bool) -> Void = { _, _ in },
+        onPaste: @escaping (String) -> Void = { _ in }
     ) {
         self.task = task
         self.taskID = taskID
@@ -57,6 +59,7 @@ struct TaskRowView: View {
         self.onSelect = onSelect
         self.onStartEdit = onStartEdit
         self.onEndEdit = onEndEdit
+        self.onPaste = onPaste
         _focusedField = focusedField
     }
 
@@ -198,7 +201,8 @@ struct TaskRowView: View {
         guard let string = NSPasteboard.general.string(forType: .string) else { return }
         if isCurrentlyEditing {
             editingTitle = string
+        } else {
+            onPaste(string)
         }
-        onTitleChange(task, string)
     }
 }
