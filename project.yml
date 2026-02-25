@@ -1,0 +1,134 @@
+name: Listless
+
+options:
+  bundleIdPrefix: net.inqk.listless
+  deploymentTarget:
+    iOS: "18.0"
+    macOS: "14.0"
+
+settings:
+  SWIFT_VERSION: 6
+
+targets:
+  Listless iOS:
+    type: application
+    platform: iOS
+    sources:
+      - Listless
+      - ListlessiOS
+      - Media.xcassets
+    entitlements:
+      path: ListlessiOS/Listless.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.net.inqk.listless
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.developer.ubiquity-container-identifiers:
+          - iCloud.net.inqk.listless
+        aps-environment: development
+    info:
+      path: ListlessiOS/Info.plist
+      properties:
+        CFBundleDisplayName: Listless
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIBackgroundModes:
+          - remote-notification
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.ios
+      INFOPLIST_FILE: ListlessiOS/Info.plist
+      TARGETED_DEVICE_FAMILY: "1,2"
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      CODE_SIGN_STYLE: Automatic
+      DEVELOPMENT_TEAM: 7TD7PZBNXP
+
+  Listless macOS:
+    type: application
+    platform: macOS
+    sources:
+      - Listless
+      - path: ListlessMac
+        excludes:
+          - "AppKit/**"
+      - Media.xcassets
+    entitlements:
+      path: ListlessMac/Listless.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.net.inqk.listless
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.developer.ubiquity-container-identifiers:
+          - iCloud.net.inqk.listless
+        aps-environment: development
+    info:
+      path: ListlessMac/Info.plist
+      properties:
+        CFBundleDisplayName: Listless
+        LSMinimumSystemVersion: "14.0"
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.mac
+      PRODUCT_NAME: Listless
+      INFOPLIST_FILE: ListlessMac/Info.plist
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      CODE_SIGN_STYLE: Automatic
+      DEVELOPMENT_TEAM: 7TD7PZBNXP
+
+  Listless iOS Unit Tests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/Unit
+      - Tests/Support
+    dependencies:
+      - target: Listless iOS
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.ios.unittests
+      CODE_SIGN_STYLE: Automatic
+      DEVELOPMENT_TEAM: 7TD7PZBNXP
+      TEST_HOST: $(BUILT_PRODUCTS_DIR)/Listless iOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Listless iOS
+      BUNDLE_LOADER: $(TEST_HOST)
+      GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  Listless iOS:
+    build:
+      targets:
+        Listless iOS: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - name: Listless iOS Unit Tests
+          parallelizable: true
+          randomExecutionOrder: true
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
+  Listless macOS:
+    build:
+      targets:
+        Listless macOS: all
+    run:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
