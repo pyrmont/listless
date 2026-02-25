@@ -20,6 +20,7 @@ struct TaskListView: View {
 
     struct InteractionStateData {
         var dragState: DragState = .idle
+        var liftedTaskID: UUID?
     }
 
     struct TaskStateData {
@@ -65,6 +66,11 @@ struct TaskListView: View {
     var dragState: DragState {
         get { iState.dragState }
         nonmutating set { iState.dragState = newValue }
+    }
+
+    var liftedTaskID: UUID? {
+        get { iState.liftedTaskID }
+        nonmutating set { iState.liftedTaskID = newValue }
     }
 
     var refreshID: UUID {
@@ -173,6 +179,10 @@ struct TaskListView: View {
         self.syncMonitor = syncMonitor
     }
 
+    func isRowLifted(_ taskID: UUID) -> Bool {
+        liftedTaskID == taskID || draggedTaskID == taskID
+    }
+
     func didStartDrag() {}
 
     var body: some View {
@@ -198,8 +208,20 @@ struct TaskListView: View {
                     .taskDragGesture(
                         isActive: !task.isCompleted,
                         taskID: task.id,
-                        onDragStart: { startDrag(taskID: task.id) }
+                        onDragStart: {
+                            liftedTaskID = nil
+                            startDrag(taskID: task.id)
+                        },
+                        onLift: { liftedTaskID = task.id },
+                        onLiftEnd: { if liftedTaskID == task.id { liftedTaskID = nil } }
                     )
+                    .scaleEffect(isRowLifted(taskID) ? 1.03 : 1.0)
+                    .shadow(
+                        color: isRowLifted(taskID) ? .black.opacity(0.2) : .clear,
+                        radius: 8, y: 3
+                    )
+                    .zIndex(isRowLifted(taskID) ? 1 : 0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isRowLifted(taskID))
                     .overlay {
                         if draggedTaskID != nil && draggedTaskID != task.id {
                             VStack(spacing: 0) {
@@ -243,19 +265,6 @@ struct TaskListView: View {
                     }
                 }
 
-                // Drop zone at the end
-                if !activeTasks.isEmpty && draggedTaskID != nil {
-                    Color.clear
-                        .frame(height: 44)
-                        .onDrop(
-                            of: [UTType.text],
-                            delegate: TaskReorderDropDelegate(
-                                onTargeted: { updateVisualOrder(insertAtEnd: true) },
-                                onPerform: { commitCurrentDrag() }
-                            )
-                        )
-                }
-
                 ForEach(completedTasks) { task in
                     let taskID = task.id
                     TaskRowView(
@@ -279,6 +288,13 @@ struct TaskListView: View {
                 )
             )
         }
+        .onDrop(
+            of: [UTType.text],
+            delegate: TaskReorderDropDelegate(
+                onTargeted: {},
+                onPerform: { commitCurrentDrag() }
+            )
+        )
         .contentShape(Rectangle())
         .onTapGesture {
             handleBackgroundTap()
