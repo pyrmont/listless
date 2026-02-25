@@ -157,7 +157,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         moveDownItem.target = self
         editMenu.addItem(moveDownItem)
 
-        let markCompletedItem = NSMenuItem(title: "Mark as Completed", action: #selector(handleMarkCompleted), keyEquivalent: " ")
+        let markCompletedItem = NSMenuItem(title: "Mark as Complete", action: #selector(handleMarkCompleted), keyEquivalent: " ")
         markCompletedItem.keyEquivalentModifierMask = []
         markCompletedItem.target = self
         editMenu.addItem(markCompletedItem)

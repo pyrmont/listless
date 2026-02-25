@@ -23,5 +23,5 @@ final class MenuCoordinator {
     var canClearCompletedTasks = false
 
     // Dynamic titles — read by AppDelegate in validateMenuItem.
-    var markCompletedTitle: String = "Mark as Completed"
+    var markCompletedTitle: String = "Mark as Complete"
 }

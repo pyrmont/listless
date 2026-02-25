@@ -99,7 +99,7 @@ struct TaskListView: View {
         guard let currentID = selectedTaskID,
               let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }),
               task.isCompleted else {
-            return "Mark as Completed"
+            return "Mark as Complete"
         }
         return "Mark as Incomplete"
     }

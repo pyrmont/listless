@@ -14,9 +14,9 @@ struct PullToClearIndicator: View {
         HStack(spacing: 6) {
             ZStack {
                 Image(systemName: "checkmark")
-                    .offset(y: isReady ? 0 : -textSlideDistance)
+                    .offset(y: isReady ? 0 : textSlideDistance)
                 Image(systemName: "tray")
-                    .offset(y: isReady ? textSlideDistance : 0)
+                    .offset(y: isReady ? -textSlideDistance : 0)
             }
             .frame(width: 26, height: textSlideDistance, alignment: .leading)
             .clipped()
@@ -26,9 +26,9 @@ struct PullToClearIndicator: View {
             .animation(.easeInOut(duration: 0.15), value: isReady)
             ZStack(alignment: .leading) {
                 Text("Release to clear")
-                    .offset(y: isReady ? 0 : -textSlideDistance)
+                    .offset(y: isReady ? 0 : textSlideDistance)
                 Text("Clear completed")
-                    .offset(y: isReady ? textSlideDistance : 0)
+                    .offset(y: isReady ? -textSlideDistance : 0)
             }
             .foregroundStyle(.secondary)
             .font(.body)

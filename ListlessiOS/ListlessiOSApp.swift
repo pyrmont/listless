@@ -2,7 +2,12 @@ import SwiftUI
 
 @main
 struct ListlessiOSApp: App {
-    private let persistenceController = PersistenceController.shared
+    private let persistenceController: PersistenceController
+
+    init() {
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
+        persistenceController = isUITesting ? PersistenceController(inMemory: true) : .shared
+    }
 
     var body: some Scene {
         WindowGroup {
