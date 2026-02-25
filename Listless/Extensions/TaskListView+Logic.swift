@@ -89,7 +89,8 @@ extension TaskListView {
     func createTask(title: String, afterTaskID: UUID) {
         clearDragState()
         do {
-            let newTask = try store.createTask(title: title, sortOrder: sortOrderAfter(taskID: afterTaskID))
+            let sortOrder = try sortOrderAfter(taskID: afterTaskID)
+            let newTask = try store.createTask(title: title, sortOrder: sortOrder)
             selectedTaskID = newTask.id
             focusedField = .scrollView
         } catch {
@@ -97,14 +98,22 @@ extension TaskListView {
         }
     }
 
-    private func sortOrderAfter(taskID: UUID) -> Int64? {
+    private func sortOrderAfter(taskID: UUID) throws -> Int64? {
         guard let afterIndex = activeTasks.firstIndex(where: { $0.id == taskID }) else {
             return nil
         }
         let afterTask = activeTasks[afterIndex]
         if afterIndex + 1 < activeTasks.count {
             let nextTask = activeTasks[afterIndex + 1]
-            return (afterTask.sortOrder + nextTask.sortOrder) / 2
+            let midpoint = (afterTask.sortOrder + nextTask.sortOrder) / 2
+            if midpoint == afterTask.sortOrder {
+                // Consecutive sort orders leave no room; re-normalise with 1000-unit gaps
+                // then recompute. Core Data's identity map ensures afterTask/nextTask reflect
+                // the updated values immediately after normalisation.
+                try store.normalizeSortOrders()
+                return (afterTask.sortOrder + nextTask.sortOrder) / 2
+            }
+            return midpoint
         } else {
             return afterTask.sortOrder + 1000
         }
@@ -449,10 +458,13 @@ extension TaskListView {
 
         do {
             try store.moveTask(taskID: droppedUUID, toIndex: finalIndex)
+            clearDragState()
         } catch {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                clearDragState()
+            }
             presentStoreError(error)
         }
-        clearDragState()
 
         return true
     }

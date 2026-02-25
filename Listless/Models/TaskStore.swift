@@ -111,6 +111,17 @@ final class TaskStore {
         try save()
     }
 
+    func normalizeSortOrders() throws {
+        let activeTasks = try fetchTasks().filter { !$0.isCompleted }
+            .sorted { $0.sortOrder < $1.sortOrder }
+
+        for (index, task) in activeTasks.enumerated() {
+            task.sortOrder = Int64(index) * 1000
+        }
+
+        try save()
+    }
+
     func moveTask(taskID: UUID, toIndex: Int) throws {
         let activeTasks = try fetchTasks().filter { !$0.isCompleted }
             .sorted { $0.sortOrder < $1.sortOrder }

@@ -37,10 +37,14 @@ extension TaskListView {
         }
         do {
             try store.moveTask(taskID: draggedID, toIndex: finalIndex)
+            clearDragState()
+            isDragging = false
         } catch {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                clearDragState()
+                isDragging = false
+            }
             presentStoreError(error)
         }
-        clearDragState()
-        isDragging = false
     }
 }
