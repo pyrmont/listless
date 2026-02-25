@@ -8,6 +8,10 @@ final class CloudKitSyncMonitor: ObservableObject {
 
     private var monitoringTask: Task<Void, Never>?
 
+    deinit {
+        monitoringTask?.cancel()
+    }
+
     func startMonitoring(container: NSPersistentCloudKitContainer) {
         guard monitoringTask == nil else { return }
 
