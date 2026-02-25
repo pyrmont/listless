@@ -27,7 +27,7 @@ extension TaskListView {
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
-                .disabled(selectedTaskID == nil)
+                .disabled(selectedTaskID == nil || focusedField != .scrollView)
                 .help("Delete selected task")
 
                 Divider()

@@ -9,13 +9,10 @@ struct PullToCreateIndicator: View {
     private let indicatorHeight: CGFloat = 48
     private let textSlideDistance: CGFloat = 22
 
-    // Matches the "top" gradient stop used for the first active task row
-    private let accentColor = Color(hue: 0.98, saturation: 0.85, brightness: 1.0)
-
     var body: some View {
         HStack(spacing: 0) {
             Rectangle()
-                .fill(accentColor)
+                .fill(taskColor(forIndex: 0, total: 1))
                 .frame(width: TaskRowMetrics.accentBarWidth)
             HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
                 Image(systemName: "circle")

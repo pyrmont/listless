@@ -19,7 +19,6 @@ struct TaskListView: View {
 
     struct InteractionStateData {
         var dragState: DragState = .idle
-        var pullOffset: CGFloat = 0
     }
 
     struct TaskStateData {
@@ -28,7 +27,6 @@ struct TaskListView: View {
 
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
-    @Environment(\.openWindow) var openWindow
 
     let store: TaskStore
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
@@ -66,11 +64,6 @@ struct TaskListView: View {
     var dragState: DragState {
         get { iState.dragState }
         nonmutating set { iState.dragState = newValue }
-    }
-
-    var pullOffset: CGFloat {
-        get { iState.pullOffset }
-        nonmutating set { iState.pullOffset = newValue }
     }
 
     var refreshID: UUID {
@@ -137,7 +130,6 @@ struct TaskListView: View {
     func updateMenuCoordinator() {
         let coord = MenuCoordinator.shared
         coord.newTask = { createNewTask(); focusedField = nil }
-        coord.newWindow = { openWindow(id: "main") }
         coord.deleteSelectedTask = { _ = deleteSelectedTask() }
         coord.moveSelectedTaskUp = { moveSelectedTaskUp() }
         coord.moveSelectedTaskDown = { moveSelectedTaskDown() }
@@ -253,7 +245,6 @@ struct TaskListView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .offset(y: -pullOffset)
             .dropDestination(for: String.self) { items, location in
                 handleDrop(items: items)
             }

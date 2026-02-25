@@ -10,9 +10,18 @@ private enum MenuSelectors {
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
+    private let persistenceController: PersistenceController
+
+    override init() {
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
+        persistenceController = isUITesting ? PersistenceController(inMemory: true) : .shared
+        super.init()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSWindow.allowsAutomaticWindowTabbing = false
         installMainMenu()
+        openNewWindow()
     }
 
     // MARK: - NSMenuItemValidation
@@ -22,7 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         let coord = MenuCoordinator.shared
         switch menuItem.action {
-        case #selector(handleNewWindow):      return coord.newWindow != nil
+        case #selector(handleNewWindow):      return true
         case #selector(handleDeleteTask):     return coord.canDeleteSelectedTask
         case #selector(handleMoveUp):         return coord.canMoveSelectedTaskUp
         case #selector(handleMoveDown):       return coord.canMoveSelectedTaskDown
@@ -45,7 +54,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     @objc private func handleNewWindow() {
-        MenuCoordinator.shared.newWindow?()
+        openNewWindow()
     }
 
     @objc private func handleMoveUp() {
@@ -62,6 +71,32 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     @objc private func handleClearCompleted() {
         MenuCoordinator.shared.clearCompletedTasks?()
+    }
+
+    private func openNewWindow() {
+        let defaultContentSize = NSSize(width: 400, height: 350)
+        let rootView = TaskListView(
+            store: TaskStore(persistenceController: persistenceController),
+            syncMonitor: persistenceController.syncMonitor
+        )
+        .environment(\.managedObjectContext, persistenceController.viewContext)
+
+        let window = NSWindow(
+            contentRect: NSRect(origin: .zero, size: defaultContentSize),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        window.contentViewController = NSHostingController(rootView: rootView)
+        window.setContentSize(defaultContentSize)
+        window.minSize = NSSize(width: 320, height: 240)
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isRestorable = false
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        window.makeFirstResponder(nil)
+        NSApp.activate()
     }
 
     // MARK: - Main Menu
@@ -202,24 +237,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 }
 
 @main
-struct ListlessMacApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    private let persistenceController: PersistenceController
-
-    init() {
-        let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
-        persistenceController = isUITesting ? PersistenceController(inMemory: true) : .shared
-    }
-
-    var body: some Scene {
-        WindowGroup(id: "main") {
-            TaskListView(
-                store: TaskStore(persistenceController: persistenceController),
-                syncMonitor: persistenceController.syncMonitor
-            )
-            .environment(\.managedObjectContext, persistenceController.viewContext)
+enum ListlessMacMain {
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.setActivationPolicy(.regular)
+        app.delegate = delegate
+        withExtendedLifetime(delegate) {
+            app.run()
         }
-        .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 400, height: 350)
     }
 }
