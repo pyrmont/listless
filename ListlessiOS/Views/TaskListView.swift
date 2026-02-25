@@ -37,7 +37,7 @@ struct TaskListView: View {
     @FetchRequest(
         sortDescriptors: [
             NSSortDescriptor(keyPath: \TaskItem.isCompleted, ascending: true),
-            NSSortDescriptor(keyPath: \TaskItem.createdAt, ascending: true),
+            NSSortDescriptor(keyPath: \TaskItem.sortOrder, ascending: true),
         ],
         animation: .default
     )
