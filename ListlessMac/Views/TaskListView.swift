@@ -1,17 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct TaskListView: View {
-    enum FocusField: Hashable {
-        case task(UUID)
-        case scrollView
-    }
-
-    enum DragState: Equatable {
-        case idle
-        case dragging(id: UUID, order: [UUID])
-    }
-
+struct TaskListView: View, TaskListViewProtocol {
     struct FocusStateData {
         var focusedField: FocusField?
         var selectedTaskID: UUID?

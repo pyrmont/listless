@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension TaskListView {
+extension TaskListViewProtocol {
 
     // MARK: - Computed Properties
 

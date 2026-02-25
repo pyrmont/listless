@@ -13,7 +13,7 @@ struct TaskRowView: View {
     let onStartEdit: (UUID) -> Void
     let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
     let onPaste: (String) -> Void
-    @FocusState.Binding var focusedField: TaskListView.FocusField?
+    @FocusState.Binding var focusedField: FocusField?
 
     @State private var editingTitle: String = ""
     @State private var isCurrentlyEditing: Bool = false
@@ -39,7 +39,7 @@ struct TaskRowView: View {
         index: Int = 0,
         totalTasks: Int = 1,
         isSelected: Bool,
-        focusedField: FocusState<TaskListView.FocusField?>.Binding,
+        focusedField: FocusState<FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
         onDelete: @escaping (TaskItem) -> Void,
