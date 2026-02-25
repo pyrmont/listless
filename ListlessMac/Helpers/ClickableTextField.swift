@@ -19,6 +19,7 @@ struct ClickableTextField: NSViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
     let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+    var onContentChange: ((String) -> Void)? = nil
 
     func makeNSView(context: Context) -> ClickableNSTextField {
         let textField = ClickableNSTextField()
@@ -86,7 +87,7 @@ struct ClickableTextField: NSViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, onEditingChanged: onEditingChanged)
+        Coordinator(text: $text, onEditingChanged: onEditingChanged, onContentChange: onContentChange)
     }
 
     enum EditEndReason {
@@ -129,14 +130,17 @@ struct ClickableTextField: NSViewRepresentable {
     final class Coordinator: NSObject, NSTextFieldDelegate {
         @Binding var text: String
         let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+        let onContentChange: ((String) -> Void)?
         var editEndReason: EditEndReason = .focusLost
 
         init(
             text: Binding<String>,
-            onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void
+            onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void,
+            onContentChange: ((String) -> Void)? = nil
         ) {
             _text = text
             self.onEditingChanged = onEditingChanged
+            self.onContentChange = onContentChange
         }
 
         @MainActor
@@ -155,11 +159,21 @@ struct ClickableTextField: NSViewRepresentable {
                 string: text, attributes: attributes)
         }
 
+        private var hasNotifiedEditingStarted = false
+
         func handleBecomeFirstResponder() {
+            hasNotifiedEditingStarted = true
+            onEditingChanged(true, false)
+        }
+
+        func controlTextDidBeginEditing(_ obj: Notification) {
+            guard !hasNotifiedEditingStarted else { return }
+            hasNotifiedEditingStarted = true
             onEditingChanged(true, false)
         }
 
         func controlTextDidEndEditing(_ obj: Notification) {
+            hasNotifiedEditingStarted = false
             let shouldCreateNewTask = editEndReason == .returnKey
             editEndReason = .focusLost  // Reset for next time
             onEditingChanged(false, shouldCreateNewTask)
@@ -168,6 +182,7 @@ struct ClickableTextField: NSViewRepresentable {
         func controlTextDidChange(_ obj: Notification) {
             guard let textField = obj.object as? NSTextField else { return }
             text = textField.stringValue
+            onContentChange?(textField.stringValue)
         }
 
         func control(

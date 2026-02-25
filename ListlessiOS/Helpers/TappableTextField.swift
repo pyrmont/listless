@@ -8,6 +8,7 @@ struct TappableTextField: UIViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
     let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+    var onContentChange: ((String) -> Void)? = nil
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -55,7 +56,7 @@ struct TappableTextField: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, onEditingChanged: onEditingChanged)
+        Coordinator(text: $text, onEditingChanged: onEditingChanged, onContentChange: onContentChange)
     }
 
     private func applyStyle(to textView: UITextView, text: String, isCompleted: Bool) {
@@ -73,18 +74,22 @@ struct TappableTextField: UIViewRepresentable {
     final class Coordinator: NSObject, UITextViewDelegate {
         @Binding var text: String
         let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+        let onContentChange: ((String) -> Void)?
         var returnKeyPressed: Bool = false
 
         init(
             text: Binding<String>,
-            onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void
+            onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void,
+            onContentChange: ((String) -> Void)? = nil
         ) {
             _text = text
             self.onEditingChanged = onEditingChanged
+            self.onContentChange = onContentChange
         }
 
         func textViewDidChange(_ textView: UITextView) {
             text = textView.text
+            onContentChange?(textView.text)
             if let placeholder = textView.viewWithTag(100) as? UILabel {
                 placeholder.isHidden = !textView.text.isEmpty
             }

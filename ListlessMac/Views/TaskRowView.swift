@@ -90,6 +90,10 @@ struct TaskRowView: View {
                     } else {
                         onEndEdit(taskID, shouldCreateNewTask)
                     }
+                },
+                onContentChange: { newTitle in
+                    guard !task.isCompleted else { return }
+                    onTitleChange(task, newTitle)
                 }
             )
             .focused($focusedField, equals: .task(taskID))
@@ -150,10 +154,6 @@ struct TaskRowView: View {
             Button("Delete", role: .destructive) {
                 onDelete(task)
             }
-        }
-        .onChange(of: editingTitle) {
-            guard !task.isCompleted else { return }
-            onTitleChange(task, editingTitle)
         }
         .onChange(of: task.title) { _, newValue in
             // Keep editingTitle in sync with task.title when not editing

@@ -79,6 +79,10 @@ struct TaskRowView: View {
                         if editing { onStartEdit(taskID) }
                         else { onEndEdit(taskID, shouldCreateNewTask) }
                     }
+                },
+                onContentChange: { newTitle in
+                    guard !task.isCompleted else { return }
+                    onTitleChange(task, newTitle)
                 }
             )
             .focused($focusedField, equals: .task(taskID))
@@ -137,10 +141,6 @@ struct TaskRowView: View {
         .onAppear {
             editingTitle = task.title
             cachedAccentColor = computeAccentColor()
-        }
-        .onChange(of: editingTitle) {
-            guard !task.isCompleted else { return }
-            onTitleChange(task, editingTitle)
         }
         .onChange(of: task.title) { _, newValue in
             if !isCurrentlyEditing {
