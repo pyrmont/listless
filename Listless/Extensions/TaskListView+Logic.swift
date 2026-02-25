@@ -5,7 +5,7 @@ extension TaskListView {
     // MARK: - Computed Properties
 
     var activeTasks: [TaskItem] {
-        Array(tasks.filter { !$0.isCompleted })
+        Array(tasks.filter { !$0.isDeleted && !$0.isCompleted })
             .sorted { $0.sortOrder < $1.sortOrder }
     }
 
@@ -20,7 +20,7 @@ extension TaskListView {
     }
 
     var completedTasks: [TaskItem] {
-        Array(tasks.filter { $0.isCompleted })
+        Array(tasks.filter { !$0.isDeleted && $0.isCompleted })
             .sorted { $0.updatedAt > $1.updatedAt }
     }
 

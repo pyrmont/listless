@@ -223,7 +223,7 @@ struct TaskListView: View {
                     .zIndex(isRowLifted(taskID) ? 1 : 0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isRowLifted(taskID))
                     .overlay {
-                        if draggedTaskID != nil && draggedTaskID != task.id {
+                        if draggedTaskID != nil && draggedTaskID != taskID {
                             VStack(spacing: 0) {
                                 // Top 1/6 - insert BEFORE
                                 Color.clear
@@ -232,7 +232,7 @@ struct TaskListView: View {
                                     .onDrop(
                                         of: [UTType.text],
                                         delegate: TaskReorderDropDelegate(
-                                            onTargeted: { updateVisualOrder(insertBefore: task.id) },
+                                            onTargeted: { updateVisualOrder(insertBefore: taskID) },
                                             onPerform: { commitCurrentDrag() }
                                         )
                                     )
@@ -244,7 +244,7 @@ struct TaskListView: View {
                                     .onDrop(
                                         of: [UTType.text],
                                         delegate: TaskReorderDropDelegate(
-                                            onTargeted: { updateVisualOrderSmart(relativeTo: task.id) },
+                                            onTargeted: { updateVisualOrderSmart(relativeTo: taskID) },
                                             onPerform: { commitCurrentDrag() }
                                         )
                                     )
@@ -256,7 +256,7 @@ struct TaskListView: View {
                                     .onDrop(
                                         of: [UTType.text],
                                         delegate: TaskReorderDropDelegate(
-                                            onTargeted: { updateVisualOrder(insertAfter: task.id) },
+                                            onTargeted: { updateVisualOrder(insertAfter: taskID) },
                                             onPerform: { commitCurrentDrag() }
                                         )
                                     )
