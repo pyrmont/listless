@@ -26,7 +26,7 @@ struct PullToCreateIndicator: View {
                         .offset(y: isReady ? textSlideDistance : 0)
                 }
                 .foregroundStyle(.secondary)
-                .font(.body)
+                .font(TaskRowMetrics.bodySUI)
                 .frame(height: textSlideDistance, alignment: .topLeading)
                 .clipped()
                 .animation(.easeInOut(duration: 0.18), value: isReady)

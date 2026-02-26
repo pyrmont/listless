@@ -13,7 +13,7 @@ struct TappableTextField: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.delegate = context.coordinator
-        textView.font = .systemFont(ofSize: 18)
+        textView.font = TaskRowMetrics.bodyUIK
         textView.backgroundColor = .clear
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
@@ -24,7 +24,7 @@ struct TappableTextField: UIViewRepresentable {
 
         let placeholder = UILabel()
         placeholder.text = "Enter task"
-        placeholder.font = .systemFont(ofSize: 18)
+        placeholder.font = TaskRowMetrics.bodyUIK
         placeholder.textColor = .placeholderText
         placeholder.tag = 100
         placeholder.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +61,7 @@ struct TappableTextField: UIViewRepresentable {
 
     private func applyStyle(to textView: UITextView, text: String, isCompleted: Bool) {
         var attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 18),
+            .font: TaskRowMetrics.bodyUIK,
             .foregroundColor: isCompleted ? UIColor.secondaryLabel : UIColor.label,
         ]
         if isCompleted {

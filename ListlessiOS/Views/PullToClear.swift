@@ -31,7 +31,7 @@ struct PullToClearIndicator: View {
                     .offset(y: isReady ? -textSlideDistance : 0)
             }
             .foregroundStyle(.secondary)
-            .font(.body)
+            .font(TaskRowMetrics.hintSUI)
             .frame(height: textSlideDistance, alignment: .topLeading)
             .clipped()
             .animation(.easeInOut(duration: 0.15), value: isReady)

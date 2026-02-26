@@ -266,7 +266,7 @@ struct TaskListView: View, TaskListViewProtocol {
         .overlay {
             if isCompletelyEmpty {
                 Text("Pull down to create")
-                    .font(.subheadline)
+                    .font(TaskRowMetrics.hintSUI)
                     .foregroundStyle(.secondary)
                     .padding(.top, 24)
                     .allowsHitTesting(false)
