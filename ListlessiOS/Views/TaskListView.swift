@@ -12,6 +12,7 @@ struct TaskListView: View, TaskListViewProtocol {
         var pullToCreate = PullToCreateState()
         var pullUpOffset: CGFloat = 0
         var isDragging: Bool = false
+        var clearingTaskIDs: Set<UUID> = []
         var rowFrames: [UUID: CGRect] = [:]
     }
 
@@ -242,6 +243,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
                 ForEach(completedTasks) { task in
                     let taskID = task.id
+                    let isBeingCleared = iState.clearingTaskIDs.contains(taskID)
                     TaskRowView(
                         task: task,
                         taskID: taskID,
@@ -252,6 +254,8 @@ struct TaskListView: View, TaskListViewProtocol {
                         onDelete: { deleteTask($0) },
                         onSelect: { selectTask($0) }
                     )
+                    .opacity(isBeingCleared ? 0 : 1)
+                    .offset(y: isBeingCleared ? 40 : 0)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -284,7 +288,15 @@ struct TaskListView: View, TaskListViewProtocol {
             pullCreateThreshold: pullCreateThreshold,
             pullClearThreshold: pullClearThreshold,
             onCreateTaskAtTop: { createNewTaskAtTop() },
-            onClearCompleted: { clearCompletedTasks() }
+            onClearCompleted: {
+                let ids = Set(completedTasks.map(\.id))
+                withAnimation(.easeIn(duration: 0.35)) {
+                    iState.clearingTaskIDs = ids
+                } completion: {
+                    iState.clearingTaskIDs = []
+                    clearCompletedTasks()
+                }
+            }
         )
     }
 }
