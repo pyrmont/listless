@@ -83,7 +83,7 @@ struct TaskRowView: View {
                         else { onEndEdit(taskID, shouldCreateNewTask) }
                     }
                 },
-                returnKeyType: isLastActiveTask ? .next : .done,
+                returnKeyType: isLastActiveTask && !editingTitle.isEmpty ? .next : .done,
                 onContentChange: { newTitle in
                     guard !task.isCompleted else { return }
                     onTitleChange(task, newTitle)
