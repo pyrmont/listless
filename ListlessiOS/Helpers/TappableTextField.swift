@@ -8,6 +8,7 @@ struct TappableTextField: UIViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
     let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+    var returnKeyType: UIReturnKeyType = .done
     var onContentChange: ((String) -> Void)? = nil
 
     func makeUIView(context: Context) -> UITextView {
@@ -20,7 +21,7 @@ struct TappableTextField: UIViewRepresentable {
         textView.isScrollEnabled = false
         textView.autocorrectionType = .default
         textView.autocapitalizationType = .sentences
-        textView.returnKeyType = .done
+        textView.returnKeyType = returnKeyType
 
         let placeholder = UILabel()
         placeholder.text = "Enter task"
@@ -40,6 +41,10 @@ struct TappableTextField: UIViewRepresentable {
     func updateUIView(_ textView: UITextView, context: Context) {
         if !textView.isFirstResponder {
             applyStyle(to: textView, text: text, isCompleted: isCompleted)
+        }
+        if textView.returnKeyType != returnKeyType {
+            textView.returnKeyType = returnKeyType
+            textView.reloadInputViews()
         }
         textView.isEditable = !isCompleted
         textView.isSelectable = !isCompleted

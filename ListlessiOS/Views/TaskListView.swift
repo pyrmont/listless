@@ -211,6 +211,7 @@ struct TaskListView: View, TaskListViewProtocol {
                         totalTasks: displayActiveTasks.count,
                         isSelected: selectedTaskID == taskID,
                         isDragging: isDraggingStateBinding,
+                        isLastActiveTask: index == displayActiveTasks.count - 1,
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },

@@ -11,6 +11,7 @@ struct TaskRowView: View {
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
     let onSelect: (UUID) -> Void
+    let isLastActiveTask: Bool
     let onStartEdit: (UUID) -> Void
     let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
     @FocusState.Binding var focusedField: FocusField?
@@ -29,6 +30,7 @@ struct TaskRowView: View {
         totalTasks: Int = 1,
         isSelected: Bool,
         isDragging: Binding<Bool> = .constant(false),
+        isLastActiveTask: Bool = false,
         focusedField: FocusState<FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
@@ -43,6 +45,7 @@ struct TaskRowView: View {
         self.totalTasks = totalTasks
         self.isSelected = isSelected
         _isDragging = isDragging
+        self.isLastActiveTask = isLastActiveTask
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
@@ -80,6 +83,7 @@ struct TaskRowView: View {
                         else { onEndEdit(taskID, shouldCreateNewTask) }
                     }
                 },
+                returnKeyType: isLastActiveTask ? .next : .done,
                 onContentChange: { newTitle in
                     guard !task.isCompleted else { return }
                     onTitleChange(task, newTitle)
