@@ -24,6 +24,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         openNewWindow()
     }
 
+    func applicationDidUnhide(_ notification: Notification) {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+    }
+
     // MARK: - NSMenuItemValidation
     // AppKit calls this automatically for each item targeting self, both when the
     // menu opens and when keyboard shortcuts are evaluated.
@@ -49,7 +53,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     // MARK: - Actions
 
     @objc private func handleNewTask() {
-        MenuCoordinator.shared.newTask?()
+        if NSApp.windows.filter({ $0.isVisible }).isEmpty {
+            openNewWindow()
+            DispatchQueue.main.async {
+                MenuCoordinator.shared.newTask?()
+            }
+        } else {
+            MenuCoordinator.shared.newTask?()
+        }
     }
 
     @objc func cut(_ sender: Any?) {
