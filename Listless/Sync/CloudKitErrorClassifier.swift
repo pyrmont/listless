@@ -14,6 +14,7 @@ struct SyncAlertItem: Identifiable {
 
 enum SyncIssue {
     case transient(message: String)
+    case deferred(message: String)
     case alert(SyncAlertItem)
 }
 
@@ -77,6 +78,9 @@ enum CloudKitErrorClassifier {
                         "This device currently cannot access iCloud for syncing. Check iCloud settings and try again.",
                     action: .openSettings
                 ))
+
+        case .accountTemporarilyUnavailable, .zoneNotFound, .userDeletedZone:
+            return .deferred(message: "Saved locally. iCloud sync will retry automatically.")
 
         default:
             return .alert(

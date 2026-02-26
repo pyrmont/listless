@@ -49,6 +49,7 @@
 		BA6953E0EFE6F8255F05A3FD /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		C169823665158AA347A63990 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51B8129962E5CC78ECDDC2B /* TaskListView.swift */; };
 		C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
+		CA439FD953EA59A9664E0D74 /* CloudKitErrorClassifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C3B9FF63645B35E09CF1B1 /* CloudKitErrorClassifierTests.swift */; };
 		CAB42FAA253E2B347AB0594B /* CloudKitErrorClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */; };
 		CAD142ED738A83371DFF8F5B /* TaskListView+Logic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */; };
 		CC99A96BBC089C423F582E4F /* TaskListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C018476BD91B73870244B9 /* TaskListViewProtocol.swift */; };
@@ -94,6 +95,7 @@
 		466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
 		4C79ABB39A40D3E1828716C7 /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		4FC64B9F9370041BEDBD1E14 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		51C3B9FF63645B35E09CF1B1 /* CloudKitErrorClassifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorClassifierTests.swift; sourceTree = "<group>"; };
 		567DBAC2A39FA2760D006AAB /* PullToClear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToClear.swift; sourceTree = "<group>"; };
 		5A6D74EDDD7E3FC150064FB5 /* TaskListView+PullToClear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullToClear.swift"; sourceTree = "<group>"; };
 		5B0E22B8F7B2B7283CAF749E /* Listless macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -318,6 +320,7 @@
 			isa = PBXGroup;
 			children = (
 				C9B14DC786A336008AAB78EE /* .gitkeep */,
+				51C3B9FF63645B35E09CF1B1 /* CloudKitErrorClassifierTests.swift */,
 				5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */,
 				9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */,
 				2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */,
@@ -570,6 +573,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA439FD953EA59A9664E0D74 /* CloudKitErrorClassifierTests.swift in Sources */,
 				F50E8B8F73F64D8E641DC74C /* TaskStoreCompletionTests.swift in Sources */,
 				99977BFA37FBAAA49AF6B71E /* TaskStoreEdgeCaseTests.swift in Sources */,
 				269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */,

@@ -7,9 +7,11 @@ final class CloudKitSyncMonitor: ObservableObject {
     @Published var actionableAlert: SyncAlertItem?
 
     private var monitoringTask: Task<Void, Never>?
+    private var deferredTask: Task<Void, Never>?
 
     deinit {
         monitoringTask?.cancel()
+        deferredTask?.cancel()
     }
 
     func startMonitoring(container: NSPersistentCloudKitContainer) {
@@ -33,6 +35,8 @@ final class CloudKitSyncMonitor: ObservableObject {
                 if let error = event.error {
                     self.handle(issue: CloudKitErrorClassifier.classify(error))
                 } else if self.isSuccessfulSyncCompletion(event) {
+                    self.deferredTask?.cancel()
+                    self.deferredTask = nil
                     self.transientErrorMessage = nil
                 }
             }
@@ -51,6 +55,14 @@ final class CloudKitSyncMonitor: ObservableObject {
         switch issue {
         case .transient(let message):
             showTransient(message)
+
+        case .deferred(let message):
+            guard deferredTask == nil else { return }
+            deferredTask = Task {
+                try? await Task.sleep(for: .seconds(60))
+                guard !Task.isCancelled else { return }
+                showTransient(message)
+            }
 
         case .alert(let alert):
             actionableAlert = alert
