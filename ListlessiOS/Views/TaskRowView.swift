@@ -64,15 +64,12 @@ struct TaskRowView: View {
                 let previewCompleted = isSwipeTriggered && swipeDirection == .right
                     ? !task.isCompleted
                     : task.isCompleted
-                ZStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .opacity(previewCompleted ? 1 : 0)
-                    Image(systemName: "circle")
-                        .opacity(previewCompleted ? 0 : 1)
-                }
-                .transaction { $0.animation = nil }
-                .foregroundStyle(Color.secondary)
-                .font(.system(size: 17))
+                Image(systemName: previewCompleted ? "checkmark.circle.fill" : "circle")
+                    .contentTransition(.identity)
+                    .transaction { $0.animation = nil }
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(Color.secondary)
+                    .font(.system(size: 17))
             }
             .buttonStyle(.borderless)
 

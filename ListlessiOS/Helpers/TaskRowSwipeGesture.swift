@@ -55,7 +55,6 @@ struct TaskRowSwipeGesture: ViewModifier {
             // Only the content moves
             content
                 .offset(x: swipeOffset)
-                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: swipeOffset)
                 .contentShape(Rectangle())
         }
         .simultaneousGesture(
