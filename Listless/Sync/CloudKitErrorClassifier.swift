@@ -83,13 +83,7 @@ enum CloudKitErrorClassifier {
             return .deferred(message: "Saved locally. iCloud sync will retry automatically.")
 
         default:
-            return .alert(
-                SyncAlertItem(
-                    title: "Sync Error",
-                    message:
-                        "Changes are saved locally, but iCloud sync failed. The app will try again automatically.",
-                    action: nil
-                ))
+            return .deferred(message: "Saved locally. iCloud sync will retry automatically.")
         }
     }
 

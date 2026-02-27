@@ -103,17 +103,16 @@ struct CloudKitErrorClassifierTests {
 
     // MARK: - Default / Unknown CKError
 
-    @Test("Unknown CKError code shows sync error alert")
+    @Test("Unknown CKError code is deferred")
     func unknownCKError() {
         let error = CKError(.internalError)
         let issue = CloudKitErrorClassifier.classify(error)
 
-        guard case .alert(let alert) = issue else {
-            Issue.record("Expected .alert, got \(issue)")
+        guard case .deferred(let message) = issue else {
+            Issue.record("Expected .deferred, got \(issue)")
             return
         }
-        #expect(alert.title == "Sync Error")
-        #expect(alert.action == nil)
+        #expect(message.contains("retry"))
     }
 
     // MARK: - Non-CloudKit Errors
