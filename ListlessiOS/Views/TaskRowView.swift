@@ -66,7 +66,6 @@ struct TaskRowView: View {
                     : task.isCompleted
                 Image(systemName: previewCompleted ? "checkmark.circle.fill" : "circle")
                     .contentTransition(.identity)
-                    .transaction { $0.animation = nil }
                     .frame(width: 22, height: 22)
                     .foregroundStyle(Color.secondary)
                     .font(.system(size: 17))

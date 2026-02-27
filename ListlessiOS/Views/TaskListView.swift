@@ -300,11 +300,11 @@ struct TaskListView: View, TaskListViewProtocol {
         .overlay(alignment: .bottom) {
             pullToClearIndicatorRow
         }
-        .pullCreationGesture(
-            pullToCreate: pullToCreateStateBinding,
-            pullUpOffset: pullUpOffsetStateBinding,
-            activeTaskIDs: activeTasks.map(\.id),
-            hasCompletedTasks: !completedTasks.isEmpty,
+            .pullCreationGesture(
+                pullToCreate: pullToCreateStateBinding,
+                pullUpOffset: pullUpOffsetStateBinding,
+                activeTaskIDs: activeTasks.map(\.id),
+                hasCompletedTasks: !completedTasks.isEmpty,
             pullCreateThreshold: pullCreateThreshold,
             pullClearThreshold: pullClearThreshold,
             onCreateTaskAtTop: { createNewTaskAtTop() },
