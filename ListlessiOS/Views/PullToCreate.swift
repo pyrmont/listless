@@ -16,9 +16,8 @@ struct PullToCreateIndicator: View {
                 .frame(width: TaskRowMetrics.accentBarWidth)
             HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
                 Image(systemName: "circle")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.secondary)
                     .font(.system(size: 17))
-                    .fontWeight(.thin)
                 ZStack(alignment: .leading) {
                     Text("Release to add")
                         .offset(y: isReady ? 0 : -textSlideDistance)
