@@ -145,21 +145,6 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
                 fState.focusedField = focusedFieldBinding
             }
-            .onChange(of: focusedFieldBinding) { oldValue, newValue in
-                fState.focusedField = newValue
-                handleFocusChange(from: oldValue, to: newValue)
-
-                if newValue == nil {
-                    if let pending = pendingFocus {
-                        focusedFieldBinding = pending
-                        fState.focusedField = pending
-                        pendingFocus = nil
-                    } else {
-                        focusedFieldBinding = .scrollView
-                        fState.focusedField = .scrollView
-                    }
-                }
-            }
             .onChange(of: undoManager, initial: true) { _, newValue in
                 managedObjectContext.undoManager = newValue
             }
@@ -200,6 +185,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     private var taskScrollView: some View {
         ScrollView {
+          ScrollViewReader { scrollProxy in
             VStack(alignment: .leading, spacing: vStackSpacing) {
                 navigationHeader
                 pullToCreateIndicatorRow
@@ -239,6 +225,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     } action: { frame in
                         rowFrames[taskID] = frame
                     }
+                    .id(taskID)
                 }
 
                 ForEach(completedTasks) { task in
@@ -256,15 +243,48 @@ struct TaskListView: View, TaskListViewProtocol {
                     )
                     .opacity(isBeingCleared ? 0 : 1)
                     .offset(y: isBeingCleared ? 40 : 0)
+                    .id(taskID)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.trailing, 16)
             .padding(.vertical, 12)
             .offset(y: -pullToCreate.pullOffset)
+            .onChange(of: focusedFieldBinding) { oldValue, newValue in
+                fState.focusedField = newValue
+                handleFocusChange(from: oldValue, to: newValue)
+
+                if newValue == nil {
+                    if let pending = pendingFocus {
+                        focusedFieldBinding = pending
+                        fState.focusedField = pending
+                        pendingFocus = nil
+                    } else {
+                        focusedFieldBinding = .scrollView
+                        fState.focusedField = .scrollView
+                    }
+                }
+
+                if case .task(let id) = (newValue ?? fState.focusedField),
+                    draggedTaskID == nil
+                {
+                    withAnimation {
+                        scrollProxy.scrollTo(id)
+                    }
+                }
+            }
+            .onChange(of: fState.selectedTaskID) { _, newID in
+                if let newID, draggedTaskID == nil {
+                    withAnimation {
+                        scrollProxy.scrollTo(newID)
+                    }
+                }
+            }
+          }
         }
         .scrollDisabled(draggedTaskID != nil)
         .scrollBounceBehavior(.always)
+        .contentMargins(.bottom, 20)
         .background {
             Color.outerBackground.ignoresSafeArea()
         }

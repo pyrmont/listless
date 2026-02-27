@@ -77,9 +77,12 @@ private struct PullCreationGestureModifier: ViewModifier {
                 pullToCreate.updatePullDistance(pullDistance)
             }
             .onScrollGeometryChange(for: CGFloat.self) { geo in
+                // Subtract the 20pt bottom content margin (set on ScrollView in TaskListView)
+                // so it doesn't create a dead zone before overscroll registers.
+                let adjustedBottomInset = geo.contentInsets.bottom - 20
                 let maxOffset = max(
                     -geo.contentInsets.top,
-                    geo.contentSize.height - geo.bounds.size.height + geo.contentInsets.bottom
+                    geo.contentSize.height - geo.bounds.size.height + adjustedBottomInset
                 )
                 return max(0, geo.contentOffset.y - maxOffset)
             } action: { _, pullDistance in
