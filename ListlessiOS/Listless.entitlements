@@ -16,5 +16,7 @@
 	<array>
 		<string>iCloud.net.inqk.listless</string>
 	</array>
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
 </dict>
 </plist>
