@@ -3,6 +3,7 @@
 .cache/
 .DS_Store
 CLAUDE.md
+Generated/
 examples/
 notes/
 symlinks/

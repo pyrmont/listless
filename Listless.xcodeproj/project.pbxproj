@@ -129,6 +129,7 @@
 		CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Toolbar.swift"; sourceTree = "<group>"; };
 		D2C018476BD91B73870244B9 /* TaskListViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewProtocol.swift; sourceTree = "<group>"; };
 		D2D9CDDA8913CD116FB4DA74 /* TaskListView+PullGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullGestures.swift"; sourceTree = "<group>"; };
+		D43D37CE25806380C0B13466 /* BuildNumber.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildNumber.xcconfig; sourceTree = "<group>"; };
 		D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowDragGesture.swift; sourceTree = "<group>"; };
 		D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickableTextField.swift; sourceTree = "<group>"; };
 		DC3DEE364304587D280C5672 /* TaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStore.swift; sourceTree = "<group>"; };
@@ -179,6 +180,14 @@
 				F416DD868A4C044F0D64F8D0 /* TaskRowDragGesture.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		51F881290E7FBA2684458F80 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				D43D37CE25806380C0B13466 /* BuildNumber.xcconfig */,
+			);
+			path = Generated;
 			sourceTree = "<group>";
 		};
 		58051CBDE2390F9E13647235 /* Listless */ = {
@@ -307,6 +316,7 @@
 			isa = PBXGroup;
 			children = (
 				9404C09EE1A4D91DFF338464 /* Media.xcassets */,
+				51F881290E7FBA2684458F80 /* Generated */,
 				58051CBDE2390F9E13647235 /* Listless */,
 				954AAB8DDFF6E6D6FD6A0A2C /* ListlessiOS */,
 				D5B197AFF26144948D032299 /* ListlessMac */,
@@ -347,7 +357,6 @@
 			buildPhases = (
 				409D108909CBEC2F69B56D0E /* Sources */,
 				6BCB6F65428622E5AA66936D /* Resources */,
-				AB71BC51B745C8453D165362 /* Set Build Number */,
 			);
 			buildRules = (
 			);
@@ -366,7 +375,6 @@
 			buildPhases = (
 				67F773566AF3BC117AA393B9 /* Sources */,
 				EC5CE716D5948EC163595BF2 /* Resources */,
-				2AF6CF799FE78291393A6F88 /* Set Build Number */,
 			);
 			buildRules = (
 			);
@@ -459,47 +467,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		2AF6CF799FE78291393A6F88 /* Set Build Number */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Set Build Number";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "buildYear=`xcrun git log -1 --format=%cd --date=format:%Y`\nbuildVersion=`xcrun git rev-list HEAD | wc -l | tr -d ' '`\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildYear.$buildVersion\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
-		};
-		AB71BC51B745C8453D165362 /* Set Build Number */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Set Build Number";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "buildYear=`xcrun git log -1 --format=%cd --date=format:%Y`\nbuildVersion=`xcrun git rev-list HEAD | wc -l | tr -d ' '`\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildYear.$buildVersion\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		409D108909CBEC2F69B56D0E /* Sources */ = {
@@ -600,7 +567,6 @@
 				CODE_SIGN_ENTITLEMENTS = ListlessMac/Listless.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -619,7 +585,6 @@
 				CODE_SIGN_ENTITLEMENTS = ListlessMac/Listless.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -633,8 +598,10 @@
 		};
 		AF0B2590EF824F9C4CDDFCCB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D43D37CE25806380C0B13466 /* BuildNumber.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -665,9 +632,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -682,6 +652,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6;
 			};
@@ -692,7 +663,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -708,8 +678,10 @@
 		};
 		D1B900A3E25ED5B39F0D9716 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D43D37CE25806380C0B13466 /* BuildNumber.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -740,9 +712,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -764,6 +739,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6;
 			};
@@ -776,7 +752,6 @@
 				CODE_SIGN_ENTITLEMENTS = ListlessiOS/Listless.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessiOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -793,7 +768,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -814,7 +788,6 @@
 				CODE_SIGN_ENTITLEMENTS = ListlessiOS/Listless.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 7TD7PZBNXP;
 				INFOPLIST_FILE = ListlessiOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
