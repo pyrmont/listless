@@ -572,7 +572,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.mac;
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless;
 				PRODUCT_NAME = Listless;
 				SDKROOT = macosx;
 			};
@@ -590,7 +590,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.mac;
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless;
 				PRODUCT_NAME = Listless;
 				SDKROOT = macosx;
 			};
@@ -757,7 +757,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -793,7 +793,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

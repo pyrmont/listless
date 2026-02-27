@@ -56,7 +56,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.ios
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless
       INFOPLIST_FILE: ListlessiOS/Info.plist
       TARGETED_DEVICE_FAMILY: "1,2"
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -89,7 +89,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
         LSMinimumSystemVersion: "14.0"
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.mac
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless
       PRODUCT_NAME: Listless
       INFOPLIST_FILE: ListlessMac/Info.plist
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
