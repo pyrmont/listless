@@ -62,6 +62,9 @@ private struct PullCreationGestureModifier: ViewModifier {
     @Binding var pullToCreate: TaskListView.PullToCreateState
     @Binding var pullUpOffset: CGFloat
 
+    @State private var isAtBottom = false
+    @State private var clearPullStartedAtBottom = false
+
     let activeTaskIDs: [UUID]
     let hasCompletedTasks: Bool
     let pullCreateThreshold: CGFloat
@@ -76,17 +79,16 @@ private struct PullCreationGestureModifier: ViewModifier {
             } action: { _, pullDistance in
                 pullToCreate.updatePullDistance(pullDistance)
             }
-            .onScrollGeometryChange(for: CGFloat.self) { geo in
-                // Subtract the 20pt bottom content margin (set on ScrollView in TaskListView)
-                // so it doesn't create a dead zone before overscroll registers.
+            .onScrollGeometryChange(for: Bool.self) { geo in
+                // Match the same bottom inset adjustment used by the ScrollView.
                 let adjustedBottomInset = geo.contentInsets.bottom - 20
                 let maxOffset = max(
                     -geo.contentInsets.top,
                     geo.contentSize.height - geo.bounds.size.height + adjustedBottomInset
                 )
-                return max(0, geo.contentOffset.y - maxOffset)
-            } action: { _, pullDistance in
-                pullUpOffset = pullDistance
+                return geo.contentOffset.y >= (maxOffset - 1)
+            } action: { _, atBottom in
+                isAtBottom = atBottom
             }
             .onScrollPhaseChange { oldPhase, newPhase in
                 handlePullToCreateScrollPhaseChange(from: oldPhase, to: newPhase)
@@ -107,6 +109,7 @@ private struct PullCreationGestureModifier: ViewModifier {
             .sensoryFeedback(.impact(weight: .medium), trigger: pullUpOffset >= pullClearThreshold) { old, new in
                 !old && new
             }
+            .simultaneousGesture(clearCompletedPullGesture)
     }
 
     private func handlePullToCreateScrollPhaseChange(from oldPhase: ScrollPhase, to newPhase: ScrollPhase) {
@@ -137,10 +140,32 @@ private struct PullCreationGestureModifier: ViewModifier {
             break
         }
 
-        if pullUpOffset >= pullClearThreshold && hasCompletedTasks {
-            onClearCompleted()
-        }
-        pullUpOffset = 0
+    }
+
+    private var clearCompletedPullGesture: some Gesture {
+        DragGesture(minimumDistance: 0, coordinateSpace: .local)
+            .onChanged { value in
+                guard hasCompletedTasks else { return }
+
+                if !clearPullStartedAtBottom {
+                    clearPullStartedAtBottom = isAtBottom
+                }
+                guard clearPullStartedAtBottom else { return }
+
+                // Use finger travel, not ScrollView rubber-band displacement.
+                pullUpOffset = max(0, -value.translation.height)
+            }
+            .onEnded { _ in
+                defer {
+                    clearPullStartedAtBottom = false
+                    pullUpOffset = 0
+                }
+
+                guard hasCompletedTasks, clearPullStartedAtBottom else { return }
+                if pullUpOffset >= pullClearThreshold {
+                    onClearCompleted()
+                }
+            }
     }
 }
 
