@@ -131,6 +131,10 @@ struct TaskListView: View, TaskListViewProtocol {
         generator.impactOccurred()
     }
 
+    func showSyncDiagnostics() {
+        iState.isShowingSyncDiagnostics = true
+    }
+
     var body: some View {
         taskScrollView
             .contentShape(Rectangle())
@@ -166,7 +170,7 @@ struct TaskListView: View, TaskListViewProtocol {
             .overlay(alignment: .topTrailing) {
                 if syncMonitor.hasDiagnosticsIssue {
                     Button {
-                        iState.isShowingSyncDiagnostics = true
+                        showSyncDiagnostics()
                     } label: {
                         Label("Sync Details", systemImage: "exclamationmark.icloud")
                             .font(.caption)
