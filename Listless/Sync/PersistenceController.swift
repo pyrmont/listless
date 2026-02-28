@@ -69,6 +69,15 @@ final class PersistenceController {
                 fatalError("Failed to retrieve persistent store description")
             }
 
+#if DEBUG
+            if let storeURL = description.url {
+                // Keep debug builds isolated from TestFlight/App Store local Core Data files.
+                description.url = storeURL.deletingLastPathComponent().appendingPathComponent(
+                    "Listless-Debug.sqlite"
+                )
+            }
+#endif
+
             description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
                 containerIdentifier: "iCloud.net.inqk.listless"
             )
