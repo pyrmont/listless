@@ -1,8 +1,7 @@
 .asc/
-.beans
-.beans.yml
 .cache/
 .DS_Store
+AGENTS.md
 CLAUDE.md
 Generated/
 examples/
