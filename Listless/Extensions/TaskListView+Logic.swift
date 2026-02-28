@@ -129,7 +129,6 @@ extension TaskListViewProtocol {
             focusedField = nil
         } else {
             createNewTask()
-            focusedField = nil
         }
     }
 
