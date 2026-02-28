@@ -276,6 +276,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         mainMenu.addItem(viewMenuItem)
 
         let windowMenu = NSMenu(title: "Window")
+        windowMenu.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(NSMenuItem.separator())
         let syncDiagnosticsItem = NSMenuItem(
             title: "Sync Diagnostics",
             action: #selector(handleShowSyncDiagnostics),
@@ -283,9 +286,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         )
         syncDiagnosticsItem.target = self
         windowMenu.addItem(syncDiagnosticsItem)
-        windowMenu.addItem(NSMenuItem.separator())
-        windowMenu.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
-        windowMenu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
         windowMenu.addItem(NSMenuItem.separator())
         windowMenu.addItem(withTitle: "Bring All to Front", action: #selector(NSApplication.arrangeInFront(_:)), keyEquivalent: "")
         let windowMenuItem = NSMenuItem(title: "Window", action: nil, keyEquivalent: "")
