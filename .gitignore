@@ -1,6 +1,7 @@
 .asc/
 .cache/
 .DS_Store
+*.xcuserstate
 AGENTS.md
 CLAUDE.md
 Generated/
