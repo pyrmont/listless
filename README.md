@@ -3,12 +3,11 @@
 Listless is a to-do list app for Apple platforms. It is intended to run on
 iPhone, iPad and Mac.
 
+Listless was written by Claude Code and OpenAI Codex under human direction.
+
 ## Requirements
 
-Listless is a Swift 6 project that produces executables for iOS and macOS
-targets.
-
-Listless was written by Claude Code and OpenAI Codex under human direction. It
+Listless is a Swift 6 project that produces executables for iOS and macOS. It
 targets iOS/iPadOS devices running iOS/iPadOS 18 and macOS devices running
 macOS 15. It has not been tested with iOS/iPadOS/macOS 26.
 
