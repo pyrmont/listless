@@ -116,6 +116,23 @@ struct TaskListView: View, TaskListViewProtocol {
         )
     }
 
+    private var currentTaskActions: TaskActions {
+        let selectedIndex = selectedTaskID.flatMap { id in
+            activeTasks.firstIndex(where: { $0.id == id })
+        }
+        return TaskActions(
+            newTask: { createNewTask() },
+            deleteTask: selectedTaskID != nil
+                ? { _ = deleteSelectedTask() } : nil,
+            moveUp: selectedIndex.map({ $0 > 0 }) == true
+                ? { moveSelectedTaskUp() } : nil,
+            moveDown: selectedIndex.map({ $0 < activeTasks.count - 1 }) == true
+                ? { moveSelectedTaskDown() } : nil,
+            markCompleted: selectedTaskID != nil
+                ? { markSelectedTaskCompleted() } : nil
+        )
+    }
+
     var vStackSpacing: CGFloat { 12 }
     var pullCreateThreshold: CGFloat { 70 }
     var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
@@ -183,6 +200,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     .padding(.trailing, 12)
                 }
             }
+            .focusedSceneValue(\.taskActions, currentTaskActions)
             .sheet(isPresented: isShowingSyncDiagnosticsStateBinding) {
                 SyncDiagnosticsView(syncMonitor: syncMonitor)
             }

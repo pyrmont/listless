@@ -21,6 +21,7 @@
 		365FDEE6823D7A114F3FB12A /* TaskListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C018476BD91B73870244B9 /* TaskListViewProtocol.swift */; };
 		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
 		3D1F551A03B97ECF4E3DC8B0 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06485DBE35B60868E14202A /* TaskRowView.swift */; };
+		3EDB6A9A30B4226C15E7F44D /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C46FC97E6DB6FF81AC5C22 /* AppCommands.swift */; };
 		4E5A0A02121E02124F80E320 /* TaskListView+SyncUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */; };
 		5035EC4C7518A5FF9AD454CA /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = F416DD868A4C044F0D64F8D0 /* TaskRowDragGesture.swift */; };
 		5761B201BF46FCA9C5C98CEF /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */; };
@@ -93,6 +94,7 @@
 		3FA75CA18C6270D68A755AEB /* TaskListView+Drag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Drag.swift"; sourceTree = "<group>"; };
 		4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
 		466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
+		46C46FC97E6DB6FF81AC5C22 /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		4C79ABB39A40D3E1828716C7 /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		4FC64B9F9370041BEDBD1E14 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		51C3B9FF63645B35E09CF1B1 /* CloudKitErrorClassifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorClassifierTests.swift; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 			isa = PBXGroup;
 			children = (
 				F1E998119283F784B9ADEE28 /* AppColors.swift */,
+				46C46FC97E6DB6FF81AC5C22 /* AppCommands.swift */,
 				B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */,
 				FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */,
 				E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */,
@@ -504,6 +507,7 @@
 			files = (
 				BA6953E0EFE6F8255F05A3FD /* AccentColor.swift in Sources */,
 				5D3EE9526DA269EE9EE3AB52 /* AppColors.swift in Sources */,
+				3EDB6A9A30B4226C15E7F44D /* AppCommands.swift in Sources */,
 				CAB42FAA253E2B347AB0594B /* CloudKitErrorClassifier.swift in Sources */,
 				889DCB2BB3C01DDA281EA81A /* CloudKitSyncMonitor.swift in Sources */,
 				E60F81C7B930AACE67746759 /* HoverCursorModifier.swift in Sources */,
@@ -651,6 +655,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -738,6 +743,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";

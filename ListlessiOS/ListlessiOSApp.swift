@@ -26,5 +26,8 @@ struct ListlessiOSApp: App {
                         .frame(height: 0)
                 }
         }
+        .commands {
+            TaskCommands()
+        }
     }
 }
