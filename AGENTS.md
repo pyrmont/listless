@@ -23,36 +23,88 @@
 
 ## TestFlight Release (asc CLI)
 - Use `asc` for App Store Connect/TestFlight automation.
-- In this repo, `asc` auth is stored in `./.asc/config.json` and keychain lookups may fail; run commands with `ASC_BYPASS_KEYCHAIN=1`.
+- In this repo, `asc` auth is stored in `./.asc/config.json` (local file auth); `ASC_BYPASS_KEYCHAIN=1` is not needed for normal commands.
+- In sandboxed coding-agent environments, `asc` may fail with `dial tcp: lookup api.appstoreconnect.apple.com: no such host`; this means outbound network is blocked and the command must be re-run with unrestricted network permissions.
 - Listless app identifier in App Store Connect: `6759801710` (bundle ID `net.inqk.listless`).
 - Internal beta group currently used: `Personal` (`bc458e15-2743-471c-a16d-c25fb88e07de`).
 - Build numbers come from scheme pre-action (`YEAR.COMMIT_COUNT`), so archiving from latest `HEAD` produces the latest-commit build.
 
 ### One-time auth setup
 - `asc auth login --bypass-keychain --local --name "listless-asc-cli" --key-id "<KEY_ID>" --issuer-id "<ISSUER_ID>" --private-key "./Generated/AuthKey_<KEY_ID>.p8"`
-- Verify: `ASC_BYPASS_KEYCHAIN=1 asc apps list --limit 5 --output table`
+- Verify: `asc apps list --limit 5 --output table`
+- If auth/debug seems broken, run: `asc auth doctor`
 
-### Build latest-commit IPA
-- `xcodebuild -scheme "Listless iOS" -project Listless.xcodeproj -configuration Release -destination 'generic/platform=iOS' -archivePath /tmp/Listless-latest.xcarchive archive`
-- Write export options plist at `/tmp/Listless-ExportOptions.plist` with:
-  - `method=app-store`
-  - `signingStyle=automatic`
-  - `destination=export`
-  - `stripSwiftSymbols=true`
-  - `manageAppVersionAndBuildNumber=false`
-- Export IPA:
-  - `xcodebuild -exportArchive -archivePath /tmp/Listless-latest.xcarchive -exportPath /tmp/Listless-export -exportOptionsPlist /tmp/Listless-ExportOptions.plist`
-- IPA path: `/tmp/Listless-export/Listless iOS.ipa`
+### Temporary keychain workaround (headless signing, less-intrusive)
+- Use this when export fails with `No Accounts`, missing distribution cert errors, or `errSecInternalComponent`.
+- Goal: avoid changing default keychain; only add a temporary keychain to the user search list.
+- Create/unlock temp keychain and import signing `.p12` identities:
+  - `security create-keychain -p "<PASS>" "<TMP_KEYCHAIN_PATH>"`
+  - `security unlock-keychain -p "<PASS>" "<TMP_KEYCHAIN_PATH>"`
+  - `security set-keychain-settings -lut 21600 "<TMP_KEYCHAIN_PATH>"`
+  - `security import "<CERT>.p12" -k "<TMP_KEYCHAIN_PATH>" -P "<P12_PASS>" -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild`
+  - `security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild: -s -k "<PASS>" "<TMP_KEYCHAIN_PATH>"`
+- Prepend temp keychain in search list, keep login as default:
+  - `security list-keychains -d user -s "<TMP_KEYCHAIN_PATH>" "$HOME/Library/Keychains/login.keychain-db"`
+  - `security default-keychain -d user -s "$HOME/Library/Keychains/login.keychain-db"`
+- After export/upload, restore normal user keychain list:
+  - `security list-keychains -d user -s "$HOME/Library/Keychains/login.keychain-db"`
+  - `security default-keychain -d user -s "$HOME/Library/Keychains/login.keychain-db"`
 
-### Publish to internal TestFlight
-- `ASC_BYPASS_KEYCHAIN=1 asc publish testflight --app 6759801710 --ipa '/tmp/Listless-export/Listless iOS.ipa' --group bc458e15-2743-471c-a16d-c25fb88e07de --wait --output table`
-- Do not pass `--notify` for this internal-group flow (ASC rejects it).
-- Do not rely on manual internal group assignment commands for this group; internal availability is reflected in build beta state.
+### iOS TestFlight (internal group)
+1. Archive iOS app from latest commit:
+   - `xcodebuild -scheme "Listless iOS" -project Listless.xcodeproj -configuration Release -destination 'generic/platform=iOS' -archivePath /tmp/Listless-latest.xcarchive archive`
+2. Export IPA (App Store Connect method):
+   - Write `/tmp/Listless-ExportOptions.plist` with:
+     - `method=app-store-connect`
+     - `signingStyle=automatic`
+     - `teamID=7TD7PZBNXP`
+     - `destination=export`
+     - `stripSwiftSymbols=true`
+     - `manageAppVersionAndBuildNumber=false`
+   - Export:
+     - `xcodebuild -exportArchive -archivePath /tmp/Listless-latest.xcarchive -exportPath /tmp/Listless-export -exportOptionsPlist /tmp/Listless-ExportOptions.plist`
+   - IPA path: `/tmp/Listless-export/Listless iOS.ipa`
+3. Upload + publish:
+   - `asc publish testflight --app 6759801710 --ipa '/tmp/Listless-export/Listless iOS.ipa' --group bc458e15-2743-471c-a16d-c25fb88e07de --wait --output table`
+4. Notes:
+   - If local distribution signing is required, apply the temporary keychain workaround before `xcodebuild -exportArchive`.
+   - Do not pass `--notify` for this internal-group flow.
+   - If `publish testflight` returns `Cannot add internal group to a build`, treat it as non-fatal; verify with build beta detail (`internalBuildState`).
+
+### macOS TestFlight (internal group, headless)
+1. Archive macOS app from latest commit:
+   - `xcodebuild -scheme "Listless macOS" -project Listless.xcodeproj -configuration Release -destination 'generic/platform=macOS' -archivePath /tmp/Listless-mac-latest.xcarchive archive`
+2. Ensure macOS App Store signing identities exist locally:
+   - Required cert identities during export:
+     - `3rd Party Mac Developer Application`
+     - `3rd Party Mac Developer Installer`
+   - Keep `login.keychain-db` as default (less intrusive). Import certs there if needed.
+3. Export App Store `.pkg`:
+   - Use manual export options with:
+     - `method=app-store-connect`
+     - `signingStyle=manual`
+     - `teamID=7TD7PZBNXP`
+     - `signingCertificate=3rd Party Mac Developer Application`
+     - `installerSigningCertificate=3rd Party Mac Developer Installer`
+     - `provisioningProfiles.net.inqk.listless=<MAC_APP_STORE profile name>`
+   - Run:
+     - `xcodebuild -exportArchive -archivePath /tmp/Listless-mac-latest.xcarchive -exportPath /tmp/Listless-mac-export-<TS> -exportOptionsPlist /tmp/Listless-mac-ExportOptions-<TS>.plist`
+   - PKG path: `/tmp/Listless-mac-export-<TS>/Listless.pkg`
+4. Upload `.pkg` with Transporter CLI (`iTMSTransporter`):
+   - `xcrun iTMSTransporter -m upload -assetFile '/tmp/Listless-mac-export-<TS>/Listless.pkg' -apiKey '<KEY_ID>' -apiIssuer '<ISSUER_ID>' -v informational`
+   - Place `AuthKey_<KEY_ID>.p8` under `./private_keys/` (or one of Transporter’s default private key directories) so `-apiKey` auth resolves.
+5. Known asc limitation:
+   - In `asc` v0.36.0, `asc builds upload --pkg` can fail with `uti` mismatch (`com.apple.installer-package-archive` vs expected `com.apple.pkg`). Prefer Transporter upload for macOS.
+6. Verify internal TestFlight state:
+   - `asc builds find --app 6759801710 --build-number '<YEAR.COMMIT_COUNT>' --platform MAC_OS --output table`
+   - `asc builds build-beta-detail get --build '<BUILD_ID>' --output json --pretty`
+   - Success criterion: `"internalBuildState": "IN_BETA_TESTING"`.
+   - If key access/signing fails during export, apply the temporary keychain workaround first.
 
 ### Verify upload/distribution state
-- Latest build: `ASC_BYPASS_KEYCHAIN=1 asc builds latest --app 6759801710 --output table`
-- Specific build: `ASC_BYPASS_KEYCHAIN=1 asc builds find --app 6759801710 --build-number "<YEAR.COMMIT_COUNT>" --output table`
-- Internal state: `ASC_BYPASS_KEYCHAIN=1 asc builds build-beta-detail get --build "<BUILD_ID>" --output json --pretty`
+- Latest build: `asc builds latest --app 6759801710 --output table`
+- Specific build: `asc builds find --app 6759801710 --build-number "<YEAR.COMMIT_COUNT>" --output table`
+- Internal state: `asc builds build-beta-detail get --build "<BUILD_ID>" --output json --pretty`
 - Success criterion for internal TestFlight: `"internalBuildState": "IN_BETA_TESTING"`.
 
 ## Build Number
