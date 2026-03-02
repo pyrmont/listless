@@ -122,20 +122,10 @@ struct TaskRowView: View {
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius,
-                topTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius
+                bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
             )
         )
-        .overlay {
-            if isSelected && !task.isCompleted {
-                UnevenRoundedRectangle(
-                    topLeadingRadius: 0, bottomLeadingRadius: 0,
-                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-                )
-                .strokeBorder(Color.accentColor, lineWidth: 2)
-            }
-        }
         .overlay(alignment: .leading) {
             if !task.isCompleted {
                 Rectangle()
@@ -177,9 +167,17 @@ struct TaskRowView: View {
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius,
-                topTrailingRadius: task.isCompleted ? 0 : TaskRowMetrics.trailingCornerRadius
+                bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
             )
+        )
+        .shadow(
+            color: isSelected && !task.isCompleted ? .selectionShadowLight : .clear,
+            radius: 4, x: 0, y: 2
+        )
+        .shadow(
+            color: isSelected && !task.isCompleted ? .selectionShadowDark : .clear,
+            radius: 10, x: 0, y: 0
         )
     }
 
@@ -192,7 +190,7 @@ struct TaskRowView: View {
     @ViewBuilder
     private var cardBackground: some View {
         if task.isCompleted {
-            Color.clear
+            isSelected ? Color.completedSelected : Color.clear
         } else {
             Color.taskCard
         }

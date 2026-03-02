@@ -13,4 +13,25 @@ extension Color {
     static let taskCard = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark ? UIColor.secondarySystemBackground : .white
     })
+
+    /// Selected background for completed rows.
+    static let completedSelected = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(white: 0.12, alpha: 1)
+            : UIColor(red: 0.88, green: 0.86, blue: 0.83, alpha: 1)
+    })
+
+    /// Drop shadow for selected active cards in light mode.
+    static let selectionShadowLight = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? .clear
+            : UIColor(white: 0.0, alpha: 0.15)
+    })
+
+    /// Glow for selected active cards in dark mode.
+    static let selectionShadowDark = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 0.95, blue: 0.5, alpha: 0.2)
+            : .clear
+    })
 }
