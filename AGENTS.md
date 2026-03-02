@@ -21,20 +21,23 @@
 - `xcodebuild test -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'` runs unit + UI tests.
 - `swift format lint --recursive .` must be clean before opening a PR.
 
-## TestFlight Release
-- Publish scripts live in `.asc/` and handle archiving, signing, exporting, and uploading via `xcrun iTMSTransporter`.
+## App Store Connect Release
+- Publish scripts live in `Scripts/` and handle archiving, signing, exporting, and uploading via `xcrun iTMSTransporter`.
+- Secrets (team ID, API key ID, issuer ID, p12 passwords) are sourced from `.asc/secrets.sh`, which is gitignored.
 - Signing uses a temporary keychain (created and cleaned up by the scripts) with distribution `.p12` files from `.asc/`. No login keychain unlock is required.
 - App Store Connect API auth uses a `.p8` key file in `.asc/`, referenced by `$KEY_ID` from `secrets.sh`.
 - Build numbers come from scheme pre-action (`YEAR.COMMIT_COUNT`), so archiving from latest `HEAD` produces the latest-commit build.
 - Internal testers automatically receive all builds; no explicit group assignment is needed.
+- Both scripts archive with signing enabled to preserve entitlements (CloudKit, App Sandbox). Do not disable code signing during the archive step.
 
 ### iOS
-- Run `.asc/publish-ios.sh` from the repo root.
-- Archives without code signing, then exports an IPA with manual signing (`iPhone Distribution` cert, `Listless iOS Distribution` profile).
+- Run `Scripts/publish-ios.sh` from the repo root.
+- Pass `--check` to archive, export, and inspect entitlements without uploading.
+- Archives with signing, then exports an IPA with manual signing (`iPhone Distribution` cert, `Listless iOS Distribution` profile).
 
 ### macOS
-- Run `.asc/publish-macos.sh` from the repo root.
-- Archives with signing (required to preserve App Sandbox entitlements), then exports a `.pkg` with manual signing (`3rd Party Mac Developer Application` + `3rd Party Mac Developer Installer` certs, `Listless macOS Distribution` profile).
+- Run `Scripts/publish-macos.sh` from the repo root.
+- Archives with signing, then exports a `.pkg` with manual signing (`3rd Party Mac Developer Application` + `3rd Party Mac Developer Installer` certs, `Listless macOS Distribution` profile).
 
 ## Build Number
 - `CFBundleVersion` in both Info.plist files uses `$(CURRENT_PROJECT_VERSION)`, sourced from `Generated/BuildNumber.xcconfig`.
