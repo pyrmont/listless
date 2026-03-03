@@ -9,8 +9,8 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Heading") {
-                    TextField("Heading", text: $headingText)
+                Section("List Title") {
+                    TextField("List Title", text: $headingText)
                 }
 
                 Section("Appearance") {

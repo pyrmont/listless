@@ -4,10 +4,12 @@ import SwiftUI
 struct ListlessiOSApp: App {
     @AppStorage("appearanceMode") private var appearanceMode = 0
     private let persistenceController: PersistenceController
+    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText"])
 
     init() {
         let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
         persistenceController = isUITesting ? PersistenceController(inMemory: true) : .shared
+        keyValueSyncBridge.start()
     }
 
     var body: some Scene {

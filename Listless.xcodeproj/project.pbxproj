@@ -15,10 +15,12 @@
 		1477B460E3DEFA3FDB7DA65B /* TaskListTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9754B32B2FD5AF8552BC85 /* TaskListTypes.swift */; };
 		172F2DD978988E207610055F /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */; };
 		182D9FB61E3A3650D7D83D2A /* TaskRowSwipeGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */; };
+		19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		1AA328A921EF8A7FDD03119A /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
 		269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */; };
 		26F609518DE1055DF09B0159 /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */; };
 		2C53717A0EAFA39240615C9A /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */; };
+		2CCB5FE0084742D018E52A3D /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		322EE74CBED492693B92AD59 /* TaskListView+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A440253D045A0896D94ADD0 /* TaskListView+Toolbar.swift */; };
 		365FDEE6823D7A114F3FB12A /* TaskListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C018476BD91B73870244B9 /* TaskListViewProtocol.swift */; };
 		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
@@ -127,6 +129,7 @@
 		A2EF927F09D67532F44BB80D /* TaskRowMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowMetrics.swift; sourceTree = "<group>"; };
 		AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSApp.swift; sourceTree = "<group>"; };
 		B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
+		BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueSyncBridge.swift; sourceTree = "<group>"; };
 		BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToCreate.swift; sourceTree = "<group>"; };
 		C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C611E04943F1D82D6F975592 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -319,6 +322,7 @@
 				944BAE054AAC1B9C4FC954F9 /* .gitkeep */,
 				68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */,
 				6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */,
+				BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */,
 				C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */,
 			);
 			path = Sync;
@@ -491,6 +495,7 @@
 				E4BD761E34CBB84CE80F7F49 /* CloudKitErrorClassifier.swift in Sources */,
 				E429067963379F99DD184FED /* CloudKitSyncMonitor.swift in Sources */,
 				882695E7AE463C0F39ACFF3C /* HoverCursorModifier.swift in Sources */,
+				2CCB5FE0084742D018E52A3D /* KeyValueSyncBridge.swift in Sources */,
 				172F2DD978988E207610055F /* KeyboardNavigationModifier.swift in Sources */,
 				96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */,
 				614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */,
@@ -521,6 +526,7 @@
 				CAB42FAA253E2B347AB0594B /* CloudKitErrorClassifier.swift in Sources */,
 				889DCB2BB3C01DDA281EA81A /* CloudKitSyncMonitor.swift in Sources */,
 				E60F81C7B930AACE67746759 /* HoverCursorModifier.swift in Sources */,
+				19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */,
 				F6587B84ECC6BFE92A5FB493 /* KeyboardNavigationModifier.swift in Sources */,
 				5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */,
 				F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */,
