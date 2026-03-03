@@ -29,7 +29,7 @@ struct AboutView: View {
                         .padding(.bottom, 8)
 
                     Text("Made in Tokyo by Michael Camilleri")
-                        .font(.headline)
+                        .font(.subheadline)
                         .foregroundStyle(.primary)
                 }
                 .frame(maxWidth: .infinity)
