@@ -23,10 +23,5 @@ extension TaskListView {
             selectedTaskID = nil
             focusedField = .scrollView
         }
-        .simultaneousGesture(
-            TapGesture(count: 4).onEnded {
-                showSyncDiagnostics()
-            }
-        )
     }
 }
