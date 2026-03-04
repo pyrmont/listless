@@ -164,22 +164,20 @@ struct TaskListView: View, TaskListViewProtocol {
             .onTapGesture {
                 handleBackgroundTap()
             }
-            .focusable()
-            .focused($focusedFieldBinding, equals: .scrollView)
-            .focusEffectDisabled()
             .accessibilityIdentifier("task-list-scrollview")
-            .keyboardNavigation([
-                ShortcutKey(key: .upArrow): navigateUp,
-                ShortcutKey(key: .downArrow): navigateDown,
-                ShortcutKey(key: .space): toggleSelectedTask,
-                ShortcutKey(key: .return): focusSelectedTask,
-                ShortcutKey(key: .delete): deleteSelectedTask,
-            ])
+            .background {
+                let isEditing = if case .task = focusedFieldBinding { true } else { false }
+                KeyCommandBridge(
+                    isActive: !isEditing,
+                    onUp: { _ = navigateUp() },
+                    onDown: { _ = navigateDown() },
+                    onSpace: { _ = toggleSelectedTask() },
+                    onReturn: { _ = focusSelectedTask() },
+                    onDelete: { _ = deleteSelectedTask() }
+                )
+            }
             .onAppear {
-                if focusedFieldBinding == nil {
-                    focusedFieldBinding = .scrollView
-                }
-                fState.focusedField = focusedFieldBinding
+                fState.focusedField = .scrollView
             }
             .onChange(of: undoManager, initial: true) { _, newValue in
                 managedObjectContext.undoManager = newValue
