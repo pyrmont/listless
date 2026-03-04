@@ -78,14 +78,24 @@
   - SwiftUI's declarative patterns proved more maintainable for this app
 - **Switching to AppKit** (if needed): Update `project.yml` to exclude SwiftUI views and include `ListlessMac/AppKit/`, then run `xcodegen generate`
 
-## macOS Menu Customisation
-- **Do not use SwiftUI's `Commands` API** — broken on macOS 15: dividers don't render and `CommandGroup(replacing:)` causes Window menu jitter.
+## Menu Customisation (both platforms)
+- **Do not use SwiftUI's `Commands` API** — broken on macOS 15 (dividers don't render, `CommandGroup(replacing:)` causes Window menu jitter) and on iPadOS (arrow key glyphs render as "?", `@FocusedValue` propagation fails when a UIKit view is first responder).
+- **Both platforms use native menu APIs** with a shared coordinator pattern: action closures + enabled-state booleans updated by `TaskListView.updateMenuCoordinator()`.
+- **Adding a new key binding** requires four touch points per platform: (1) coordinator — add action closure + enabled flag, (2) selector/action protocol — add the `@objc` method, (3) menu definition — register the key command in the right menu, (4) `updateMenuCoordinator()` — wire up the action and enabled state.
+
+### macOS
 - **Menus are fully AppKit-owned** in `AppDelegate.installMainMenu()` (`ListlessMac/ListlessMacApp.swift`), assigned directly via `NSApp.mainMenu`.
 - **No runtime menu patching**: do not use `NSMenu.didAddItemNotification`/tag-guard patch logic for command setup in the current architecture.
-- **`MenuCoordinator`** (`ListlessMac/Helpers/AppCommands.swift`) bridges SwiftUI state to AppKit: action closures + enabled-state booleans updated by `TaskListView.updateMenuCoordinator()`. Enabled state is surfaced via `NSMenuItemValidation.validateMenuItem` on `AppDelegate`.
-- **Command shortcuts are canonical in AppKit menus** (e.g. New Task, Move Up/Down, Mark Completed, Delete). Avoid duplicating those command shortcuts in `TaskListView.keyboardNavigation(...)`.
+- **`MenuCoordinator`** (`ListlessMac/Helpers/AppCommands.swift`) bridges SwiftUI state to AppKit. Enabled state is surfaced via `NSMenuItemValidation.validateMenuItem` on `AppDelegate`.
+- **Command shortcuts are canonical in AppKit menus** (e.g. New Item, Move Up/Down, Mark Completed, Delete). Avoid duplicating those command shortcuts in `TaskListView.keyboardNavigation(...)`.
 - **Selector style**: prefer typed `#selector(...)` where available; use `MenuSelectors` constants for string-based selectors that lack typed Swift symbols.
 - **Window menu**: keep explicit baseline items in `installMainMenu()` and let `NSApp.windowsMenu` provide system-managed dynamic window list behavior.
+
+### iOS (iPad)
+- **Menus use UIKit's `buildMenu(with:)`** in `IOSAppDelegate` (`ListlessiOS/ListlessiOSApp.swift`), inserting `UIKeyCommand` items into standard `.file` and `.edit` menus so the iPad keyboard shortcut overlay groups them correctly.
+- **`IOSMenuCoordinator`** (`ListlessiOS/Helpers/AppCommands.swift`) bridges SwiftUI state to UIKit. `IOSMenuActions` protocol declares `@objc` action selectors; `KeyCaptureView` (the first responder in `KeyCommandBridge`) conforms and dispatches to the coordinator.
+- **Conditional availability**: `KeyCaptureView.canPerformAction(_:withSender:)` checks coordinator enabled flags; commands are greyed out in the overlay when conditions aren't met (e.g. Move Up disabled when selected task is first).
+- **Plain (unmodified) key commands** (Up, Down, Space, Return, Delete) are still handled by `KeyCommandBridge`'s `keyCommands` property with `wantsPriorityOverSystemBehavior = true`. Command-modified shortcuts go through `buildMenu` → responder chain → `KeyCaptureView` action methods.
 
 ## iOS Implementation Notes
 - **Platform-specific inits**: `ListlessiOS/Views/TaskRowView.swift` and `ListlessMac/Views/TaskRowView.swift` have diverged — iOS takes `isDragging: Binding<Bool>` while macOS does not. This is fine because each platform has its own `TaskListView.swift` in its platform-specific `Views/` directory, so identical call-site signatures are not required. When adding new parameters, update both `TaskRowView` inits and both `TaskListView` bodies.

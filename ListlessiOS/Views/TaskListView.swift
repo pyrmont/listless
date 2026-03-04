@@ -118,21 +118,51 @@ struct TaskListView: View, TaskListViewProtocol {
         )
     }
 
-    private var currentTaskActions: TaskActions {
-        let selectedIndex = selectedTaskID.flatMap { id in
-            activeTasks.firstIndex(where: { $0.id == id })
-        }
-        return TaskActions(
-            newTask: { createNewTask() },
-            deleteTask: selectedTaskID != nil
-                ? { _ = deleteSelectedTask() } : nil,
-            moveUp: selectedIndex.map({ $0 > 0 }) == true
-                ? { moveSelectedTaskUp() } : nil,
-            moveDown: selectedIndex.map({ $0 < activeTasks.count - 1 }) == true
-                ? { moveSelectedTaskDown() } : nil,
-            markCompleted: selectedTaskID != nil
-                ? { markSelectedTaskCompleted() } : nil
+    private var selectedIndex: Int? {
+        guard let currentID = selectedTaskID else { return nil }
+        return activeTasks.firstIndex(where: { $0.id == currentID })
+    }
+
+    private var canMoveSelectionUp: Bool {
+        guard focusedField == .scrollView else { return false }
+        guard let index = selectedIndex else { return false }
+        return index > 0
+    }
+
+    private var canMoveSelectionDown: Bool {
+        guard focusedField == .scrollView else { return false }
+        guard let index = selectedIndex else { return false }
+        return index < activeTasks.count - 1
+    }
+
+    private struct MenuState: Equatable {
+        let selectedTaskID: UUID?
+        let isScrollViewFocused: Bool
+        let activeTaskCount: Int
+        let selectedIndex: Int?
+    }
+
+    private var menuCoordinatorTrigger: MenuState {
+        MenuState(
+            selectedTaskID: selectedTaskID,
+            isScrollViewFocused: focusedField == .scrollView,
+            activeTaskCount: activeTasks.count,
+            selectedIndex: selectedIndex
         )
+    }
+
+    func updateMenuCoordinator() {
+        let coord = IOSMenuCoordinator.shared
+        coord.newTask = { createNewTask() }
+        coord.deleteTask = { _ = deleteSelectedTask() }
+        coord.moveUp = { moveSelectedTaskUp() }
+        coord.moveDown = { moveSelectedTaskDown() }
+        coord.markCompleted = { markSelectedTaskCompleted() }
+        let inNavMode = focusedField == .scrollView
+        coord.canDelete = selectedTaskID != nil && inNavMode
+        coord.canMoveUp = canMoveSelectionUp
+        coord.canMoveDown = canMoveSelectionDown
+        coord.canMarkCompleted = selectedTaskID != nil && inNavMode
     }
 
     var vStackSpacing: CGFloat { 12 }
@@ -178,7 +208,9 @@ struct TaskListView: View, TaskListViewProtocol {
             }
             .onAppear {
                 fState.focusedField = .scrollView
+                updateMenuCoordinator()
             }
+            .onChange(of: menuCoordinatorTrigger) { _, _ in updateMenuCoordinator() }
             .onChange(of: undoManager, initial: true) { _, newValue in
                 managedObjectContext.undoManager = newValue
             }
@@ -204,7 +236,6 @@ struct TaskListView: View, TaskListViewProtocol {
                     .padding(.trailing, 12)
                 }
             }
-            .focusedSceneValue(\.taskActions, currentTaskActions)
             .sheet(isPresented: isShowingSyncDiagnosticsStateBinding) {
                 NavigationStack {
                     SyncDiagnosticsView(syncMonitor: syncMonitor)

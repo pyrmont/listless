@@ -1,7 +1,66 @@
 import SwiftUI
 
+// MARK: - App Delegate
+
+class IOSAppDelegate: UIResponder, UIApplicationDelegate {
+    override func buildMenu(with builder: UIMenuBuilder) {
+        guard builder.system == .main else {
+            super.buildMenu(with: builder)
+            return
+        }
+
+        // File menu — New Item (⌘N)
+        let newItem = UIKeyCommand(
+            title: "New Item",
+            action: IOSMenuSelectors.newTask,
+            input: "n",
+            modifierFlags: .command
+        )
+        builder.insertChild(
+            UIMenu(title: "", options: .displayInline, children: [newItem]),
+            atStartOfMenu: .file
+        )
+
+        // Edit menu — Move Up (⌘↑), Move Down (⌘↓), Delete (⌘⌫),
+        //              Mark as Complete (⌘Space)
+        let moveUp = UIKeyCommand(
+            title: "Move Up",
+            action: IOSMenuSelectors.moveUp,
+            input: UIKeyCommand.inputUpArrow,
+            modifierFlags: .command
+        )
+        let moveDown = UIKeyCommand(
+            title: "Move Down",
+            action: IOSMenuSelectors.moveDown,
+            input: UIKeyCommand.inputDownArrow,
+            modifierFlags: .command
+        )
+        let delete = UIKeyCommand(
+            title: "Delete",
+            action: IOSMenuSelectors.deleteTask,
+            input: "\u{8}",
+            modifierFlags: .command
+        )
+        let markComplete = UIKeyCommand(
+            title: "Mark as Complete",
+            action: IOSMenuSelectors.markCompleted,
+            input: " ",
+            modifierFlags: .command
+        )
+        builder.insertChild(
+            UIMenu(title: "", options: .displayInline, children: [
+                moveUp, moveDown, delete, markComplete,
+            ]),
+            atEndOfMenu: .edit
+        )
+    }
+}
+
+// MARK: - App
+
 @main
 struct ListlessiOSApp: App {
+    @UIApplicationDelegateAdaptor(IOSAppDelegate.self) var appDelegate
     @AppStorage("appearanceMode") private var appearanceMode = 0
     private let persistenceController: PersistenceController
     private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText"])
@@ -41,9 +100,6 @@ struct ListlessiOSApp: App {
                         .ignoresSafeArea(edges: .top)
                         .frame(height: 0)
                 }
-        }
-        .commands {
-            TaskCommands()
         }
     }
 }

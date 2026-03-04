@@ -6,6 +6,11 @@ import UIKit
 /// programmatic focus (known iPadOS limitation with hardware keyboards).
 /// On iPhone, where `@FocusState` works normally, `isActive` stays false
 /// and the bridge remains inert.
+///
+/// Also serves as the first responder for menu item actions defined by
+/// `buildMenu(with:)` in the app delegate. Action methods dispatch to
+/// `IOSMenuCoordinator`; `validate(_:)` enables/disables items based on
+/// coordinator state.
 struct KeyCommandBridge: UIViewRepresentable {
     let isActive: Bool
     let onUp: () -> Void
@@ -41,7 +46,7 @@ struct KeyCommandBridge: UIViewRepresentable {
         }
     }
 
-    final class KeyCaptureView: UIView {
+    final class KeyCaptureView: UIView, IOSMenuActions {
         var isActive = false
         var onUp: (() -> Void)?
         var onDown: (() -> Void)?
@@ -50,6 +55,8 @@ struct KeyCommandBridge: UIViewRepresentable {
         var onDelete: (() -> Void)?
 
         override var canBecomeFirstResponder: Bool { true }
+
+        // MARK: - Plain key commands (no modifiers)
 
         override var keyCommands: [UIKeyCommand]? {
             guard isActive else { return nil }
@@ -84,6 +91,47 @@ struct KeyCommandBridge: UIViewRepresentable {
                 onDelete?()
             default:
                 break
+            }
+        }
+
+        // MARK: - Menu item actions (from buildMenu via responder chain)
+
+        @objc func handleNewTask() {
+            IOSMenuCoordinator.shared.newTask?()
+        }
+
+        @objc func handleDeleteTask() {
+            IOSMenuCoordinator.shared.deleteTask?()
+        }
+
+        @objc func handleMoveUp() {
+            IOSMenuCoordinator.shared.moveUp?()
+        }
+
+        @objc func handleMoveDown() {
+            IOSMenuCoordinator.shared.moveDown?()
+        }
+
+        @objc func handleMarkCompleted() {
+            IOSMenuCoordinator.shared.markCompleted?()
+        }
+
+        // MARK: - Menu validation
+
+        override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+            switch action {
+            case IOSMenuSelectors.newTask:
+                return isActive
+            case IOSMenuSelectors.deleteTask:
+                return isActive && IOSMenuCoordinator.shared.canDelete
+            case IOSMenuSelectors.moveUp:
+                return isActive && IOSMenuCoordinator.shared.canMoveUp
+            case IOSMenuSelectors.moveDown:
+                return isActive && IOSMenuCoordinator.shared.canMoveDown
+            case IOSMenuSelectors.markCompleted:
+                return isActive && IOSMenuCoordinator.shared.canMarkCompleted
+            default:
+                return super.canPerformAction(action, withSender: sender)
             }
         }
     }
