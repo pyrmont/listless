@@ -203,7 +203,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         mainMenu.addItem(appMenuItem)
 
         let fileMenu = NSMenu(title: "File")
-        let newTaskItem = NSMenuItem(title: "New Task", action: #selector(handleNewTask), keyEquivalent: "n")
+        let newTaskItem = NSMenuItem(title: "New Item", action: #selector(handleNewTask), keyEquivalent: "n")
         newTaskItem.keyEquivalentModifierMask = [.command]
         newTaskItem.target = self
         fileMenu.addItem(newTaskItem)

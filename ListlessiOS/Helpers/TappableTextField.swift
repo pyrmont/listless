@@ -24,7 +24,7 @@ struct TappableTextField: UIViewRepresentable {
         textView.returnKeyType = returnKeyType
 
         let placeholder = UILabel()
-        placeholder.text = "Enter task"
+        placeholder.text = "Enter text"
         placeholder.font = TaskRowMetrics.bodyUIK
         placeholder.textColor = .placeholderText
         placeholder.tag = 100

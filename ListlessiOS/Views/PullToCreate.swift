@@ -21,7 +21,7 @@ struct PullToCreateIndicator: View {
                 ZStack(alignment: .leading) {
                     Text("Release to add")
                         .offset(y: isReady ? 0 : -textSlideDistance)
-                    Text("New task")
+                    Text("New item")
                         .offset(y: isReady ? textSlideDistance : 0)
                 }
                 .foregroundStyle(.secondary)

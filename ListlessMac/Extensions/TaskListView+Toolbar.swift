@@ -14,9 +14,9 @@ extension TaskListView {
                     // Trigger focus resolution by setting to nil
                     focusedField = nil
                 } label: {
-                    Label("New Task", systemImage: "plus")
+                    Label("New Item", systemImage: "plus")
                 }
-                .help("Create a new task")
+                .help("Create a new item")
 
                 Button {
                     if let currentID = selectedTaskID,
@@ -28,7 +28,7 @@ extension TaskListView {
                     Label("Delete", systemImage: "trash")
                 }
                 .disabled(selectedTaskID == nil || focusedField != .scrollView)
-                .help("Delete selected task")
+                .help("Delete selected item")
 
                 Divider()
 

@@ -30,7 +30,7 @@ struct TaskCommands: Commands {
 
     var body: some Commands {
         CommandGroup(after: .newItem) {
-            Button("New Task") {
+            Button("New Item") {
                 actions?.newTask?()
             }
             .keyboardShortcut("n")

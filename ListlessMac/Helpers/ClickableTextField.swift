@@ -28,7 +28,7 @@ struct ClickableTextField: NSViewRepresentable {
         textField.drawsBackground = false
         textField.focusRingType = .none
         textField.font = .systemFont(ofSize: NSFont.systemFontSize)
-        textField.placeholderString = "Enter task"
+        textField.placeholderString = "Enter text"
         textField.lineBreakMode = .byWordWrapping
         textField.maximumNumberOfLines = 5
         textField.usesSingleLineMode = false
@@ -99,7 +99,7 @@ struct ClickableTextField: NSViewRepresentable {
     // Calculate text width
     private func calculateWidth(for text: String, font: NSFont) -> CGFloat {
         let attributedString = NSAttributedString(
-            string: text.isEmpty ? "Enter task" : text,
+            string: text.isEmpty ? "Enter text" : text,
             attributes: [.font: font]
         )
         let size = attributedString.size()
@@ -109,7 +109,7 @@ struct ClickableTextField: NSViewRepresentable {
     // Calculate text height with wrapping
     private func calculateHeight(for text: String, width: CGFloat, font: NSFont) -> CGFloat {
         let attributedString = NSAttributedString(
-            string: text.isEmpty ? "Enter task" : text,
+            string: text.isEmpty ? "Enter text" : text,
             attributes: [.font: font]
         )
         let textStorage = NSTextStorage(attributedString: attributedString)
