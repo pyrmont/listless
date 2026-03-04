@@ -119,11 +119,18 @@ struct TappableTextField: UIViewRepresentable {
         ) -> Bool {
             guard text == "\n" else { return true }
             // Intercept Return: trigger new-task creation without inserting a newline.
-            // Return false keeps the text view as first responder, matching the UITextField
-            // behaviour where textFieldShouldReturn returned false — SwiftUI then
-            // transfers first responder atomically in the same render pass.
             returnKeyPressed = true
             onEditingChanged(false, true)
+            if textView.returnKeyType == .done {
+                // Non-last task (or empty title): resign immediately so SwiftUI's
+                // focus binding update reliably clears the field on iPad, where the
+                // deferred focusedFieldBinding = .scrollView alone doesn't resign
+                // the UITextView through the hardware-keyboard focus system.
+                textView.resignFirstResponder()
+            }
+            // Return false: for .next (last active task with text), the text view
+            // stays first responder so SwiftUI can transfer focus atomically to the
+            // newly created task's text field in the same render pass.
             return false
         }
     }
