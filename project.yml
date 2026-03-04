@@ -38,6 +38,7 @@ targets:
           - CloudKit
         com.apple.developer.ubiquity-container-identifiers:
           - iCloud.net.inqk.listless
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)$(CFBundleIdentifier)
         aps-environment: development
     info:
       path: ListlessiOS/Info.plist
@@ -84,6 +85,7 @@ targets:
           - CloudKit
         com.apple.developer.ubiquity-container-identifiers:
           - iCloud.net.inqk.listless
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)$(CFBundleIdentifier)
         aps-environment: development
     info:
       path: ListlessMac/Info.plist
