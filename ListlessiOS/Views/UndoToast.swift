@@ -13,16 +13,16 @@ struct UndoToastView: View {
     var body: some View {
         HStack(spacing: 12) {
             Text(data.message)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(.white)
             Button(action: onUndo) {
                 Text("Undo")
-                    .font(.subheadline.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(.yellow)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color(white: 0.2))

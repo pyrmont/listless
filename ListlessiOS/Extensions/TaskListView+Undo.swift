@@ -4,7 +4,7 @@ extension TaskListView {
 
     func deleteTaskWithUndo(_ task: TaskItem) {
         deleteTask(task)
-        showUndoToast(message: "Task deleted")
+        showUndoToast(message: "Item deleted")
     }
 
     func deleteSelectedTaskWithUndo() -> KeyPress.Result {
@@ -34,8 +34,8 @@ extension TaskListView {
             return
         }
         managedObjectContext.undoManager?.endUndoGrouping()
-        let noun = count == 1 ? "task" : "tasks"
-        showUndoToast(message: "\(count) completed \(noun) cleared")
+        let noun = count == 1 ? "item" : "items"
+        showUndoToast(message: "\(count) \(noun) cleared")
     }
 
     func showUndoToast(message: String) {
