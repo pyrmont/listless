@@ -171,9 +171,15 @@ struct TaskRowView: View {
                 topTrailingRadius: TaskRowMetrics.trailingCornerRadius
             )
         )
-        .shadow(
-            color: isSelected && !task.isCompleted ? .selectionShadow : .clear,
-            radius: 4, x: 0, y: 2
+        .overlay(
+            isSelected && !task.isCompleted
+                ? UnevenRoundedRectangle(
+                    topLeadingRadius: 0, bottomLeadingRadius: 0,
+                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
+                )
+                .stroke(cachedAccentColor.opacity(0.40), lineWidth: 2)
+                : nil
         )
     }
 
@@ -187,8 +193,10 @@ struct TaskRowView: View {
     private var cardBackground: some View {
         if task.isCompleted {
             isSelected ? Color.completedSelected : Color.clear
+        } else if isSelected {
+            Color.taskCard.overlay(cachedAccentColor.opacity(0.15))
         } else {
-            isSelected ? Color.taskCardSelected : Color.taskCard
+            Color.taskCard
         }
     }
 }
