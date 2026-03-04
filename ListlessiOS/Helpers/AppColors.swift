@@ -25,7 +25,7 @@ extension Color {
     static let selectionShadowLight = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? .clear
-            : UIColor(white: 0.0, alpha: 0.15)
+            : UIColor(white: 0.0, alpha: 0.25)
     })
 
     /// Glow for selected active cards in dark mode.
