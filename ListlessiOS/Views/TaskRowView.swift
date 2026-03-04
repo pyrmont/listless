@@ -172,12 +172,8 @@ struct TaskRowView: View {
             )
         )
         .shadow(
-            color: isSelected && !task.isCompleted ? .selectionShadowLight : .clear,
+            color: isSelected && !task.isCompleted ? .selectionShadow : .clear,
             radius: 4, x: 0, y: 2
-        )
-        .shadow(
-            color: isSelected && !task.isCompleted ? .selectionShadowDark : .clear,
-            radius: 10, x: 0, y: 0
         )
     }
 
@@ -192,7 +188,7 @@ struct TaskRowView: View {
         if task.isCompleted {
             isSelected ? Color.completedSelected : Color.clear
         } else {
-            Color.taskCard
+            isSelected ? Color.taskCardSelected : Color.taskCard
         }
     }
 }

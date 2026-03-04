@@ -9,9 +9,11 @@ extension Color {
             : UIColor(red: 0.922, green: 0.906, blue: 0.886, alpha: 1)  // #EBE7E2
     })
 
-    /// Card surface: white in light mode, elevated dark gray in dark mode.
+    /// Card surface: warm tint in light mode, elevated dark gray in dark mode.
     static let taskCard = Color(uiColor: UIColor { traits in
-        traits.userInterfaceStyle == .dark ? UIColor.secondarySystemBackground : .white
+        traits.userInterfaceStyle == .dark
+            ? UIColor.secondarySystemBackground
+            : UIColor(red: 0.99, green: 0.985, blue: 0.98, alpha: 1)
     })
 
     /// Selected background for completed rows.
@@ -22,16 +24,16 @@ extension Color {
     })
 
     /// Drop shadow for selected active cards in light mode.
-    static let selectionShadowLight = Color(uiColor: UIColor { traits in
+    static let selectionShadow = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? .clear
             : UIColor(white: 0.0, alpha: 0.25)
     })
 
-    /// Glow for selected active cards in dark mode.
-    static let selectionShadowDark = Color(uiColor: UIColor { traits in
+    /// Slightly tinted card surface for selected active cards.
+    static let taskCardSelected = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 1.0, green: 0.95, blue: 0.5, alpha: 0.2)
-            : .clear
+            ? UIColor(white: 0.15, alpha: 1)
+            : .white
     })
 }
