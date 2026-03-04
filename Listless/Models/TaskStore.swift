@@ -68,7 +68,6 @@ final class TaskStore {
             }
         }
 
-        try save()
         return task
     }
 
@@ -108,6 +107,14 @@ final class TaskStore {
     func delete(taskID: UUID) throws {
         guard let task = try findTask(id: taskID) else { return }
         context.delete(task)
+        try save()
+    }
+
+    func deleteMultiple(taskIDs: [UUID]) throws {
+        for taskID in taskIDs {
+            guard let task = try findTask(id: taskID) else { continue }
+            context.delete(task)
+        }
         try save()
     }
 

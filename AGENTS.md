@@ -46,10 +46,10 @@
 - `Generated/BuildNumber.xcconfig` is gitignored; the scheme pre-action creates it before every build.
 
 ## Coding Style & Naming Conventions
-- Use SwiftUI + Combine, indent four spaces, and prefer trailing commas in builders.
+- Use SwiftUI + Observation (`@Observable`), indent four spaces, and prefer trailing commas in builders.
 - Models are nouns (`TaskItem`), views end with `View`, and services end with `Service`; keep async methods verb-first (`syncTasks()`).
 - Centralize state in `@Observable TaskStore` that wraps Core Data operations; mutations flow through intent methods like `complete(taskID:)`.
-- `TaskStore.createTask(title:atBeginning:)` accepts an `atBeginning` flag (default `false`); when `true` assigns `minSortOrder - 1000` to prepend the task before all existing active tasks.
+- `TaskStore.createTask(title:atBeginning:)` accepts an `atBeginning` flag (default `false`); when `true` assigns `minSortOrder - 1000` to prepend the task before all existing active tasks. `createTask` does **not** save — callers must call `store.save()` explicitly when they want to persist. This keeps empty placeholder tasks (from background tap or Return) in-memory only until the user types, avoiding iCloud sync of transient objects.
 - Completed tasks display below active ones; never reorder or edit them in-place.
 - For selection state in ForEach contexts, use computed Bool values + callbacks rather than passing @Binding to children (avoids SwiftUI update issues).
 

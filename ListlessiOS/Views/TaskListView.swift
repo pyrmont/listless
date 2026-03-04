@@ -17,6 +17,7 @@ struct TaskListView: View, TaskListViewProtocol {
         var isShowingSettings = false
         var clearingTaskIDs: Set<UUID> = []
         var rowFrames: [UUID: CGRect] = [:]
+        var undoToast: UndoToastData? = nil
     }
 
     struct TaskStateData {
@@ -90,6 +91,11 @@ struct TaskListView: View, TaskListViewProtocol {
         nonmutating set { tState.refreshID = newValue }
     }
 
+    var undoToast: UndoToastData? {
+        get { iState.undoToast }
+        nonmutating set { iState.undoToast = newValue }
+    }
+
     private var isDraggingStateBinding: Binding<Bool> {
         Binding(
             get: { iState.isDragging },
@@ -156,7 +162,7 @@ struct TaskListView: View, TaskListViewProtocol {
     func updateMenuCoordinator() {
         let coord = IOSMenuCoordinator.shared
         coord.newTask = { createNewTask() }
-        coord.deleteTask = { _ = deleteSelectedTask() }
+        coord.deleteTask = { _ = deleteSelectedTaskWithUndo() }
         coord.moveUp = { moveSelectedTaskUp() }
         coord.moveDown = { moveSelectedTaskDown() }
         coord.markCompleted = { markSelectedTaskCompleted() }
@@ -207,7 +213,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     onDown: { _ = navigateDown() },
                     onSpace: { _ = toggleSelectedTask() },
                     onReturn: { _ = focusSelectedTask() },
-                    onDelete: { _ = deleteSelectedTask() }
+                    onDelete: { _ = deleteSelectedTaskWithUndo() }
                 )
             }
             .onAppear {
@@ -239,6 +245,21 @@ struct TaskListView: View, TaskListViewProtocol {
                     .padding(.top, 10)
                     .padding(.trailing, 12)
                 }
+            }
+            .overlay(alignment: .bottom) {
+                if let toast = iState.undoToast {
+                    UndoToastView(
+                        data: toast,
+                        onUndo: { performUndo() },
+                        onDismiss: { dismissUndoToast() }
+                    )
+                }
+            }
+            .task(id: iState.undoToast?.id) {
+                guard iState.undoToast != nil else { return }
+                try? await Task.sleep(for: .seconds(7))
+                guard !Task.isCancelled else { return }
+                dismissUndoToast()
             }
             .sheet(isPresented: isShowingSyncDiagnosticsStateBinding) {
                 NavigationStack {
@@ -306,7 +327,7 @@ struct TaskListView: View, TaskListViewProtocol {
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteTask($0) },
+                        onDelete: { deleteTaskWithUndo($0) },
                         onSelect: { selectTask($0) },
                         onStartEdit: { startEditing($0) },
                         onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
@@ -342,7 +363,7 @@ struct TaskListView: View, TaskListViewProtocol {
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteTask($0) },
+                        onDelete: { deleteTaskWithUndo($0) },
                         onSelect: { selectTask($0) }
                     )
                     .opacity(isBeingCleared ? 0 : 1)
@@ -421,7 +442,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     iState.clearingTaskIDs = ids
                 } completion: {
                     iState.clearingTaskIDs = []
-                    clearCompletedTasks()
+                    clearCompletedTasksWithUndo()
                 }
             }
         )

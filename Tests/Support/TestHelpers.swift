@@ -23,6 +23,7 @@ func makeTestStoreWithTasks(count: Int = 3, titles: [String]? = nil) throws -> (
     for i in 0..<count {
         let title = titles?[safe: i] ?? "Task \(i + 1)"
         let task = try store.createTask(title: title)
+        try store.save()
         taskIDs.append(task.id)
     }
 

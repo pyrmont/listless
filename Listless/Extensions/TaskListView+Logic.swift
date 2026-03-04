@@ -63,12 +63,15 @@ extension TaskListViewProtocol {
     func createNewTaskAtTop() -> UUID {
         clearDragState()
         do {
+            managedObjectContext.undoManager?.disableUndoRegistration()
             let task = try store.createTask(title: "", atBeginning: true)
+            managedObjectContext.undoManager?.enableUndoRegistration()
             pendingFocus = .task(task.id)
             focusedField = .task(task.id)
             selectedTaskID = task.id
             return task.id
         } catch {
+            managedObjectContext.undoManager?.enableUndoRegistration()
             presentStoreError(error)
             return UUID()
         }
@@ -77,11 +80,14 @@ extension TaskListViewProtocol {
     func createNewTask() {
         clearDragState()
         do {
+            managedObjectContext.undoManager?.disableUndoRegistration()
             let task = try store.createTask(title: "")
+            managedObjectContext.undoManager?.enableUndoRegistration()
             pendingFocus = .task(task.id)
             focusedField = .task(task.id)
             selectedTaskID = task.id
         } catch {
+            managedObjectContext.undoManager?.enableUndoRegistration()
             presentStoreError(error)
         }
     }
@@ -91,6 +97,7 @@ extension TaskListViewProtocol {
         do {
             let sortOrder = try sortOrderAfter(taskID: afterTaskID)
             let newTask = try store.createTask(title: title, sortOrder: sortOrder)
+            try store.save()
             selectedTaskID = newTask.id
             focusedField = .scrollView
         } catch {

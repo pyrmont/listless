@@ -17,6 +17,7 @@
 		172F2DD978988E207610055F /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4669414A460FC0758D5B49A8 /* KeyboardNavigationModifier.swift */; };
 		182D9FB61E3A3650D7D83D2A /* TaskRowSwipeGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */; };
 		19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
+		1A66A0454558B207AF9265D4 /* UndoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658295C1386BFF48CE3C2419 /* UndoToast.swift */; };
 		1AA328A921EF8A7FDD03119A /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
 		269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */; };
 		26F609518DE1055DF09B0159 /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */; };
@@ -43,6 +44,7 @@
 		7E366008FF9335A77FE1636D /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199CC2F58DD7CBA3F2229366 /* TaskRowView.swift */; };
 		80BCA654FE694D8A77D9BF93 /* TaskListView+PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8D4C29E09FEE78AE5AB79 /* TaskListView+PullToCreate.swift */; };
 		82E75475E13FD847DDDC69D8 /* TaskListView+Drag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA75CA18C6270D68A755AEB /* TaskListView+Drag.swift */; };
+		879608140FA8D7A32078C3CF /* TaskListView+Undo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AACB5E40BEBA75E7FE8B930 /* TaskListView+Undo.swift */; };
 		882695E7AE463C0F39ACFF3C /* HoverCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5D8B5866362D422A2A331C /* HoverCursorModifier.swift */; };
 		889DCB2BB3C01DDA281EA81A /* CloudKitSyncMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */; };
 		8A8D164CAA7B95B4C7435A7C /* TaskListView+PullToClear.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6D74EDDD7E3FC150064FB5 /* TaskListView+PullToClear.swift */; };
@@ -109,6 +111,7 @@
 		5B0E22B8F7B2B7283CAF749E /* Listless macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreCompletionTests.swift; sourceTree = "<group>"; };
 		632DA39B24C4CF1528A1A24D /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
+		658295C1386BFF48CE3C2419 /* UndoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoToast.swift; sourceTree = "<group>"; };
 		68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorClassifier.swift; sourceTree = "<group>"; };
 		6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncMonitor.swift; sourceTree = "<group>"; };
 		6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TappableTextField.swift; sourceTree = "<group>"; };
@@ -119,6 +122,7 @@
 		75B048B19C5219862BBED2E7 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+SyncUI.swift"; sourceTree = "<group>"; };
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
+		8AACB5E40BEBA75E7FE8B930 /* TaskListView+Undo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Undo.swift"; sourceTree = "<group>"; };
 		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		9404C09EE1A4D91DFF338464 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		944BAE054AAC1B9C4FC954F9 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
@@ -226,6 +230,7 @@
 				E9288507CE6023425D1DE724 /* SyncDiagnosticsView.swift */,
 				E51B8129962E5CC78ECDDC2B /* TaskListView.swift */,
 				199CC2F58DD7CBA3F2229366 /* TaskRowView.swift */,
+				658295C1386BFF48CE3C2419 /* UndoToast.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -250,6 +255,7 @@
 				5A6D74EDDD7E3FC150064FB5 /* TaskListView+PullToClear.swift */,
 				9AD8D4C29E09FEE78AE5AB79 /* TaskListView+PullToCreate.swift */,
 				CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */,
+				8AACB5E40BEBA75E7FE8B930 /* TaskListView+Undo.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -552,6 +558,7 @@
 				80BCA654FE694D8A77D9BF93 /* TaskListView+PullToCreate.swift in Sources */,
 				4E5A0A02121E02124F80E320 /* TaskListView+SyncUI.swift in Sources */,
 				77970A2323A598E830D95301 /* TaskListView+Toolbar.swift in Sources */,
+				879608140FA8D7A32078C3CF /* TaskListView+Undo.swift in Sources */,
 				C169823665158AA347A63990 /* TaskListView.swift in Sources */,
 				CC99A96BBC089C423F582E4F /* TaskListViewProtocol.swift in Sources */,
 				2C53717A0EAFA39240615C9A /* TaskRowDragGesture.swift in Sources */,
@@ -559,6 +566,7 @@
 				182D9FB61E3A3650D7D83D2A /* TaskRowSwipeGesture.swift in Sources */,
 				7E366008FF9335A77FE1636D /* TaskRowView.swift in Sources */,
 				91EDF52C7C5C0B35E9D8B51E /* TaskStore.swift in Sources */,
+				1A66A0454558B207AF9265D4 /* UndoToast.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
