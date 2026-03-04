@@ -86,12 +86,8 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     var markCompletedMenuTitle: String {
-        guard let currentID = selectedTaskID,
-              let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }),
-              task.isCompleted else {
-            return "Mark as Complete"
-        }
-        return "Mark as Incomplete"
+        completedTasks.contains(where: { $0.id == selectedTaskID })
+            ? "Mark as Incomplete" : "Mark as Complete"
     }
 
     var canMoveSelectionUp: Bool {

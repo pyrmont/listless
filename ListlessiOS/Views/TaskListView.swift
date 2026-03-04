@@ -139,6 +139,7 @@ struct TaskListView: View, TaskListViewProtocol {
         let selectedTaskID: UUID?
         let isScrollViewFocused: Bool
         let activeTaskCount: Int
+        let completedTaskCount: Int
         let selectedIndex: Int?
     }
 
@@ -147,6 +148,7 @@ struct TaskListView: View, TaskListViewProtocol {
             selectedTaskID: selectedTaskID,
             isScrollViewFocused: focusedField == .scrollView,
             activeTaskCount: activeTasks.count,
+            completedTaskCount: completedTasks.count,
             selectedIndex: selectedIndex
         )
     }
@@ -163,6 +165,8 @@ struct TaskListView: View, TaskListViewProtocol {
         coord.canMoveUp = canMoveSelectionUp
         coord.canMoveDown = canMoveSelectionDown
         coord.canMarkCompleted = selectedTaskID != nil && inNavMode
+        coord.markCompletedTitle = completedTasks.contains(where: { $0.id == selectedTaskID })
+            ? "Mark as Incomplete" : "Mark as Complete"
     }
 
     var vStackSpacing: CGFloat { 12 }

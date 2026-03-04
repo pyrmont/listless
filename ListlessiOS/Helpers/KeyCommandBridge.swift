@@ -134,5 +134,12 @@ struct KeyCommandBridge: UIViewRepresentable {
                 return super.canPerformAction(action, withSender: sender)
             }
         }
+
+        override func validate(_ command: UICommand) {
+            super.validate(command)
+            if command.action == IOSMenuSelectors.markCompleted {
+                command.title = IOSMenuCoordinator.shared.markCompletedTitle
+            }
+        }
     }
 }

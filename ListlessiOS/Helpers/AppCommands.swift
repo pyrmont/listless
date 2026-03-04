@@ -23,6 +23,9 @@ final class IOSMenuCoordinator {
     var canMoveUp = false
     var canMoveDown = false
     var canMarkCompleted = false
+
+    // Dynamic title — read by KeyCaptureView in validate(_:).
+    var markCompletedTitle: String = "Mark as Complete"
 }
 
 // MARK: - Menu Selectors
