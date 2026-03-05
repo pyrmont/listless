@@ -120,16 +120,40 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             defer: false
         )
         window.contentViewController = NSHostingController(rootView: rootView)
+        window.title = "Items"
         window.setContentSize(defaultContentSize)
         window.minSize = NSSize(width: 320, height: 240)
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
         window.isRestorable = false
-        window.center()
+        let referenceWindow = NSApp.orderedWindows.first { existingWindow in
+            existingWindow.isVisible && existingWindow.title == "Items"
+        }
+        position(window, relativeTo: referenceWindow)
         window.makeKeyAndOrderFront(nil)
         window.makeFirstResponder(nil)
         NSApp.activate()
+    }
+
+    private func position(_ window: NSWindow, relativeTo referenceWindow: NSWindow?) {
+        guard let referenceWindow else {
+            window.center()
+            return
+        }
+
+        let offset: CGFloat = 28
+        var origin = NSPoint(
+            x: referenceWindow.frame.origin.x + offset,
+            y: referenceWindow.frame.origin.y - offset
+        )
+
+        if let visibleFrame = referenceWindow.screen?.visibleFrame ?? NSScreen.main?.visibleFrame {
+            origin.x = min(max(origin.x, visibleFrame.minX), visibleFrame.maxX - window.frame.width)
+            origin.y = min(max(origin.y, visibleFrame.minY), visibleFrame.maxY - window.frame.height)
+        }
+
+        window.setFrameOrigin(origin)
     }
 
     private func openSyncDiagnosticsWindow() {

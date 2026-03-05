@@ -101,6 +101,7 @@ struct TaskRowView: View {
             .accessibilityIdentifier(
                 isCurrentlyEditing ? "task-textfield" : "task-text-\(task.title)")
         }
+        .padding(.top, 4)
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -186,7 +187,7 @@ struct TaskRowView: View {
             isSelected ? Color(nsColor: .controlBackgroundColor) : Color(nsColor: .windowBackgroundColor)
         } else if isSelected {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(cachedAccentColor.opacity(0.10))
+                .fill(Color(nsColor: .controlBackgroundColor))
         }
     }
 
