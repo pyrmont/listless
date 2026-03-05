@@ -31,6 +31,7 @@
 		4DD2030E321567BD25661760 /* SyncDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9288507CE6023425D1DE724 /* SyncDiagnosticsView.swift */; };
 		4E5A0A02121E02124F80E320 /* TaskListView+SyncUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */; };
 		5035EC4C7518A5FF9AD454CA /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = F416DD868A4C044F0D64F8D0 /* TaskRowDragGesture.swift */; };
+		568635BB34CD7EBE24E66A15 /* SyncDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3374CE58E7D9378C6997D2 /* SyncDiagnosticsView.swift */; };
 		5761B201BF46FCA9C5C98CEF /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */; };
 		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		5D3EE9526DA269EE9EE3AB52 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E998119283F784B9ADEE28 /* AppColors.swift */; };
@@ -141,6 +142,7 @@
 		C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Listless iOS Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9B14DC786A336008AAB78EE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Toolbar.swift"; sourceTree = "<group>"; };
+		CF3374CE58E7D9378C6997D2 /* SyncDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDiagnosticsView.swift; sourceTree = "<group>"; };
 		D2C018476BD91B73870244B9 /* TaskListViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewProtocol.swift; sourceTree = "<group>"; };
 		D2D9CDDA8913CD116FB4DA74 /* TaskListView+PullGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullGestures.swift"; sourceTree = "<group>"; };
 		D3E995954787F0A14CCFF348 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -296,6 +298,7 @@
 		D12ECC901ABED96B86CC85B5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				CF3374CE58E7D9378C6997D2 /* SyncDiagnosticsView.swift */,
 				632DA39B24C4CF1528A1A24D /* TaskListView.swift */,
 				E06485DBE35B60868E14202A /* TaskRowView.swift */,
 			);
@@ -511,6 +514,7 @@
 				A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */,
 				5761B201BF46FCA9C5C98CEF /* PlatformScrollIndicatorsModifier.swift in Sources */,
 				DEE187A790A4058FE4AFDB2E /* PlatformTextFieldWidthModifier.swift in Sources */,
+				568635BB34CD7EBE24E66A15 /* SyncDiagnosticsView.swift in Sources */,
 				C1FE091454864C4BBBBEB077 /* TaskItem.swift in Sources */,
 				93275BD83342D6CE94272E6A /* TaskListTypes.swift in Sources */,
 				E5878BAA0EA66A94440E2B0F /* TaskListView+Logic.swift in Sources */,

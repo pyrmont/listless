@@ -164,7 +164,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         }
 
         let defaultContentSize = NSSize(width: 760, height: 520)
-        let rootView = SyncDiagnosticsWindowView(syncMonitor: persistenceController.syncMonitor)
+        let rootView = SyncDiagnosticsView(syncMonitor: persistenceController.syncMonitor)
         let window = NSWindow(
             contentRect: NSRect(origin: .zero, size: defaultContentSize),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
@@ -172,7 +172,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             defer: false
         )
         window.contentViewController = NSHostingController(rootView: rootView)
-        window.title = "Sync Diagnostics"
+        window.title = "iCloud Diagnostics"
         window.setContentSize(defaultContentSize)
         window.minSize = NSSize(width: 480, height: 320)
         window.isReleasedWhenClosed = false
@@ -304,7 +304,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         windowMenu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
         windowMenu.addItem(NSMenuItem.separator())
         let syncDiagnosticsItem = NSMenuItem(
-            title: "Sync Diagnostics",
+            title: "iCloud Diagnostics",
             action: #selector(handleShowSyncDiagnostics),
             keyEquivalent: ""
         )
@@ -338,95 +338,5 @@ enum ListlessMacMain {
         withExtendedLifetime(delegate) {
             app.run()
         }
-    }
-}
-
-private struct SyncDiagnosticsWindowView: View {
-    @ObservedObject var syncMonitor: CloudKitSyncMonitor
-
-    private static let timestampFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .medium
-        return formatter
-    }()
-
-    var body: some View {
-        List {
-            Section("Status") {
-                row("Transient Banner", syncMonitor.transientErrorMessage ?? "None")
-                row("Last Error Domain", syncMonitor.lastCloudKitErrorDomain ?? "None")
-                row("Last Error Code", syncMonitor.lastCloudKitErrorCode.map(String.init) ?? "None")
-                row("Last Error Description", syncMonitor.lastCloudKitErrorDescription ?? "None")
-                row(
-                    "Last Success",
-                    syncMonitor.lastSuccessfulSyncDate.map(Self.timestampFormatter.string(from:)) ?? "None"
-                )
-            }
-
-            Section("Recent Events") {
-                if syncMonitor.recentDiagnostics.isEmpty {
-                    Text("No events captured yet.")
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(syncMonitor.recentDiagnostics.reversed()) { entry in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(
-                                "\(Self.timestampFormatter.string(from: entry.timestamp)) [\(entry.level.uppercased())]"
-                            )
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.secondary)
-
-                            Text(entry.message)
-                                .font(.caption.monospaced())
-                                .textSelection(.enabled)
-                        }
-                        .padding(.vertical, 2)
-                    }
-                }
-            }
-        }
-        .textSelection(.enabled)
-        .toolbar {
-            ToolbarItem {
-                Button("Copy") {
-                    let pasteboard = NSPasteboard.general
-                    pasteboard.clearContents()
-                    pasteboard.setString(diagnosticDump, forType: .string)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func row(_ title: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.body.monospaced())
-                .textSelection(.enabled)
-        }
-        .padding(.vertical, 2)
-    }
-
-    private var diagnosticDump: String {
-        var lines: [String] = []
-        lines.append("Transient Banner: \(syncMonitor.transientErrorMessage ?? "None")")
-        lines.append("Last Error Domain: \(syncMonitor.lastCloudKitErrorDomain ?? "None")")
-        lines.append("Last Error Code: \(syncMonitor.lastCloudKitErrorCode.map(String.init) ?? "None")")
-        lines.append("Last Error Description: \(syncMonitor.lastCloudKitErrorDescription ?? "None")")
-        lines.append(
-            "Last Success: \(syncMonitor.lastSuccessfulSyncDate.map(Self.timestampFormatter.string(from:)) ?? "None")"
-        )
-        lines.append("")
-        lines.append("Recent Events:")
-        for entry in syncMonitor.recentDiagnostics {
-            lines.append(
-                "\(Self.timestampFormatter.string(from: entry.timestamp)) [\(entry.level.uppercased())] \(entry.message)"
-            )
-        }
-        return lines.joined(separator: "\n")
     }
 }

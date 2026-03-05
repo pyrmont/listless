@@ -15,15 +15,11 @@ struct SyncDiagnosticsView: View {
             Section("Status") {
                 row("Transient Banner", syncMonitor.transientErrorMessage ?? "None")
                 row("Last Error Domain", syncMonitor.lastCloudKitErrorDomain ?? "None")
-                row(
-                    "Last Error Code",
-                    syncMonitor.lastCloudKitErrorCode.map(String.init) ?? "None"
-                )
+                row("Last Error Code", syncMonitor.lastCloudKitErrorCode.map(String.init) ?? "None")
                 row("Last Error Description", syncMonitor.lastCloudKitErrorDescription ?? "None")
                 row(
                     "Last Success",
-                    syncMonitor.lastSuccessfulSyncDate.map(Self.timestampFormatter.string(from:))
-                        ?? "None"
+                    syncMonitor.lastSuccessfulSyncDate.map(Self.timestampFormatter.string(from:)) ?? "None"
                 )
             }
 
@@ -49,12 +45,13 @@ struct SyncDiagnosticsView: View {
                 }
             }
         }
-        .navigationTitle("iCloud Diagnostics")
-        .navigationBarTitleDisplayMode(.inline)
+        .textSelection(.enabled)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem {
                 Button("Copy") {
-                    UIPasteboard.general.string = diagnosticDump
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.setString(diagnosticDump, forType: .string)
                 }
             }
         }
