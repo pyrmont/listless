@@ -12,7 +12,6 @@ struct SyncDiagnosticEntry: Identifiable {
 @MainActor
 final class CloudKitSyncMonitor: ObservableObject {
     @Published private(set) var transientErrorMessage: String?
-    @Published var actionableAlert: SyncAlertItem?
     @Published private(set) var lastSuccessfulSyncDate: Date?
     @Published private(set) var lastCloudKitErrorDomain: String?
     @Published private(set) var lastCloudKitErrorCode: Int?
@@ -25,7 +24,7 @@ final class CloudKitSyncMonitor: ObservableObject {
     private let maxDiagnosticEntries = 80
 
     var hasDiagnosticsIssue: Bool {
-        transientErrorMessage != nil || actionableAlert != nil || lastCloudKitErrorDescription != nil
+        transientErrorMessage != nil || lastCloudKitErrorDescription != nil
     }
 
     deinit {
@@ -79,10 +78,6 @@ final class CloudKitSyncMonitor: ObservableObject {
         }
     }
 
-    func clearActionableAlert() {
-        actionableAlert = nil
-    }
-
     func ingest(error: Error) {
         handle(issue: CloudKitErrorClassifier.classify(error))
     }
@@ -105,16 +100,6 @@ final class CloudKitSyncMonitor: ObservableObject {
                 self.logger.warning("Deferred sync issue surfaced: \(message, privacy: .public)")
                 self.appendDiagnostic(level: "warning", "Deferred sync issue surfaced: \(message)")
             }
-
-        case .alert(let alert):
-            logger.error(
-                "Actionable sync alert: title=\(alert.title, privacy: .public) message=\(alert.message, privacy: .public)"
-            )
-            appendDiagnostic(
-                level: "error",
-                "Actionable sync alert: \(alert.title) - \(alert.message)"
-            )
-            actionableAlert = alert
         }
     }
 

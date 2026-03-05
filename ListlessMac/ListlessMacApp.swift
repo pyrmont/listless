@@ -101,7 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         MenuCoordinator.shared.clearCompletedTasks?()
     }
 
-    @objc private func handleShowSyncDiagnostics() {
+    @objc func handleShowSyncDiagnostics() {
         openSyncDiagnosticsWindow()
     }
 

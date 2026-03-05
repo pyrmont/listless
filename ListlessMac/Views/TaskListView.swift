@@ -336,33 +336,6 @@ struct TaskListView: View, TaskListViewProtocol {
         .overlay(alignment: .top) {
             syncErrorBanner
         }
-        .alert(
-            item: Binding(
-                get: { syncMonitor.actionableAlert },
-                set: { if $0 == nil { syncMonitor.clearActionableAlert() } }
-            )
-        ) { alert in
-            switch alert.action {
-            case .openSettings:
-                return Alert(
-                    title: Text(alert.title),
-                    message: Text(alert.message),
-                    primaryButton: .default(Text("Open Settings")) { openSystemSettings() },
-                    secondaryButton: .cancel(Text("OK")) {
-                        syncMonitor.clearActionableAlert()
-                    }
-                )
-
-            case .none:
-                return Alert(
-                    title: Text(alert.title),
-                    message: Text(alert.message),
-                    dismissButton: .default(Text("OK")) {
-                        syncMonitor.clearActionableAlert()
-                    }
-                )
-            }
-        }
     }
 }
 

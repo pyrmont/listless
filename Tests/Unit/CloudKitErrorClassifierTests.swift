@@ -53,36 +53,34 @@ struct CloudKitErrorClassifierTests {
         #expect(message.contains("retry"))
     }
 
-    // MARK: - Actionable Alerts
+    // MARK: - Transient Actionable Errors
 
-    @Test("Not authenticated requires sign-in")
+    @Test("Not authenticated is transient with sign-in message")
     func notAuthenticated() {
         let error = CKError(.notAuthenticated)
         let issue = CloudKitErrorClassifier.classify(error)
 
-        guard case .alert(let alert) = issue else {
-            Issue.record("Expected .alert, got \(issue)")
+        guard case .transient(let message) = issue else {
+            Issue.record("Expected .transient, got \(issue)")
             return
         }
-        #expect(alert.title.contains("Sign-In"))
-        #expect(alert.action == .openSettings)
+        #expect(message.contains("Sign in"))
     }
 
-    @Test("Quota exceeded shows storage full")
+    @Test("Quota exceeded is transient with storage message")
     func quotaExceeded() {
         let error = CKError(.quotaExceeded)
         let issue = CloudKitErrorClassifier.classify(error)
 
-        guard case .alert(let alert) = issue else {
-            Issue.record("Expected .alert, got \(issue)")
+        guard case .transient(let message) = issue else {
+            Issue.record("Expected .transient, got \(issue)")
             return
         }
-        #expect(alert.title.contains("Storage Full"))
-        #expect(alert.action == .openSettings)
+        #expect(message.contains("storage full"))
     }
 
     @Test(
-        "Permission errors show unavailable",
+        "Permission errors are transient with unavailable message",
         arguments: [
             CKError.Code.permissionFailure,
             CKError.Code.badContainer,
@@ -93,12 +91,11 @@ struct CloudKitErrorClassifierTests {
         let error = CKError(code)
         let issue = CloudKitErrorClassifier.classify(error)
 
-        guard case .alert(let alert) = issue else {
-            Issue.record("Expected .alert, got \(issue)")
+        guard case .transient(let message) = issue else {
+            Issue.record("Expected .transient, got \(issue)")
             return
         }
-        #expect(alert.title.contains("Unavailable"))
-        #expect(alert.action == .openSettings)
+        #expect(message.contains("unavailable"))
     }
 
     // MARK: - Default / Unknown CKError
@@ -117,27 +114,27 @@ struct CloudKitErrorClassifierTests {
 
     // MARK: - Non-CloudKit Errors
 
-    @Test("Core Data error shows save failure alert")
+    @Test("Core Data error is transient")
     func coreDataError() {
         let error = NSError(domain: NSCocoaErrorDomain, code: 1570, userInfo: nil)
         let issue = CloudKitErrorClassifier.classify(error)
 
-        guard case .alert(let alert) = issue else {
-            Issue.record("Expected .alert, got \(issue)")
+        guard case .transient(let message) = issue else {
+            Issue.record("Expected .transient, got \(issue)")
             return
         }
-        #expect(alert.title == "Unable to Save Changes")
+        #expect(message.contains("retry"))
     }
 
-    @Test("Unknown domain error shows generic sync error")
+    @Test("Unknown domain error is transient")
     func unknownDomainError() {
         let error = NSError(domain: "com.example.unknown", code: 42, userInfo: nil)
         let issue = CloudKitErrorClassifier.classify(error)
 
-        guard case .alert(let alert) = issue else {
-            Issue.record("Expected .alert, got \(issue)")
+        guard case .transient(let message) = issue else {
+            Issue.record("Expected .transient, got \(issue)")
             return
         }
-        #expect(alert.title == "Sync Error")
+        #expect(message.contains("retry"))
     }
 }

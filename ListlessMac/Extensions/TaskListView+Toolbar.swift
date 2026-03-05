@@ -9,6 +9,20 @@ extension TaskListView {
 
         ToolbarItemGroup(placement: .automatic) {
             HStack {
+                if syncMonitor.hasDiagnosticsIssue {
+                    Button {
+                        NSApp.sendAction(
+                            #selector(AppDelegate.handleShowSyncDiagnostics),
+                            to: nil, from: nil
+                        )
+                    } label: {
+                        Label("Sync Issues", systemImage: "exclamationmark.icloud")
+                    }
+                    .help("View sync diagnostics")
+
+                    Divider()
+                }
+
                 Button {
                     createNewTask()
                     // Trigger focus resolution by setting to nil

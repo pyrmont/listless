@@ -7,6 +7,16 @@ extension TaskListView {
                 .font(.largeTitle)
                 .fontWeight(.bold)
             Spacer()
+            if syncMonitor.hasDiagnosticsIssue {
+                Button {
+                    showSyncDiagnostics()
+                } label: {
+                    Image(systemName: "exclamationmark.icloud")
+                        .font(.title2)
+                        .foregroundStyle(.red)
+                }
+                .buttonStyle(.plain)
+            }
             Button {
                 showSettings()
             } label: {

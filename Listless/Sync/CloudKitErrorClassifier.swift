@@ -1,21 +1,9 @@
 import CloudKit
 import Foundation
 
-enum SyncAlertAction {
-    case openSettings
-}
-
-struct SyncAlertItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let message: String
-    let action: SyncAlertAction?
-}
-
 enum SyncIssue {
     case transient(message: String)
     case deferred(message: String)
-    case alert(SyncAlertItem)
 }
 
 enum CloudKitErrorClassifier {
@@ -29,21 +17,7 @@ enum CloudKitErrorClassifier {
             return classifyCloudKit(code: ckCode)
         }
 
-        if nsError.domain == NSCocoaErrorDomain {
-            return .alert(
-                SyncAlertItem(
-                    title: "Unable to Save Changes",
-                    message: "Your changes are still local, but syncing encountered an issue. Please try again.",
-                    action: nil
-                ))
-        }
-
-        return .alert(
-            SyncAlertItem(
-                title: "Sync Error",
-                message: rootError.localizedDescription,
-                action: nil
-            ))
+        return .transient(message: "Saved locally. iCloud sync will retry automatically.")
     }
 
     private static func classifyCloudKit(code: CKError.Code) -> SyncIssue {
@@ -53,31 +27,13 @@ enum CloudKitErrorClassifier {
             return .transient(message: "Saved locally. iCloud sync will retry automatically.")
 
         case .notAuthenticated:
-            return .alert(
-                SyncAlertItem(
-                    title: "iCloud Sign-In Required",
-                    message:
-                        "Sign in to iCloud in Settings to continue syncing your tasks across devices.",
-                    action: .openSettings
-                ))
+            return .transient(message: "Sign in to iCloud to sync across devices.")
 
         case .quotaExceeded:
-            return .alert(
-                SyncAlertItem(
-                    title: "iCloud Storage Full",
-                    message:
-                        "Free up iCloud storage or upgrade your plan to continue syncing.",
-                    action: .openSettings
-                ))
+            return .transient(message: "iCloud storage full. Free up space to continue syncing.")
 
         case .permissionFailure, .badContainer, .missingEntitlement:
-            return .alert(
-                SyncAlertItem(
-                    title: "iCloud Sync Unavailable",
-                    message:
-                        "This device currently cannot access iCloud for syncing. Check iCloud settings and try again.",
-                    action: .openSettings
-                ))
+            return .transient(message: "iCloud sync unavailable. Check iCloud settings.")
 
         case .accountTemporarilyUnavailable, .zoneNotFound, .userDeletedZone:
             return .deferred(message: "Saved locally. iCloud sync will retry automatically.")

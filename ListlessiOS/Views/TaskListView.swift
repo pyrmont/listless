@@ -231,22 +231,6 @@ struct TaskListView: View, TaskListViewProtocol {
             .overlay(alignment: .top) {
                 syncErrorBanner
             }
-            .overlay(alignment: .topTrailing) {
-                if syncMonitor.hasDiagnosticsIssue {
-                    Button {
-                        showSyncDiagnostics()
-                    } label: {
-                        Label("Sync Details", systemImage: "exclamationmark.icloud")
-                            .font(.caption)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 7)
-                            .background(.thinMaterial)
-                            .clipShape(Capsule())
-                    }
-                    .padding(.top, 10)
-                    .padding(.trailing, 12)
-                }
-            }
             .overlay(alignment: .bottom) {
                 if let toast = iState.undoToast {
                     UndoToastView(
@@ -279,33 +263,6 @@ struct TaskListView: View, TaskListViewProtocol {
                 )
             ) {
                 SettingsView(syncMonitor: syncMonitor)
-            }
-            .alert(
-                item: Binding(
-                    get: { syncMonitor.actionableAlert },
-                    set: { if $0 == nil { syncMonitor.clearActionableAlert() } }
-                )
-            ) { alert in
-                switch alert.action {
-                case .openSettings:
-                    return Alert(
-                        title: Text(alert.title),
-                        message: Text(alert.message),
-                        primaryButton: .default(Text("Open Settings")) { openSystemSettings() },
-                        secondaryButton: .cancel(Text("OK")) {
-                            syncMonitor.clearActionableAlert()
-                        }
-                    )
-
-                case .none:
-                    return Alert(
-                        title: Text(alert.title),
-                        message: Text(alert.message),
-                        dismissButton: .default(Text("OK")) {
-                            syncMonitor.clearActionableAlert()
-                        }
-                    )
-                }
             }
     }
 
