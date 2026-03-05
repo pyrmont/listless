@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Listless is a to-do list app for Apple platforms. It is intended to run on iPhone, iPad and Mac.
+
 ## Project Structure & Module Organization
 - `Listless.xcodeproj` coordinates two app targets: "Listless iOS" (iPhone/iPad) and "Listless macOS" (native Mac), both sharing code from the `Listless/` directory.
 - `project.yml` defines the Xcode project structure for XcodeGen; run `xcodegen generate` to regenerate the project after modifying it.
