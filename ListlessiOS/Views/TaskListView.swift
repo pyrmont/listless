@@ -330,7 +330,10 @@ struct TaskListView: View, TaskListViewProtocol {
                         onDelete: { deleteTaskWithUndo($0) },
                         onSelect: { selectTask($0) },
                         onStartEdit: { startEditing($0) },
-                        onEndEdit: { endEditing($0, shouldCreateNewTask: $1) }
+                        onEndEdit: {
+                            selectedTaskID = nil
+                            endEditing($0, shouldCreateNewTask: $1)
+                        }
                     )
                     .scaleEffect(draggedTaskID == taskID ? 1.05 : 1.0)
                     .shadow(
