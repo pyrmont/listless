@@ -207,8 +207,9 @@ struct TaskListView: View, TaskListViewProtocol {
             .accessibilityIdentifier("task-list-scrollview")
             .background {
                 let isEditing = if case .task = focusedFieldBinding { true } else { false }
+                let isShowingSheet = iState.isShowingSettings || iState.isShowingSyncDiagnostics
                 KeyCommandBridge(
-                    isActive: !isEditing,
+                    isActive: !isEditing && !isShowingSheet,
                     onUp: { _ = navigateUp() },
                     onDown: { _ = navigateDown() },
                     onSpace: { _ = toggleSelectedTask() },
