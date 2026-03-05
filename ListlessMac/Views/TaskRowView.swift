@@ -136,6 +136,12 @@ struct TaskRowView: View {
                     .padding(.leading, dividerInset)
             }
         }
+        .overlay {
+            if isSelected && !task.isCompleted {
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .stroke(cachedAccentColor.opacity(0.40), lineWidth: 2)
+            }
+        }
         .contextMenu {
             Button(task.isCompleted ? "Mark as Incomplete" : "Mark as Complete") {
                 onToggle(task)
@@ -176,11 +182,11 @@ struct TaskRowView: View {
 
     @ViewBuilder
     private var selectionBackground: some View {
-        if isSelected {
+        if task.isCompleted {
+            isSelected ? Color(nsColor: .controlBackgroundColor) : Color(nsColor: .windowBackgroundColor)
+        } else if isSelected {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color.accentColor.opacity(0.2))
-        } else if task.isCompleted {
-            Color(nsColor: .windowBackgroundColor)
+                .fill(cachedAccentColor.opacity(0.10))
         }
     }
 
