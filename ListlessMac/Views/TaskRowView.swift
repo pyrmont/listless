@@ -183,11 +183,13 @@ struct TaskRowView: View {
 
     @ViewBuilder
     private var selectionBackground: some View {
-        if task.isCompleted {
-            isSelected ? Color(nsColor: .controlBackgroundColor) : Color(nsColor: .windowBackgroundColor)
-        } else if isSelected {
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor))
+        if isSelected {
+            if task.isCompleted {
+                Color(nsColor: .controlBackgroundColor)
+            } else {
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(Color(nsColor: .controlBackgroundColor))
+            }
         }
     }
 
