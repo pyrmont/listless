@@ -75,6 +75,9 @@ targets:
       - path: ListlessMac
         excludes:
           - "AppKit/**"
+      - path: ListlessMac/Credits.html
+        type: file
+        buildPhase: resources
       - Media.xcassets
     entitlements:
       path: ListlessMac/Listless.entitlements
