@@ -26,15 +26,33 @@ struct AboutView: View {
                     Text("Version \(appVersion) (\(buildNumber))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 8)
+                        .padding(.bottom, 36)
 
-                    Text("Made in Tokyo by Michael Camilleri")
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
+                    VStack(spacing: 4) {
+                        Text("Programming")
+                            .font(.caption)
+                            .textCase(.uppercase)
+                            .tracking(0.8)
+                            .foregroundStyle(.secondary)
+                        Text("Claude Code and OpenAI Codex")
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.bottom, 16)
+
+                    VStack(spacing: 4) {
+                        Text("Direction")
+                            .font(.caption)
+                            .textCase(.uppercase)
+                            .tracking(0.8)
+                            .foregroundStyle(.secondary)
+                        Text("Michael Camilleri")
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .padding(.bottom, 4)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
@@ -49,13 +67,13 @@ struct AboutView: View {
             }
 
             Section {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(
-                        "Thank you to my wife, daughter and sons for their love and inspiration."
-                    )
-                }
+                Text(
+                    "Thank you to my wife, daughter and sons for their love and inspiration."
+                )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }

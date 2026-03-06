@@ -23,15 +23,14 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    NavigationLink("iCloud Diagnostics") {
-                        SyncDiagnosticsView(syncMonitor: syncMonitor)
-                    }
-                }
-
-                Section {
                     NavigationLink("About") {
                         AboutView()
                     }
+                } footer: {
+                    Text("Made in Tokyo from natural ones and zeros")
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 24)
                 }
             }
             .navigationTitle("Settings")

@@ -6,6 +6,9 @@ extension TaskListView {
             Text(headingText)
                 .font(.largeTitle)
                 .fontWeight(.bold)
+                .onTapGesture(count: 4) {
+                    showSyncDiagnostics()
+                }
             Spacer()
             if syncMonitor.hasDiagnosticsIssue {
                 Button {
