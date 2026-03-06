@@ -82,6 +82,7 @@ targets:
     entitlements:
       path: ListlessMac/Listless.entitlements
       properties:
+        com.apple.security.app-sandbox: true
         com.apple.developer.icloud-container-identifiers:
           - iCloud.net.inqk.listless
         com.apple.developer.icloud-services:
