@@ -228,7 +228,7 @@ struct TaskListView: View, TaskListViewProtocol {
             .toolbar {
                 platformToolbar
             }
-            .overlay(alignment: .top) {
+            .safeAreaInset(edge: .bottom) {
                 syncErrorBanner
             }
             .overlay(alignment: .bottom) {

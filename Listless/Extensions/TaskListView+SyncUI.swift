@@ -19,7 +19,7 @@ extension TaskListViewProtocol {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.thinMaterial)
+            .background(.thickMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .padding(.horizontal, 12)
             .padding(.top, 8)
