@@ -12,7 +12,7 @@ struct AboutView: View {
     var body: some View {
         List {
             Section {
-                VStack(spacing: 12) {
+                VStack(spacing: 8) {
                     Image("AboutIcon")
                         .resizable()
                         .scaledToFit()
@@ -26,7 +26,7 @@ struct AboutView: View {
                     Text("Version \(appVersion) (\(buildNumber))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 36)
+                        .padding(.bottom, 20)
 
                     VStack(spacing: 4) {
                         Text("Programming")
@@ -38,7 +38,7 @@ struct AboutView: View {
                             .font(.subheadline)
                             .foregroundStyle(.primary)
                     }
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 8)
 
                     VStack(spacing: 4) {
                         Text("Direction")
@@ -52,7 +52,7 @@ struct AboutView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .padding(.bottom, 4)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
@@ -78,6 +78,7 @@ struct AboutView: View {
                 .listRowSeparator(.hidden)
             }
         }
+        .contentMargins(.top, 0, for: .scrollContent)
         .navigationTitle("About")
         .navigationBarTitleDisplayMode(.inline)
     }
