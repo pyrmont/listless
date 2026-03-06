@@ -1,9 +1,10 @@
 # Listless
 
-Listless is a to-do list app for Apple platforms. It is intended to run on
-iPhone, iPad and Mac.
+Listless is a simple list app for Apple platforms. It is intended to run on
+iPhone, iPad and Mac. It syncs via iCloud and is designed to make adding,
+reordering and completing items fast.
 
-Listless was written by Claude Code and OpenAI Codex under human direction.
+Listless was programmed by Claude Code and OpenAI Codex under human direction.
 
 ## Requirements
 
