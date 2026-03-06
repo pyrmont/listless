@@ -7,8 +7,11 @@ class ClickableNSTextField: NSTextField {
 
     override func becomeFirstResponder() -> Bool {
         let result = super.becomeFirstResponder()
-        if result, NSApp.currentEvent?.type == .leftMouseDown {
-            onBecomeFirstResponder?()
+        if result, let event = NSApp.currentEvent, event.type == .leftMouseDown {
+            let locationInView = convert(event.locationInWindow, from: nil)
+            if bounds.contains(locationInView) {
+                onBecomeFirstResponder?()
+            }
         }
         return result
     }
