@@ -198,6 +198,12 @@ struct TaskListView: View, TaskListViewProtocol {
         iState.isShowingSettings = true
     }
 
+    private func dragScaleEffect(for taskID: UUID) -> CGFloat {
+        let liftPoints: CGFloat = 20
+        guard let width = rowFrames[taskID]?.width, width > 0 else { return 1.05 }
+        return (width + liftPoints) / width
+    }
+
     var body: some View {
         taskScrollView
             .contentShape(Rectangle())
@@ -293,7 +299,7 @@ struct TaskListView: View, TaskListViewProtocol {
                             endEditing($0, shouldCreateNewTask: $1)
                         }
                     )
-                    .scaleEffect(draggedTaskID == taskID ? 1.05 : 1.0)
+                    .scaleEffect(draggedTaskID == taskID ? dragScaleEffect(for: taskID) : 1.0)
                     .shadow(
                         color: draggedTaskID == taskID ? .black.opacity(0.3) : .clear,
                         radius: 12, y: 4
