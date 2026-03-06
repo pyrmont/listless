@@ -26,6 +26,11 @@ fi
 
 cd "$REPO_ROOT"
 
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Error: Git repository is dirty. Commit or stash changes before publishing."
+    exit 1
+fi
+
 echo "==> Setting up temporary keychain..."
 security delete-keychain "$TMP_KEYCHAIN" 2>/dev/null || true
 security create-keychain -p "$TMP_KEYCHAIN_PASS" "$TMP_KEYCHAIN"
