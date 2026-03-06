@@ -34,7 +34,7 @@ extension TaskListView {
         .contentShape(Rectangle())
         .onTapGesture {
             selectedTaskID = nil
-            focusedField = .scrollView
+            focusedField = nil
         }
     }
 }
