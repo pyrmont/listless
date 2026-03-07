@@ -5,6 +5,8 @@ struct TaskListView: View {
     let store: TaskStore
     let syncMonitor: CloudKitSyncMonitor
 
+    @AppStorage("headingText") private var headingText = "Items"
+
     @FetchRequest(
         sortDescriptors: [
             SortDescriptor(\TaskItem.isCompleted, order: .forward),
@@ -52,7 +54,7 @@ struct TaskListView: View {
                     }
                 }
             }
-            .navigationTitle("Listless")
+            .navigationTitle(headingText)
         }
     }
 

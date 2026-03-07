@@ -12,7 +12,7 @@ struct TaskRowView: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(
+                    .foregroundColor(
                         task.isCompleted
                             ? .secondary
                             : cachedTaskColor(forIndex: index, total: totalActive)
@@ -24,7 +24,21 @@ struct TaskRowView: View {
                     .foregroundStyle(task.isCompleted ? .secondary : .primary)
                     .lineLimit(3)
             }
+            .padding(.vertical, 4)
         }
+        .listRowBackground(
+            task.isCompleted
+                ? AnyView(Color(white: 0.15)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous)))
+                : AnyView(
+                    ZStack(alignment: .top) {
+                        Color(white: 0.15)
+                        cachedTaskColor(forIndex: index, total: totalActive)
+                            .frame(height: 3)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                )
+        )
         .buttonStyle(.plain)
     }
 }
