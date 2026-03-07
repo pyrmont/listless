@@ -21,7 +21,7 @@ extension TaskListViewProtocol {
 
     var completedTasks: [TaskItem] {
         Array(tasks.filter { !$0.isDeleted && $0.isCompleted })
-            .sorted { $0.updatedAt > $1.updatedAt }
+            .sorted { $0.completedOrder > $1.completedOrder }
     }
 
     var allTasksInDisplayOrder: [TaskItem] {

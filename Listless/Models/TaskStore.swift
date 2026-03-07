@@ -29,15 +29,15 @@ final class TaskStore {
     func fetchTasks() throws -> [TaskItem] {
         do {
             let activeRequest = TaskItem.fetchRequest()
-            activeRequest.predicate = NSPredicate(format: "isCompleted == NO")
+            activeRequest.predicate = NSPredicate(format: "completedOrder == 0")
             activeRequest.sortDescriptors = [
                 NSSortDescriptor(keyPath: \TaskItem.sortOrder, ascending: true)
             ]
 
             let completedRequest = TaskItem.fetchRequest()
-            completedRequest.predicate = NSPredicate(format: "isCompleted == YES")
+            completedRequest.predicate = NSPredicate(format: "completedOrder > 0")
             completedRequest.sortDescriptors = [
-                NSSortDescriptor(keyPath: \TaskItem.updatedAt, ascending: false)
+                NSSortDescriptor(keyPath: \TaskItem.completedOrder, ascending: false)
             ]
 
             let activeTasks = try context.fetch(activeRequest)
@@ -73,7 +73,16 @@ final class TaskStore {
 
     func complete(taskID: UUID) throws {
         guard let task = try findTask(id: taskID) else { return }
-        task.isCompleted = true
+
+        let request = TaskItem.fetchRequest()
+        request.predicate = NSPredicate(format: "completedOrder > 0")
+        request.sortDescriptors = [
+            NSSortDescriptor(keyPath: \TaskItem.completedOrder, ascending: false)
+        ]
+        request.fetchLimit = 1
+        let maxOrder = (try context.fetch(request).first)?.completedOrder ?? 0
+
+        task.completedOrder = maxOrder + 1
         try save()
     }
 
@@ -88,7 +97,7 @@ final class TaskStore {
             task.sortOrder = maxSortOrder + 1000
         }
 
-        task.isCompleted = false
+        task.completedOrder = 0
         try save()
     }
 

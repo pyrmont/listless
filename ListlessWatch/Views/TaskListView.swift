@@ -9,7 +9,6 @@ struct TaskListView: View {
 
     @FetchRequest(
         sortDescriptors: [
-            SortDescriptor(\TaskItem.isCompleted, order: .forward),
             SortDescriptor(\TaskItem.sortOrder, order: .forward),
         ],
         animation: .default
@@ -19,6 +18,7 @@ struct TaskListView: View {
     var body: some View {
         let activeTasks = tasks.filter { !$0.isCompleted }
         let completedTasks = tasks.filter { $0.isCompleted }
+            .sorted { $0.completedOrder > $1.completedOrder }
 
         NavigationStack {
             Group {

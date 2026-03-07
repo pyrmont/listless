@@ -92,24 +92,20 @@ struct TaskStoreCompletionTests {
         #expect(tasks[2].id == task2.id)
     }
 
-    @Test("Completed tasks sorted by updatedAt")
-    func completedTasksSortedByUpdatedAt() async throws {
+    @Test("Completed tasks sorted by completedOrder")
+    func completedTasksSortedByCompletedOrder() async throws {
         let store = makeTestStore()
         let task1 = try store.createTask(title: "Task 1")
         let task2 = try store.createTask(title: "Task 2")
         let task3 = try store.createTask(title: "Task 3")
 
-        // Complete in specific order with delays
+        // Complete in specific order
         try store.complete(taskID: task2.id)
-        try await Task.sleep(nanoseconds: 10_000_000) // 10ms
-
         try store.complete(taskID: task1.id)
-        try await Task.sleep(nanoseconds: 10_000_000) // 10ms
-
         try store.complete(taskID: task3.id)
 
         let tasks = try store.fetchTasks()
-        // All completed, should be sorted by updatedAt (most recently completed first)
+        // All completed, should be sorted by completedOrder (most recently completed first)
         #expect(tasks[0].id == task3.id)
         #expect(tasks[1].id == task1.id)
         #expect(tasks[2].id == task2.id)

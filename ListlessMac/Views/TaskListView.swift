@@ -23,10 +23,7 @@ struct TaskListView: View, TaskListViewProtocol {
     let store: TaskStore
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
     @FetchRequest(
-        sortDescriptors: [
-            NSSortDescriptor(keyPath: \TaskItem.isCompleted, ascending: true),
-            NSSortDescriptor(keyPath: \TaskItem.sortOrder, ascending: true),
-        ],
+        sortDescriptors: [],
         animation: .default
     )
     var tasks: FetchedResults<TaskItem>
