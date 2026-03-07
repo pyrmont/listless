@@ -1,16 +1,16 @@
 # Listless
 
 Listless is a simple list app for Apple platforms. It is intended to run on
-iPhone, iPad and Mac. It syncs via iCloud and is designed to make adding,
-reordering and completing items fast.
+iPhone, iPad, Mac and watchOS. It syncs via iCloud and is designed to make
+adding, reordering and completing items fast.
 
 Listless was programmed by Claude Code and OpenAI Codex under human direction.
 
 ## Requirements
 
 Listless is a Swift 6 project that produces executables for iOS and macOS. It
-targets iOS/iPadOS devices running iOS/iPadOS 18 and macOS devices running
-macOS 15. It has not been tested with iOS/iPadOS/macOS 26.
+targets iOS/iPadOS devices running iOS/iPadOS 18 (watchOS 11) and macOS devices
+running macOS 15. It has not been tested with iOS/iPadOS/macOS/watchOS 26.
 
 ## Setup
 
