@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03BC4562430EC105221AB43B /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D1AF0DE30657AAD86482CA /* TaskRowView.swift */; };
 		060436CDDB388BC04C51581A /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E995954787F0A14CCFF348 /* AboutView.swift */; };
 		072594B24D88AD6D1DF7AFE5 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611E04943F1D82D6F975592 /* SettingsView.swift */; };
+		07E2BB2FF9E75A922C3756AB /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56DEECB5DC31DE5F34FB55A3 /* TaskListView.swift */; };
 		0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
 		0F12D56A528FCBF8A67864CB /* TappableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */; };
 		11AA75BE98CFBE44AEAB7100 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9404C09EE1A4D91DFF338464 /* Media.xcassets */; };
@@ -19,6 +21,7 @@
 		19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		1A66A0454558B207AF9265D4 /* UndoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658295C1386BFF48CE3C2419 /* UndoToast.swift */; };
 		1AA328A921EF8A7FDD03119A /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
+		264BD64C1DD30376E8BDAF79 /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */; };
 		26F609518DE1055DF09B0159 /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */; };
 		2C53717A0EAFA39240615C9A /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */; };
@@ -28,16 +31,23 @@
 		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
 		3D1F551A03B97ECF4E3DC8B0 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06485DBE35B60868E14202A /* TaskRowView.swift */; };
 		3EDB6A9A30B4226C15E7F44D /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C46FC97E6DB6FF81AC5C22 /* AppCommands.swift */; };
+		4A0682E85B50DF42ECF83B48 /* Listless watchOS.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C6812E535A24C599C28F9278 /* Listless watchOS.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4DD2030E321567BD25661760 /* SyncDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9288507CE6023425D1DE724 /* SyncDiagnosticsView.swift */; };
 		4E5A0A02121E02124F80E320 /* TaskListView+SyncUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */; };
 		5035EC4C7518A5FF9AD454CA /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = F416DD868A4C044F0D64F8D0 /* TaskRowDragGesture.swift */; };
+		53700EA974FE4AD771FE89EC /* CloudKitSyncMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */; };
+		543C8A0C8A9E2F77B2C0060F /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		568635BB34CD7EBE24E66A15 /* SyncDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3374CE58E7D9378C6997D2 /* SyncDiagnosticsView.swift */; };
 		5761B201BF46FCA9C5C98CEF /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */; };
+		57E864F71C9C84B63A28E14F /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
 		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		5D3EE9526DA269EE9EE3AB52 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E998119283F784B9ADEE28 /* AppColors.swift */; };
 		5DB1231FEF24A9E4BC1E56B0 /* TaskListView+PullGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D9CDDA8913CD116FB4DA74 /* TaskListView+PullGestures.swift */; };
 		614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */; };
 		642151C8EEA34DAD76C49FA1 /* TaskListView+SyncUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */; };
+		65E97DE8C190E9E9B71EC356 /* ListlessWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE7F4637B4F4C1FF4BE160B /* ListlessWatchApp.swift */; };
+		684A80B692237B74EDF3C7A8 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
+		6FE9D247153209BD4CFD9E34 /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		763363F6F3C7D2D3C9A63977 /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */; };
 		77970A2323A598E830D95301 /* TaskListView+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */; };
 		77FE96F070B1F7FE31A9CE51 /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */; };
@@ -55,6 +65,8 @@
 		99977BFA37FBAAA49AF6B71E /* TaskStoreEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2BBE01D99CDA278BCB9F49 /* TaskStoreEdgeCaseTests.swift */; };
 		99D17075DA3F00F52A18BB4D /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
+		A119D0130DB77E30FBCB5436 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
+		A8D5A7B0DFBEC87501FD0526 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9404C09EE1A4D91DFF338464 /* Media.xcassets */; };
 		B7CFDCA5EA48EDE1C768FA21 /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C79ABB39A40D3E1828716C7 /* AppCommands.swift */; };
 		BA6953E0EFE6F8255F05A3FD /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		C169823665158AA347A63990 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51B8129962E5CC78ECDDC2B /* TaskListView.swift */; };
@@ -73,6 +85,7 @@
 		E60F81C7B930AACE67746759 /* HoverCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */; };
 		EA5E6FC7D61E235B70A139FA /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9404C09EE1A4D91DFF338464 /* Media.xcassets */; };
 		ECD5E7EA05AE1C00B38C939E /* TaskStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */; };
+		F046B5A7F4C0BD7AAF46A69C /* CloudKitErrorClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */; };
 		F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */; };
 		F3DD1F167E4107456473B6B2 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 3DD31E8962F7EEC22EFC0CA9 /* Credits.html */; };
 		F50E8B8F73F64D8E641DC74C /* TaskStoreCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */; };
@@ -82,6 +95,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		642EE6A5908DB4216F049E9C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3256C2BF8F1DAF371DA32120 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9BDC1B2175AB9CE26790448D;
+			remoteInfo = "Listless watchOS";
+		};
 		6F7E207AE10E1516EF8A683C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3256C2BF8F1DAF371DA32120 /* Project object */;
@@ -90,6 +110,20 @@
 			remoteInfo = "Listless iOS";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A9226A0DD67E77D754BA0E3F /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				4A0682E85B50DF42ECF83B48 /* Listless watchOS.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		01E141436176F83594E2F26B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -110,23 +144,27 @@
 		4FC64B9F9370041BEDBD1E14 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		51C3B9FF63645B35E09CF1B1 /* CloudKitErrorClassifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorClassifierTests.swift; sourceTree = "<group>"; };
 		567DBAC2A39FA2760D006AAB /* PullToClear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToClear.swift; sourceTree = "<group>"; };
+		56DEECB5DC31DE5F34FB55A3 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		5A6D74EDDD7E3FC150064FB5 /* TaskListView+PullToClear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+PullToClear.swift"; sourceTree = "<group>"; };
 		5B0E22B8F7B2B7283CAF749E /* Listless macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreCompletionTests.swift; sourceTree = "<group>"; };
 		632DA39B24C4CF1528A1A24D /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		658295C1386BFF48CE3C2419 /* UndoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoToast.swift; sourceTree = "<group>"; };
 		68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorClassifier.swift; sourceTree = "<group>"; };
+		6BE7F4637B4F4C1FF4BE160B /* ListlessWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessWatchApp.swift; sourceTree = "<group>"; };
 		6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncMonitor.swift; sourceTree = "<group>"; };
 		6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TappableTextField.swift; sourceTree = "<group>"; };
 		6F9754B32B2FD5AF8552BC85 /* TaskListTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListTypes.swift; sourceTree = "<group>"; };
 		712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+NavigationHeader.swift"; sourceTree = "<group>"; };
 		72B4668483D05A6ECA142B89 /* TaskListView+Logic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Logic.swift"; sourceTree = "<group>"; };
+		72BAC76C5B5ED291048705CF /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		74255E6B6C40899E9B17D927 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		75B048B19C5219862BBED2E7 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+SyncUI.swift"; sourceTree = "<group>"; };
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		8AACB5E40BEBA75E7FE8B930 /* TaskListView+Undo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Undo.swift"; sourceTree = "<group>"; };
 		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
+		92D1AF0DE30657AAD86482CA /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		9404C09EE1A4D91DFF338464 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		944BAE054AAC1B9C4FC954F9 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreTests.swift; sourceTree = "<group>"; };
@@ -138,9 +176,11 @@
 		AC245331D715EA85887C0BA0 /* ListlessiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSApp.swift; sourceTree = "<group>"; };
 		B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverCursorModifier.swift; sourceTree = "<group>"; };
 		BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueSyncBridge.swift; sourceTree = "<group>"; };
+		BC845482926A73B0BF820328 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToCreate.swift; sourceTree = "<group>"; };
 		C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C611E04943F1D82D6F975592 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C6812E535A24C599C28F9278 /* Listless watchOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless watchOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Listless iOS Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9B14DC786A336008AAB78EE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Toolbar.swift"; sourceTree = "<group>"; };
@@ -182,12 +222,24 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		21CCBC7FC4A2D6E15D47B4D1 /* ListlessWatch */ = {
+			isa = PBXGroup;
+			children = (
+				BC845482926A73B0BF820328 /* Info.plist */,
+				72BAC76C5B5ED291048705CF /* Listless.entitlements */,
+				6BE7F4637B4F4C1FF4BE160B /* ListlessWatchApp.swift */,
+				F0EB58775713E4C83A8D477A /* Views */,
+			);
+			path = ListlessWatch;
+			sourceTree = "<group>";
+		};
 		3936BDEE64D16E6C4C85B3DD /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */,
 				126108860D7878DDC3BECC4B /* Listless iOS.app */,
 				5B0E22B8F7B2B7283CAF749E /* Listless macOS.app */,
+				C6812E535A24C599C28F9278 /* Listless watchOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -351,10 +403,20 @@
 				58051CBDE2390F9E13647235 /* Listless */,
 				954AAB8DDFF6E6D6FD6A0A2C /* ListlessiOS */,
 				D5B197AFF26144948D032299 /* ListlessMac */,
+				21CCBC7FC4A2D6E15D47B4D1 /* ListlessWatch */,
 				D98A7EE79F8E29297555B801 /* Support */,
 				F63E6E98ABFB43E1B32686B4 /* Unit */,
 				3936BDEE64D16E6C4C85B3DD /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		F0EB58775713E4C83A8D477A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				56DEECB5DC31DE5F34FB55A3 /* TaskListView.swift */,
+				92D1AF0DE30657AAD86482CA /* TaskRowView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		F63E6E98ABFB43E1B32686B4 /* Unit */ = {
@@ -406,16 +468,36 @@
 			buildPhases = (
 				67F773566AF3BC117AA393B9 /* Sources */,
 				EC5CE716D5948EC163595BF2 /* Resources */,
+				A9226A0DD67E77D754BA0E3F /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				59112A75EB31AFE05E360567 /* PBXTargetDependency */,
 			);
 			name = "Listless iOS";
 			packageProductDependencies = (
 			);
 			productName = "Listless iOS";
 			productReference = 126108860D7878DDC3BECC4B /* Listless iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9BDC1B2175AB9CE26790448D /* Listless watchOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A549D68557611D588CB834B2 /* Build configuration list for PBXNativeTarget "Listless watchOS" */;
+			buildPhases = (
+				4C15FB4D4E33FCF0F596A6E8 /* Sources */,
+				36267AB69A85A7E9793142D8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Listless watchOS";
+			packageProductDependencies = (
+			);
+			productName = "Listless watchOS";
+			productReference = C6812E535A24C599C28F9278 /* Listless watchOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D533FDEDCE6DFCA2E8CB70F5 /* Listless iOS Unit Tests */ = {
@@ -453,6 +535,10 @@
 						DevelopmentTeam = 7TD7PZBNXP;
 						ProvisioningStyle = Automatic;
 					};
+					9BDC1B2175AB9CE26790448D = {
+						DevelopmentTeam = 7TD7PZBNXP;
+						ProvisioningStyle = Automatic;
+					};
 					D533FDEDCE6DFCA2E8CB70F5 = {
 						DevelopmentTeam = 7TD7PZBNXP;
 						ProvisioningStyle = Automatic;
@@ -476,11 +562,20 @@
 				34A03D42B91730DEAC2EBD8E /* Listless iOS */,
 				D533FDEDCE6DFCA2E8CB70F5 /* Listless iOS Unit Tests */,
 				0FB4F07A37999BBC6DFE4DBB /* Listless macOS */,
+				9BDC1B2175AB9CE26790448D /* Listless watchOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		36267AB69A85A7E9793142D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A8D5A7B0DFBEC87501FD0526 /* Media.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6BCB6F65428622E5AA66936D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -529,6 +624,24 @@
 				5035EC4C7518A5FF9AD454CA /* TaskRowDragGesture.swift in Sources */,
 				3D1F551A03B97ECF4E3DC8B0 /* TaskRowView.swift in Sources */,
 				3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4C15FB4D4E33FCF0F596A6E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				543C8A0C8A9E2F77B2C0060F /* AccentColor.swift in Sources */,
+				F046B5A7F4C0BD7AAF46A69C /* CloudKitErrorClassifier.swift in Sources */,
+				53700EA974FE4AD771FE89EC /* CloudKitSyncMonitor.swift in Sources */,
+				264BD64C1DD30376E8BDAF79 /* KeyValueSyncBridge.swift in Sources */,
+				6FE9D247153209BD4CFD9E34 /* Listless.xcdatamodeld in Sources */,
+				65E97DE8C190E9E9B71EC356 /* ListlessWatchApp.swift in Sources */,
+				A119D0130DB77E30FBCB5436 /* PersistenceController.swift in Sources */,
+				684A80B692237B74EDF3C7A8 /* TaskItem.swift in Sources */,
+				07E2BB2FF9E75A922C3756AB /* TaskListView.swift in Sources */,
+				03BC4562430EC105221AB43B /* TaskRowView.swift in Sources */,
+				57E864F71C9C84B63A28E14F /* TaskStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -599,6 +712,11 @@
 			target = 34A03D42B91730DEAC2EBD8E /* Listless iOS */;
 			targetProxy = 6F7E207AE10E1516EF8A683C /* PBXContainerItemProxy */;
 		};
+		59112A75EB31AFE05E360567 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9BDC1B2175AB9CE26790448D /* Listless watchOS */;
+			targetProxy = 642EE6A5908DB4216F049E9C /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -619,6 +737,21 @@
 				SDKROOT = macosx;
 			};
 			name = Debug;
+		};
+		8A9B0D66DB5817E1F012B831 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ListlessWatch/Listless.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ListlessWatch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.watchos;
+				PRODUCT_NAME = Listless;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
 		};
 		A5A377EA0FE470803E2B6BA1 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -699,8 +832,24 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
+		};
+		B40F5AED88880BE1230F8BD0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ListlessWatch/Listless.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ListlessWatch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.watchos;
+				PRODUCT_NAME = Listless;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
 		};
 		C00090C364E4A0B81DC878F0 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -788,6 +937,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Debug;
 		};
@@ -862,6 +1012,15 @@
 			buildConfigurations = (
 				2D4E3CC5FF8E6299F754CCFC /* Debug */,
 				A5A377EA0FE470803E2B6BA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A549D68557611D588CB834B2 /* Build configuration list for PBXNativeTarget "Listless watchOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B40F5AED88880BE1230F8BD0 /* Debug */,
+				8A9B0D66DB5817E1F012B831 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

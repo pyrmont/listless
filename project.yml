@@ -5,6 +5,7 @@ options:
   deploymentTarget:
     iOS: "18.0"
     macOS: "14.0"
+    watchOS: "11.0"
 
 configFiles:
   Debug: Generated/BuildNumber.xcconfig
@@ -60,6 +61,8 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+    dependencies:
+      - target: Listless watchOS
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless
       INFOPLIST_FILE: ListlessiOS/Info.plist
@@ -104,6 +107,42 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless
       PRODUCT_NAME: Listless
       INFOPLIST_FILE: ListlessMac/Info.plist
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      CODE_SIGN_STYLE: Automatic
+
+  Listless watchOS:
+    type: application
+    platform: watchOS
+    sources:
+      - path: Listless/Models
+      - path: Listless/Sync
+      - path: Listless/Helpers/AccentColor.swift
+        type: file
+      - ListlessWatch
+      - Media.xcassets
+    entitlements:
+      path: ListlessWatch/Listless.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.net.inqk.listless
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.developer.ubiquity-container-identifiers:
+          - iCloud.net.inqk.listless
+        aps-environment: development
+    info:
+      path: ListlessWatch/Info.plist
+      properties:
+        CFBundleDisplayName: Listless
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: net.inqk.listless
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.watchos
+      PRODUCT_NAME: Listless
+      INFOPLIST_FILE: ListlessWatch/Info.plist
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       CODE_SIGN_STYLE: Automatic
 
@@ -160,6 +199,26 @@ schemes:
             buildVersion=`git rev-list HEAD | wc -l | tr -d ' '`
             echo "CURRENT_PROJECT_VERSION = $buildYear.$buildVersion" > Generated/BuildNumber.xcconfig
           settingsTarget: Listless macOS
+    run:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
+  Listless watchOS:
+    build:
+      targets:
+        Listless watchOS: all
+      preActions:
+        - script: |
+            cd "${SRCROOT}"
+            buildYear=`git log -1 --format=%cd --date=format:%Y`
+            buildVersion=`git rev-list HEAD | wc -l | tr -d ' '`
+            echo "CURRENT_PROJECT_VERSION = $buildYear.$buildVersion" > Generated/BuildNumber.xcconfig
+          settingsTarget: Listless watchOS
     run:
       config: Debug
     profile:

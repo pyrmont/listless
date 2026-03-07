@@ -78,6 +78,8 @@ cat > "$EXPORT_PLIST" <<PLIST
     <dict>
         <key>net.inqk.listless</key>
         <string>Listless iOS Distribution</string>
+        <key>net.inqk.listless.watchos</key>
+        <string>Listless watchOS Distribution</string>
     </dict>
     <key>destination</key>
     <string>export</string>
