@@ -3,13 +3,10 @@ import SwiftUI
 @main
 struct ListlessWatchApp: App {
     private let persistenceController = PersistenceController.shared
+    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText"])
 
     init() {
-        let kvStore = NSUbiquitousKeyValueStore.default
-        kvStore.synchronize()
-        if let heading = kvStore.string(forKey: "headingText") {
-            UserDefaults.standard.set(heading, forKey: "headingText")
-        }
+        keyValueSyncBridge.start()
     }
 
     var body: some Scene {
