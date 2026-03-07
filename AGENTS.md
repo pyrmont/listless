@@ -1,9 +1,9 @@
 # Repository Guidelines
 
-Listless is a to-do list app for Apple platforms. It is intended to run on iPhone, iPad and Mac.
+Listless is a to-do list app for Apple platforms. It is intended to run on iPhone, iPad, Mac, and Apple Watch.
 
 ## Project Structure & Module Organization
-- `Listless.xcodeproj` coordinates two app targets: "Listless iOS" (iPhone/iPad) and "Listless macOS" (native Mac), both sharing code from the `Listless/` directory.
+- `Listless.xcodeproj` coordinates three app targets: "Listless iOS" (iPhone/iPad), "Listless macOS" (native Mac), and "Listless watchOS" (Apple Watch), all sharing code from the `Listless/` directory.
 - `project.yml` defines the Xcode project structure for XcodeGen; run `xcodegen generate` to regenerate the project after modifying it.
 - `Listless/Models` owns `TaskItem` (NSManagedObject), `TaskStore` (plain `final class` wrapping Core Data operations), and Core Data model definitions; keep CloudKit configuration inside `Listless/Sync`.
 - `Listless/Extensions` holds extensions on shared types; `TaskListView+Logic.swift` and `TaskListView+SyncUI.swift` are extensions on `TaskListViewProtocol` (not the concrete struct) so SourceKit can resolve them unambiguously across both targets.
@@ -13,13 +13,15 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
   - `Helpers/` — gesture recognizers, UIKit representables, color definitions, and platform-shim view modifiers (`TappableTextField`, `TaskRowSwipeGesture`, `TaskRowDragGesture`, `AppColors`, `HoverCursorModifier`, etc.).
   - `Extensions/` — platform-specific extensions on shared types (`TaskListView+NavigationHeader`, `TaskListView+Toolbar`, `TaskListView+PullToCreate`, `TaskListView+PullToClear`, `TaskListView+PullGestures`, `TaskListView+Drag`, `TaskListView+Undo`).
 - `ListlessMac/` contains the macOS app entry point with the same three-subdirectory structure as `ListlessiOS/` (`Views/` includes `TaskListView`); an excluded `AppKit/` subdirectory holds the reverted AppKit implementation.
+- `ListlessWatch/` contains the watchOS app entry point and a simplified `Views/` subdirectory (`TaskListView`, `TaskRowView`). The watchOS target selectively includes only `Listless/Models`, `Listless/Sync`, and `Listless/Helpers/AccentColor.swift` — it does not use `TaskListViewProtocol` or the shared extensions. The watch app is read-only (no creating, editing, reordering, or deleting) and supports toggling task completion only.
 - `Tests/Unit` covers ordering, editing, and persistence; `Tests/Support` holds shared test helpers and fixtures.
 
 ## Build, Test, and Development Commands
 - `xed .` launches the project in Xcode.
 - `xcodegen generate` regenerates `Listless.xcodeproj` from `project.yml`.
 - `xcodebuild -scheme "Listless macOS" -destination 'platform=macOS' build` builds the native macOS app.
-- `xcodebuild -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' build` builds the iOS app.
+- `xcodebuild -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' build` builds the iOS app (includes embedded watchOS app).
+- `xcodebuild -scheme "Listless watchOS" -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm),OS=11.5' build` builds the watchOS app standalone.
 - `xcodebuild test -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'` runs unit + UI tests.
 - `swift format lint --recursive .` must be clean before opening a PR.
 
@@ -35,14 +37,15 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 ### iOS
 - Run `Scripts/publish-ios.sh` from the repo root.
 - Pass `--check` to archive, export, and inspect entitlements without uploading.
-- Archives with signing, then exports an IPA with manual signing (`iPhone Distribution` cert, `Listless iOS Distribution` profile).
+- Archives with signing, then exports an IPA with manual signing (`iPhone Distribution` cert, `Listless iOS Distribution` + `Listless watchOS Distribution` profiles).
+- The watchOS app is embedded in the iOS app bundle and uploaded together.
 
 ### macOS
 - Run `Scripts/publish-macos.sh` from the repo root.
 - Archives with signing, then exports a `.pkg` with manual signing (`3rd Party Mac Developer Application` + `3rd Party Mac Developer Installer` certs, `Listless macOS Distribution` profile).
 
 ## Build Number
-- `CFBundleVersion` in both Info.plist files uses `$(CURRENT_PROJECT_VERSION)`, sourced from `Generated/BuildNumber.xcconfig`.
+- `CFBundleVersion` in all Info.plist files uses `$(CURRENT_PROJECT_VERSION)`, sourced from `Generated/BuildNumber.xcconfig`.
 - Each scheme has a build pre-action that runs `git log`/`git rev-list` to compute `YEAR.COMMIT_COUNT` and writes it to the xcconfig before the build starts.
 - Scheme pre-actions are not subject to `ENABLE_USER_SCRIPT_SANDBOXING`, which is why this lives in the scheme rather than a build phase script.
 - `Generated/BuildNumber.xcconfig` is gitignored; the scheme pre-action creates it before every build.
@@ -101,7 +104,7 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 - **Plain (unmodified) key commands** (Up, Down, Space, Return, Delete) are still handled by `KeyCommandBridge`'s `keyCommands` property with `wantsPriorityOverSystemBehavior = true`. Command-modified shortcuts go through `buildMenu` → responder chain → `KeyCaptureView` action methods.
 
 ## iOS Implementation Notes
-- **Platform-specific inits**: iOS and macOS `TaskRowView` have diverged (iOS takes `isDragging: Binding<Bool>`). When adding new parameters, update both `TaskRowView` inits and both `TaskListView` bodies.
+- **Platform-specific inits**: iOS and macOS `TaskRowView` have diverged (iOS takes `isDragging: Binding<Bool>`). When adding new parameters, update both `TaskRowView` inits and both `TaskListView` bodies. The watchOS `TaskRowView` is independent and much simpler (tap-to-toggle only).
 - **Appearance override**: Use `UIWindow.overrideUserInterfaceStyle` in `ListlessiOSApp`, not `.preferredColorScheme()` (which doesn't properly revert to nil in sheets).
 - **Focus guard for sheets**: The `onChange(of: focusedFieldBinding)` handler skips "reclaim focus to `.scrollView`" logic when a sheet is presented, preventing focus theft from sheet TextFields.
 - **App icon in About screen**: Use `Image("AboutIcon")` from `Media.xcassets/AboutIcon.imageset` — `.appiconset` images can't be loaded via `Image()` in SwiftUI.
@@ -109,7 +112,7 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 - **Pull-to-create/clear**: Scroll gesture handling is in `.pullCreationGesture()` (`TaskListView+PullGestures.swift`); visual indicators are in `TaskListView+PullToCreate.swift` and `TaskListView+PullToClear.swift`. The macOS `body` omits all of these.
 
 ## SwiftUI Implementation Notes
-- **TaskListView architecture**: Declared separately per platform (`ListlessiOS/Views/TaskListView.swift`, `ListlessMac/Views/TaskListView.swift`), both conforming to `TaskListViewProtocol`. State is grouped by concern: `fState` (focus), `iState` (interaction), `tState` (task/view-local). Shared logic lives in `TaskListView+Logic.swift` as an extension on `TaskListViewProtocol`. Because `private` is file-scoped, stored properties accessed from extensions must be `internal`. Platform-specific extensions that would return `EmptyView()` on the other platform are simply omitted.
+- **TaskListView architecture**: Declared separately per platform (`ListlessiOS/Views/TaskListView.swift`, `ListlessMac/Views/TaskListView.swift`, `ListlessWatch/Views/TaskListView.swift`). iOS and macOS conform to `TaskListViewProtocol`; watchOS is standalone (does not use the protocol or shared extensions). State is grouped by concern: `fState` (focus), `iState` (interaction), `tState` (task/view-local). Shared logic lives in `TaskListView+Logic.swift` as an extension on `TaskListViewProtocol`. Because `private` is file-scoped, stored properties accessed from extensions must be `internal`. Platform-specific extensions that would return `EmptyView()` on the other platform are simply omitted.
 - **Selection pattern**: Parent owns `@State var selectedTaskID`; children receive `isSelected: Bool` + `onSelect: () -> Void` callback (avoids SwiftUI ForEach update issues with @Binding).
 - **Focus management**: Single `@FocusState` enum (`FocusField` in `TaskListTypes.swift`) with `.task(UUID)` and `.scrollView` cases. Never use multiple @FocusState variables for related focus. Keyboard handlers return `.ignored` when wrong focus state.
   - **iOS focus cleanup**: On iOS, always dismiss focus by setting `focusedField = nil`, never directly to `.scrollView`. The `onChange(of: focusedFieldBinding)` handler intercepts `nil` to run cleanup (e.g. `deleteIfEmpty` for empty tasks) before redirecting to `.scrollView`. Skipping `nil` desyncs SwiftUI focus state from UIKit first responder and can cause crashes.
