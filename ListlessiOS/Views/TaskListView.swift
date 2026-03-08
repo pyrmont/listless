@@ -174,7 +174,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var vStackSpacing: CGFloat { 12 }
     var pullCreateThreshold: CGFloat { 70 }
-    var flickThreshold: CGFloat { 800 }
+    @AppStorage("flickThreshold") var flickThreshold: Double = 800
     var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
 
     init(store: TaskStore, syncMonitor: CloudKitSyncMonitor) {
