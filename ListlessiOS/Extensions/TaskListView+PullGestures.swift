@@ -14,6 +14,8 @@ extension TaskListView {
         var pendingTaskID: UUID?
         var isScrollInteracting: Bool = false
 
+        private var pullStartTime: CFTimeInterval = 0
+
         var shouldShowIndicator: Bool {
             indicatorOffset > 0 || isInsertionPending
         }
@@ -32,12 +34,20 @@ extension TaskListView {
         mutating func handlePhaseChange(
             from oldPhase: ScrollPhase,
             to newPhase: ScrollPhase,
-            threshold: CGFloat
+            pullThreshold: CGFloat,
+            flickThreshold: CGFloat
         ) -> Action {
+            if newPhase == .interacting, oldPhase != .interacting {
+                pullStartTime = CACurrentMediaTime()
+            }
             isScrollInteracting = (newPhase == .interacting)
             guard oldPhase == .interacting, newPhase != .interacting else { return .none }
 
-            if pullOffset >= threshold {
+            let elapsed = CACurrentMediaTime() - pullStartTime
+            let isFlick = pullOffset > 0 && elapsed > 0
+                && (pullOffset / elapsed) >= flickThreshold
+
+            if pullOffset >= pullThreshold || isFlick {
                 isInsertionPending = true
                 pendingTaskID = nil
                 return .createTask
@@ -69,6 +79,7 @@ private struct PullGesturesModifier: ViewModifier {
     let activeTaskIDs: [UUID]
     let hasCompletedTasks: Bool
     let pullCreateThreshold: CGFloat
+    let flickThreshold: CGFloat
     let pullClearThreshold: CGFloat
     let onCreateTaskAtTop: () -> UUID
     let onClearCompleted: () -> Void
@@ -117,7 +128,8 @@ private struct PullGesturesModifier: ViewModifier {
         let action = pullToCreate.handlePhaseChange(
             from: oldPhase,
             to: newPhase,
-            threshold: pullCreateThreshold
+            pullThreshold: pullCreateThreshold,
+            flickThreshold: flickThreshold
         )
 
         guard oldPhase == .interacting, newPhase != .interacting else { return }
@@ -178,6 +190,7 @@ extension View {
         activeTaskIDs: [UUID],
         hasCompletedTasks: Bool,
         pullCreateThreshold: CGFloat,
+        flickThreshold: CGFloat,
         pullClearThreshold: CGFloat,
         onCreateTaskAtTop: @escaping () -> UUID,
         onClearCompleted: @escaping () -> Void
@@ -190,6 +203,7 @@ extension View {
                 activeTaskIDs: activeTaskIDs,
                 hasCompletedTasks: hasCompletedTasks,
                 pullCreateThreshold: pullCreateThreshold,
+                flickThreshold: flickThreshold,
                 pullClearThreshold: pullClearThreshold,
                 onCreateTaskAtTop: onCreateTaskAtTop,
                 onClearCompleted: onClearCompleted
