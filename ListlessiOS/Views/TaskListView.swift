@@ -392,9 +392,10 @@ struct TaskListView: View, TaskListViewProtocol {
         .overlay(alignment: .bottom) {
             pullToClearIndicatorRow
         }
-            .pullCreationGesture(
+            .pullGestures(
                 pullToCreate: pullToCreateStateBinding,
                 pullUpOffset: pullUpOffsetStateBinding,
+                isDragging: isDraggingStateBinding,
                 activeTaskIDs: activeTasks.map(\.id),
                 hasCompletedTasks: !completedTasks.isEmpty,
             pullCreateThreshold: pullCreateThreshold,

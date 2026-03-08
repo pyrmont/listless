@@ -58,9 +58,10 @@ extension TaskListView {
     }
 }
 
-private struct PullCreationGestureModifier: ViewModifier {
+private struct PullGesturesModifier: ViewModifier {
     @Binding var pullToCreate: TaskListView.PullToCreateState
     @Binding var pullUpOffset: CGFloat
+    @Binding var isDragging: Bool
 
     @State private var isAtBottom = false
     @State private var clearPullStartedAtBottom = false
@@ -145,7 +146,7 @@ private struct PullCreationGestureModifier: ViewModifier {
     private var clearCompletedPullGesture: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .onChanged { value in
-                guard hasCompletedTasks else { return }
+                guard hasCompletedTasks, !isDragging else { return }
 
                 if !clearPullStartedAtBottom {
                     clearPullStartedAtBottom = isAtBottom
@@ -170,9 +171,10 @@ private struct PullCreationGestureModifier: ViewModifier {
 }
 
 extension View {
-    func pullCreationGesture(
+    func pullGestures(
         pullToCreate: Binding<TaskListView.PullToCreateState>,
         pullUpOffset: Binding<CGFloat>,
+        isDragging: Binding<Bool>,
         activeTaskIDs: [UUID],
         hasCompletedTasks: Bool,
         pullCreateThreshold: CGFloat,
@@ -181,9 +183,10 @@ extension View {
         onClearCompleted: @escaping () -> Void
     ) -> some View {
         modifier(
-            PullCreationGestureModifier(
+            PullGesturesModifier(
                 pullToCreate: pullToCreate,
                 pullUpOffset: pullUpOffset,
+                isDragging: isDragging,
                 activeTaskIDs: activeTaskIDs,
                 hasCompletedTasks: hasCompletedTasks,
                 pullCreateThreshold: pullCreateThreshold,
