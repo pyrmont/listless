@@ -75,6 +75,7 @@ struct TaskRowView: View {
             TappableTextField(
                 text: $editingTitle,
                 isCompleted: task.isCompleted,
+                isDragging: isDragging,
                 onEditingChanged: { editing, shouldCreateNewTask in
                     // TappableTextField is UIKit-backed; defer state mutations to avoid
                     // "Modifying state during view update" warnings from SwiftUI.

@@ -7,6 +7,7 @@ import UIKit
 struct TappableTextField: UIViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
+    let isDragging: Bool
     let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
     var returnKeyType: UIReturnKeyType = .done
     var onContentChange: ((String) -> Void)? = nil
@@ -46,8 +47,8 @@ struct TappableTextField: UIViewRepresentable {
             textView.returnKeyType = returnKeyType
             textView.reloadInputViews()
         }
-        textView.isEditable = !isCompleted
-        textView.isSelectable = !isCompleted
+        textView.isEditable = !isCompleted && !isDragging
+        textView.isSelectable = !isCompleted && !isDragging
         if let placeholder = textView.viewWithTag(100) as? UILabel {
             placeholder.isHidden = !text.isEmpty
         }
