@@ -18,7 +18,11 @@ struct TaskListView: View, TaskListViewProtocol {
         var clearingTaskIDs: Set<UUID> = []
         var rowFrames: [UUID: CGRect] = [:]
         var undoToast: UndoToastData? = nil
+        var phantomRowVisible: Bool = false
+        var phantomTitle: String = ""
     }
+
+    static let phantomRowID = UUID()
 
     struct TaskStateData {
         var refreshID = UUID()
@@ -91,6 +95,23 @@ struct TaskListView: View, TaskListViewProtocol {
     var undoToast: UndoToastData? {
         get { iState.undoToast }
         nonmutating set { iState.undoToast = newValue }
+    }
+
+    var phantomRowVisible: Bool {
+        get { iState.phantomRowVisible }
+        nonmutating set { iState.phantomRowVisible = newValue }
+    }
+
+    var phantomTitle: String {
+        get { iState.phantomTitle }
+        nonmutating set { iState.phantomTitle = newValue }
+    }
+
+    var phantomTitleBinding: Binding<String> {
+        Binding(
+            get: { iState.phantomTitle },
+            set: { iState.phantomTitle = $0 }
+        )
     }
 
     private var isDraggingStateBinding: Binding<Bool> {
@@ -200,6 +221,81 @@ struct TaskListView: View, TaskListViewProtocol {
         let liftPoints: CGFloat = 20
         guard let width = rowFrames[taskID]?.width, width > 0 else { return 1.05 }
         return (width + liftPoints) / width
+    }
+
+    /// Combined indicator and phantom entry row sharing the same VStack slot.
+    /// The phantom's UITextView is created while the indicator is visible
+    /// (during the pull), so it's ready when the user releases.
+    @ViewBuilder var pullToCreateIndicatorRow: some View {
+        let showIndicator = pullToCreate.shouldShowIndicator
+        let showPhantom = iState.phantomRowVisible
+        if showIndicator || showPhantom {
+            ZStack(alignment: .topLeading) {
+                PullToCreateIndicator(
+                    pullOffset: pullToCreate.indicatorDisplayOffset(
+                        threshold: pullCreateThreshold
+                    ),
+                    threshold: pullCreateThreshold
+                )
+                .opacity(showPhantom ? 0 : 1)
+
+                phantomEntryRowContent
+                    .frame(height: showPhantom ? nil : 0)
+                    .opacity(showPhantom ? 1 : 0)
+                    // Instant swap — no animation on height or opacity.
+                    .animation(nil, value: showPhantom)
+            }
+        }
+    }
+
+    /// The phantom row content styled to match a task row. Controlled by the
+    /// ZStack in ``pullToCreateIndicatorRow`` rather than its own visibility.
+    @ViewBuilder private var phantomEntryRowContent: some View {
+        let accentColor = taskColor(
+            forIndex: 0, total: max(1, displayActiveTasks.count + 1)
+        )
+        HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
+            Image(systemName: "circle")
+                .frame(width: 22, height: 22)
+                .foregroundStyle(Color.secondary)
+                .font(.system(size: 17))
+
+            TappableTextField(
+                text: phantomTitleBinding,
+                isCompleted: false,
+                isDragging: false,
+                onEditingChanged: { editing, _ in
+                    DispatchQueue.main.async {
+                        if !editing {
+                            commitPhantomRow()
+                        }
+                    }
+                },
+                returnKeyType: .done
+            )
+            .focused($focusedFieldBinding, equals: .task(Self.phantomRowID))
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
+        .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
+        .padding(.leading, TaskRowMetrics.activeLeadingPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+        .background {
+            Color.taskCard.overlay(accentColor.opacity(0.15))
+        }
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 0, bottomLeadingRadius: 0,
+                bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
+            )
+        )
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(accentColor)
+                .frame(width: TaskRowMetrics.accentBarWidth)
+        }
     }
 
     var body: some View {
@@ -402,7 +498,7 @@ struct TaskListView: View, TaskListViewProtocol {
             pullCreateThreshold: pullCreateThreshold,
             flickThreshold: flickThreshold,
             pullClearThreshold: pullClearThreshold,
-            onCreateTaskAtTop: { createNewTaskAtTop() },
+            onCreateTaskAtTop: { revealPhantomRow() },
             onClearCompleted: {
                 let ids = Set(completedTasks.map(\.id))
                 withAnimation(.easeIn(duration: 0.35)) {

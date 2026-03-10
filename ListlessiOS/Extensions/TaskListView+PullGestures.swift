@@ -25,6 +25,8 @@ extension TaskListView {
         }
 
         mutating func updatePullDistance(_ distance: CGFloat) {
+            // Skip duplicate writes to break onScrollGeometryChange re-layout cycles.
+            guard pullOffset != distance else { return }
             pullOffset = distance
             if isScrollInteracting {
                 indicatorOffset = distance

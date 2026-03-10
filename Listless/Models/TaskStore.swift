@@ -50,25 +50,48 @@ final class TaskStore {
     }
 
     func createTask(title: String = "", atBeginning: Bool = false, sortOrder: Int64? = nil) throws -> TaskItem {
-        let task = TaskItem(context: context)
-        task.title = title
-
+        // Compute sort order before inserting the new object so we don't need
+        // processPendingChanges() and the new task can't appear in our own query.
+        let resolvedSortOrder: Int64
         if let sortOrder {
-            task.sortOrder = sortOrder
+            resolvedSortOrder = sortOrder
+        } else if atBeginning {
+            let minOrder = try minActiveSortOrder() ?? 0
+            resolvedSortOrder = minOrder - 1000
         } else {
-            context.processPendingChanges()
-            let activeTasks = try fetchTasks().filter { !$0.isCompleted }
-
-            if atBeginning {
-                let minOrder = activeTasks.map(\.sortOrder).min() ?? 0
-                task.sortOrder = minOrder - 1000
-            } else {
-                let maxOrder = activeTasks.map(\.sortOrder).max() ?? -1000
-                task.sortOrder = maxOrder + 1000
-            }
+            let maxOrder = try maxActiveSortOrder() ?? -1000
+            resolvedSortOrder = maxOrder + 1000
         }
 
+        let task = TaskItem(context: context)
+        task.title = title
+        task.sortOrder = resolvedSortOrder
+
         return task
+    }
+
+    private func minActiveSortOrder() throws -> Int64? {
+        let request = TaskItem.fetchRequest()
+        request.predicate = NSPredicate(format: "completedOrder == 0")
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \TaskItem.sortOrder, ascending: true)]
+        request.fetchLimit = 1
+        do {
+            return try context.fetch(request).first?.sortOrder
+        } catch {
+            throw TaskStoreError.fetchFailed(error)
+        }
+    }
+
+    private func maxActiveSortOrder() throws -> Int64? {
+        let request = TaskItem.fetchRequest()
+        request.predicate = NSPredicate(format: "completedOrder == 0")
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \TaskItem.sortOrder, ascending: false)]
+        request.fetchLimit = 1
+        do {
+            return try context.fetch(request).first?.sortOrder
+        } catch {
+            throw TaskStoreError.fetchFailed(error)
+        }
     }
 
     func complete(taskID: UUID) throws {
