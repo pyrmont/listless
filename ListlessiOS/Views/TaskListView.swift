@@ -455,7 +455,8 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
 
                 if case .task(let id) = (newValue ?? fState.focusedField),
-                    draggedTaskID == nil
+                    draggedTaskID == nil,
+                    id != Self.phantomRowID
                 {
                     withAnimation {
                         scrollProxy.scrollTo(id)
@@ -463,7 +464,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
             }
             .onChange(of: fState.selectedTaskID) { _, newID in
-                if let newID, draggedTaskID == nil {
+                if let newID, draggedTaskID == nil, newID != Self.phantomRowID {
                     withAnimation {
                         scrollProxy.scrollTo(newID)
                     }
