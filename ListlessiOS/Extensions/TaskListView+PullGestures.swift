@@ -41,6 +41,9 @@ extension TaskListView {
         ) -> Action {
             if newPhase == .interacting, oldPhase != .interacting {
                 pullStartTime = CACurrentMediaTime()
+                // Sync in case onScrollGeometryChange fired before this
+                // phase change, leaving indicatorOffset behind pullOffset.
+                indicatorOffset = pullOffset
             }
             isScrollInteracting = (newPhase == .interacting)
             guard oldPhase == .interacting, newPhase != .interacting else { return .none }

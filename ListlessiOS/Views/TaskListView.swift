@@ -223,6 +223,33 @@ struct TaskListView: View, TaskListViewProtocol {
         return (width + liftPoints) / width
     }
 
+    private var pullToCreateRevealHeight: CGFloat {
+        min(
+            pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold),
+            PullToCreateIndicator.indicatorHeight
+        )
+    }
+
+    private var pullToCreateGap: CGFloat {
+        guard pullToCreate.shouldShowIndicator, !iState.phantomRowVisible else { return 0 }
+        let exposedPull = pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold)
+        return min(
+            vStackSpacing,
+            max(0, exposedPull - PullToCreateIndicator.indicatorHeight)
+        )
+    }
+
+    private var pullToCreateRowOverlap: CGFloat {
+        guard pullToCreate.shouldShowIndicator, !iState.phantomRowVisible, !displayActiveTasks.isEmpty else {
+            return 0
+        }
+        return PullToCreateIndicator.indicatorHeight - pullToCreateRevealHeight
+    }
+
+    private var pullToCreateIndicatorTopCornerRadius: CGFloat {
+        TaskRowMetrics.trailingCornerRadius
+    }
+
     /// Combined indicator and phantom entry row sharing the same VStack slot.
     /// The phantom's UITextView is created while the indicator is visible
     /// (during the pull), so it's ready when the user releases.
@@ -235,7 +262,8 @@ struct TaskListView: View, TaskListViewProtocol {
                     pullOffset: pullToCreate.indicatorDisplayOffset(
                         threshold: pullCreateThreshold
                     ),
-                    threshold: pullCreateThreshold
+                    threshold: pullCreateThreshold,
+                    topTrailingRadius: pullToCreateIndicatorTopCornerRadius
                 )
                 .opacity(showPhantom ? 0 : 1)
 
@@ -245,6 +273,11 @@ struct TaskListView: View, TaskListViewProtocol {
                     // Instant swap — no animation on height or opacity.
                     .animation(nil, value: showPhantom)
             }
+            .frame(
+                height: showPhantom ? nil : PullToCreateIndicator.indicatorHeight,
+                alignment: .top
+            )
+            .animation(nil, value: showPhantom)
         }
     }
 
@@ -295,6 +328,68 @@ struct TaskListView: View, TaskListViewProtocol {
             Rectangle()
                 .fill(accentColor)
                 .frame(width: TaskRowMetrics.accentBarWidth)
+        }
+    }
+
+    @ViewBuilder private var taskRows: some View {
+        ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
+            let taskID = task.id
+            TaskRowView(
+                task: task,
+                taskID: taskID,
+                index: index,
+                totalTasks: displayActiveTasks.count,
+                isSelected: selectedTaskID == taskID,
+                isDragging: isDraggingStateBinding,
+                isLastActiveTask: index == displayActiveTasks.count - 1,
+                focusedField: $focusedFieldBinding,
+                onToggle: { toggleCompletion($0) },
+                onTitleChange: { updateTitle($0, $1) },
+                onDelete: { deleteTaskWithUndo($0) },
+                onSelect: { selectTask($0) },
+                onStartEdit: { startEditing($0) },
+                onEndEdit: {
+                    selectedTaskID = nil
+                    endEditing($0, shouldCreateNewTask: $1)
+                }
+            )
+            .scaleEffect(draggedTaskID == taskID ? dragScaleEffect(for: taskID) : 1.0)
+            .shadow(
+                color: draggedTaskID == taskID ? .black.opacity(0.3) : .clear,
+                radius: 12, y: 4
+            )
+            .zIndex(draggedTaskID == taskID ? 2 : 1)
+            .taskDragGesture(
+                isActive: !task.isCompleted,
+                taskID: taskID,
+                onDragStart: { startDrag(taskID: taskID) },
+                onDragChanged: { point in handleIOSDragChanged(taskID: taskID, point: point) },
+                onDragEnded: { commitIOSDrag() }
+            )
+            .onGeometryChange(for: CGRect.self) { proxy in
+                proxy.frame(in: .global)
+            } action: { frame in
+                rowFrames[taskID] = frame
+            }
+            .id(taskID)
+        }
+
+        ForEach(completedTasks) { task in
+            let taskID = task.id
+            let isBeingCleared = iState.clearingTaskIDs.contains(taskID)
+            TaskRowView(
+                task: task,
+                taskID: taskID,
+                isSelected: selectedTaskID == taskID,
+                focusedField: $focusedFieldBinding,
+                onToggle: { toggleCompletion($0) },
+                onTitleChange: { updateTitle($0, $1) },
+                onDelete: { deleteTaskWithUndo($0) },
+                onSelect: { selectTask($0) }
+            )
+            .opacity(isBeingCleared ? 0 : 1)
+            .offset(y: isBeingCleared ? 40 : 0)
+            .id(taskID)
         }
     }
 
@@ -370,67 +465,18 @@ struct TaskListView: View, TaskListViewProtocol {
         ScrollView {
           ScrollViewReader { scrollProxy in
             VStack(alignment: .leading, spacing: vStackSpacing) {
-                navigationHeader
-                pullToCreateIndicatorRow
-                ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
-                    let taskID = task.id
-                    TaskRowView(
-                        task: task,
-                        taskID: taskID,
-                        index: index,
-                        totalTasks: displayActiveTasks.count,
-                        isSelected: selectedTaskID == taskID,
-                        isDragging: isDraggingStateBinding,
-                        isLastActiveTask: index == displayActiveTasks.count - 1,
-                        focusedField: $focusedFieldBinding,
-                        onToggle: { toggleCompletion($0) },
-                        onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteTaskWithUndo($0) },
-                        onSelect: { selectTask($0) },
-                        onStartEdit: { startEditing($0) },
-                        onEndEdit: {
-                            selectedTaskID = nil
-                            endEditing($0, shouldCreateNewTask: $1)
-                        }
-                    )
-                    .scaleEffect(draggedTaskID == taskID ? dragScaleEffect(for: taskID) : 1.0)
-                    .shadow(
-                        color: draggedTaskID == taskID ? .black.opacity(0.3) : .clear,
-                        radius: 12, y: 4
-                    )
-                    .zIndex(draggedTaskID == taskID ? 1 : 0)
-                    .taskDragGesture(
-                        isActive: !task.isCompleted,
-                        taskID: taskID,
-                        onDragStart: { startDrag(taskID: taskID) },
-                        onDragChanged: { point in handleIOSDragChanged(taskID: taskID, point: point) },
-                        onDragEnded: { commitIOSDrag() }
-                    )
-                    .onGeometryChange(for: CGRect.self) { proxy in
-                        proxy.frame(in: .global)
-                    } action: { frame in
-                        rowFrames[taskID] = frame
-                    }
-                    .id(taskID)
+                VStack(alignment: .leading, spacing: 0) {
+                    navigationHeader
+                    pullToCreateIndicatorRow
+                        .padding(.top, vStackSpacing)
                 }
-
-                ForEach(completedTasks) { task in
-                    let taskID = task.id
-                    let isBeingCleared = iState.clearingTaskIDs.contains(taskID)
-                    TaskRowView(
-                        task: task,
-                        taskID: taskID,
-                        isSelected: selectedTaskID == taskID,
-                        focusedField: $focusedFieldBinding,
-                        onToggle: { toggleCompletion($0) },
-                        onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteTaskWithUndo($0) },
-                        onSelect: { selectTask($0) }
-                    )
-                    .opacity(isBeingCleared ? 0 : 1)
-                    .offset(y: isBeingCleared ? 40 : 0)
-                    .id(taskID)
-                }
+                .padding(
+                    .bottom,
+                    (pullToCreate.shouldShowIndicator && !iState.phantomRowVisible)
+                        ? (pullToCreateGap - vStackSpacing) : 0
+                )
+                taskRows
+                    .offset(y: -pullToCreateRowOverlap)
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.trailing, 16)

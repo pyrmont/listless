@@ -19,10 +19,7 @@ extension TaskListView {
     func commitPhantomRow() {
         let title = phantomTitle.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Hide phantom and collapse the indicator slot in one frame.
-        var t = Transaction(animation: nil)
-        t.disablesAnimations = true
-        withTransaction(t) {
+        let collapse: () -> Void = {
             phantomRowVisible = false
             phantomTitle = ""
             selectedTaskID = nil
@@ -32,6 +29,21 @@ extension TaskListView {
             state.indicatorOffset = 0
             pullToCreate = state
         }
+
+        if title.isEmpty {
+            withAnimation(.spring(response: 0.24, dampingFraction: 0.95)) {
+                collapse()
+            }
+        } else {
+            // Keep the successful create swap immediate so focus can move
+            // straight into the real task row without a visible intermediate state.
+            var t = Transaction(animation: nil)
+            t.disablesAnimations = true
+            withTransaction(t) {
+                collapse()
+            }
+        }
+
         focusedField = nil
 
         guard !title.isEmpty else { return }
