@@ -120,13 +120,6 @@ struct TaskRowView: View {
             }
         }
         .background(cardBackground)
-        .clipShape(
-            UnevenRoundedRectangle(
-                topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-            )
-        )
         .overlay(alignment: .leading) {
             if !task.isCompleted {
                 Rectangle()

@@ -11,7 +11,6 @@ extension TaskListView {
         var pullOffset: CGFloat = 0
         var indicatorOffset: CGFloat = 0
         var isInsertionPending: Bool = false
-        var pendingTaskID: UUID?
         var isScrollInteracting: Bool = false
 
         private var pullStartTime: CFTimeInterval = 0
@@ -54,21 +53,11 @@ extension TaskListView {
 
             if pullOffset >= pullThreshold || isFlick {
                 isInsertionPending = true
-                pendingTaskID = nil
                 return .createTask
             }
 
             isInsertionPending = false
-            pendingTaskID = nil
             return .collapseIndicator
-        }
-
-        mutating func resolvePendingInsertion(activeTaskIDs: [UUID]) {
-            guard isInsertionPending, let pendingTaskID else { return }
-            guard activeTaskIDs.contains(pendingTaskID) else { return }
-            isInsertionPending = false
-            self.pendingTaskID = nil
-            indicatorOffset = 0
         }
     }
 }
@@ -81,7 +70,6 @@ private struct PullGesturesModifier: ViewModifier {
     @State private var isAtBottom = false
     @State private var clearPullStartedAtBottom = false
 
-    let activeTaskIDs: [UUID]
     let hasCompletedTasks: Bool
     let pullCreateThreshold: CGFloat
     let flickThreshold: CGFloat
@@ -110,13 +98,6 @@ private struct PullGesturesModifier: ViewModifier {
             .onScrollPhaseChange { oldPhase, newPhase in
                 handlePullToCreateScrollPhaseChange(from: oldPhase, to: newPhase)
             }
-            .onChange(of: activeTaskIDs) { _, newIDs in
-                var transaction = Transaction(animation: nil)
-                transaction.disablesAnimations = true
-                withTransaction(transaction) {
-                    pullToCreate.resolvePendingInsertion(activeTaskIDs: newIDs)
-                }
-            }
             .sensoryFeedback(
                 .impact(weight: .medium),
                 trigger: pullToCreate.pullOffset >= pullCreateThreshold
@@ -143,12 +124,8 @@ private struct PullGesturesModifier: ViewModifier {
         case .createTask:
             var transaction = Transaction(animation: .spring(response: 0.28, dampingFraction: 0.9))
             transaction.disablesAnimations = false
-            var createdTaskID: UUID?
             withTransaction(transaction) {
-                createdTaskID = onCreateTaskAtTop()
-            }
-            if let createdTaskID {
-                pullToCreate.pendingTaskID = createdTaskID
+                _ = onCreateTaskAtTop()
             }
         case .collapseIndicator:
             withAnimation(.spring(response: 0.22, dampingFraction: 0.95)) {
@@ -192,7 +169,6 @@ extension View {
         pullToCreate: Binding<TaskListView.PullToCreateState>,
         pullUpOffset: Binding<CGFloat>,
         isDragging: Binding<Bool>,
-        activeTaskIDs: [UUID],
         hasCompletedTasks: Bool,
         pullCreateThreshold: CGFloat,
         flickThreshold: CGFloat,
@@ -205,7 +181,6 @@ extension View {
                 pullToCreate: pullToCreate,
                 pullUpOffset: pullUpOffset,
                 isDragging: isDragging,
-                activeTaskIDs: activeTaskIDs,
                 hasCompletedTasks: hasCompletedTasks,
                 pullCreateThreshold: pullCreateThreshold,
                 flickThreshold: flickThreshold,

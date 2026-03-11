@@ -246,10 +246,6 @@ struct TaskListView: View, TaskListViewProtocol {
         return PullToCreateIndicator.indicatorHeight - pullToCreateRevealHeight
     }
 
-    private var pullToCreateIndicatorTopCornerRadius: CGFloat {
-        TaskRowMetrics.trailingCornerRadius
-    }
-
     /// Combined indicator and phantom entry row sharing the same VStack slot.
     /// The phantom's UITextView is created while the indicator is visible
     /// (during the pull), so it's ready when the user releases.
@@ -262,8 +258,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     pullOffset: pullToCreate.indicatorDisplayOffset(
                         threshold: pullCreateThreshold
                     ),
-                    threshold: pullCreateThreshold,
-                    topTrailingRadius: pullToCreateIndicatorTopCornerRadius
+                    threshold: pullCreateThreshold
                 )
                 .opacity(showPhantom ? 0 : 1)
 
@@ -287,6 +282,7 @@ struct TaskListView: View, TaskListViewProtocol {
         let accentColor = taskColor(
             forIndex: 0, total: max(1, displayActiveTasks.count + 1)
         )
+        let isSelected = selectedTaskID == Self.phantomRowID
         HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
             Image(systemName: "circle")
                 .frame(width: 22, height: 22)
@@ -329,6 +325,16 @@ struct TaskListView: View, TaskListViewProtocol {
                 .fill(accentColor)
                 .frame(width: TaskRowMetrics.accentBarWidth)
         }
+        .overlay(
+            isSelected
+                ? UnevenRoundedRectangle(
+                    topLeadingRadius: 0, bottomLeadingRadius: 0,
+                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
+                )
+                .stroke(accentColor.opacity(0.40), lineWidth: 2)
+                : nil
+        )
     }
 
     @ViewBuilder private var taskRows: some View {
@@ -540,7 +546,6 @@ struct TaskListView: View, TaskListViewProtocol {
                 pullToCreate: pullToCreateStateBinding,
                 pullUpOffset: pullUpOffsetStateBinding,
                 isDragging: isDraggingStateBinding,
-                activeTaskIDs: activeTasks.map(\.id),
                 hasCompletedTasks: !completedTasks.isEmpty,
             pullCreateThreshold: pullCreateThreshold,
             flickThreshold: flickThreshold,

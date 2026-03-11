@@ -25,7 +25,6 @@ extension TaskListView {
             selectedTaskID = nil
             var state = pullToCreate
             state.isInsertionPending = false
-            state.pendingTaskID = nil
             state.indicatorOffset = 0
             pullToCreate = state
         }

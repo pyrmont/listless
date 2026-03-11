@@ -3,7 +3,6 @@ import SwiftUI
 struct PullToCreateIndicator: View {
     let pullOffset: CGFloat
     let threshold: CGFloat
-    let topTrailingRadius: CGFloat
 
     static let indicatorHeight: CGFloat = 50
 
@@ -40,7 +39,7 @@ struct PullToCreateIndicator: View {
             UnevenRoundedRectangle(
                 topLeadingRadius: 0, bottomLeadingRadius: 0,
                 bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                topTrailingRadius: topTrailingRadius
+                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
             )
         )
         .overlay(alignment: .leading) {
