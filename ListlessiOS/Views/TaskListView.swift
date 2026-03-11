@@ -240,7 +240,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     private var pullToCreateRowOverlap: CGFloat {
-        guard pullToCreate.shouldShowIndicator, !iState.phantomRowVisible, !displayActiveTasks.isEmpty else {
+        guard pullToCreate.shouldShowIndicator, !iState.phantomRowVisible else {
             return 0
         }
         return PullToCreateIndicator.indicatorHeight - pullToCreateRevealHeight
@@ -258,7 +258,8 @@ struct TaskListView: View, TaskListViewProtocol {
                     pullOffset: pullToCreate.indicatorDisplayOffset(
                         threshold: pullCreateThreshold
                     ),
-                    threshold: pullCreateThreshold
+                    threshold: pullCreateThreshold,
+                    hasRowsBelow: !displayActiveTasks.isEmpty
                 )
                 .opacity(showPhantom ? 0 : 1)
 

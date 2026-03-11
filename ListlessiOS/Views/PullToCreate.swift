@@ -3,6 +3,7 @@ import SwiftUI
 struct PullToCreateIndicator: View {
     let pullOffset: CGFloat
     let threshold: CGFloat
+    var hasRowsBelow: Bool = true
 
     static let indicatorHeight: CGFloat = 50
 
@@ -53,14 +54,16 @@ struct PullToCreateIndicator: View {
                 .frame(height: revealedHeight)
         }
         .background(alignment: .top) {
-            Color.taskCard
-                .frame(
-                    height: min(
-                        TaskRowMetrics.trailingCornerRadius,
-                        Self.indicatorHeight - revealedHeight
+            if hasRowsBelow {
+                Color.taskCard
+                    .frame(
+                        height: min(
+                            TaskRowMetrics.trailingCornerRadius,
+                            Self.indicatorHeight - revealedHeight
+                        )
                     )
-                )
-                .offset(y: revealedHeight)
+                    .offset(y: revealedHeight)
+            }
         }
         .allowsHitTesting(false)
     }
