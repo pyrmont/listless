@@ -15,5 +15,11 @@ enum DraftTaskPlacement: Equatable {
     case append
 }
 
+struct FocusStateData {
+    var focusedField: FocusField?
+    var selectedTaskID: UUID?
+    var pendingFocus: FocusField?
+}
+
 let draftPrependRowID = UUID()
 let draftAppendRowID = UUID()

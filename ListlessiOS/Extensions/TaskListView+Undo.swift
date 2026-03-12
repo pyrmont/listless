@@ -11,7 +11,7 @@ extension TaskListView {
         guard focusedField == .scrollView else {
             return .ignored
         }
-        guard let currentID = selectedTaskID else {
+        guard let currentID = fState.selectedTaskID else {
             return .handled
         }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
@@ -40,7 +40,7 @@ extension TaskListView {
 
     func showUndoToast(message: String) {
         withAnimation {
-            undoToast = UndoToastData(id: UUID(), message: message)
+            iState.undoToast = UndoToastData(id: UUID(), message: message)
         }
     }
 
@@ -56,7 +56,7 @@ extension TaskListView {
 
     func dismissUndoToast() {
         withAnimation {
-            undoToast = nil
+            iState.undoToast = nil
         }
     }
 }

@@ -5,7 +5,7 @@ extension TaskListView {
         guard let draggedID = draggedTaskID,
               var order = visualOrder,
               let currentIndex = order.firstIndex(of: draggedID),
-              let draggedFrame = rowFrames[draggedID] else { return }
+              let draggedFrame = iState.rowFrames[draggedID] else { return }
 
         let threshold = draggedFrame.height * 0.2
 
@@ -32,17 +32,17 @@ extension TaskListView {
               let order = visualOrder,
               let finalIndex = order.firstIndex(of: draggedID) else {
             clearDragState()
-            isDragging = false
+            iState.isDragging = false
             return
         }
         do {
             try store.moveTask(taskID: draggedID, toIndex: finalIndex)
             clearDragState()
-            isDragging = false
+            iState.isDragging = false
         } catch {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 clearDragState()
-                isDragging = false
+                iState.isDragging = false
             }
             presentStoreError(error)
         }

@@ -33,7 +33,7 @@ extension TaskListView {
                 .help("Create a new item")
 
                 Button {
-                    if let currentID = selectedTaskID,
+                    if let currentID = fState.selectedTaskID,
                         let task = allTasksInDisplayOrder.first(where: { $0.id == currentID })
                     {
                         deleteTask(task)
@@ -41,7 +41,7 @@ extension TaskListView {
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
-                .disabled(selectedTaskID == nil || focusedField != .scrollView)
+                .disabled(fState.selectedTaskID == nil || focusedField != .scrollView)
                 .help("Delete selected item")
 
                 Divider()

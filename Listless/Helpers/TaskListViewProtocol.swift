@@ -8,8 +8,7 @@ protocol TaskListViewProtocol {
     var syncMonitor: CloudKitSyncMonitor { get }
     var managedObjectContext: NSManagedObjectContext { get }
     var focusedField: FocusField? { get nonmutating set }
-    var selectedTaskID: UUID? { get nonmutating set }
-    var pendingFocus: FocusField? { get nonmutating set }
+    var fState: FocusStateData { get nonmutating set }
     var dragState: DragState { get nonmutating set }
     var draftTaskPlacement: DraftTaskPlacement? { get nonmutating set }
     var draftTaskTitle: String { get nonmutating set }

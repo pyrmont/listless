@@ -2,21 +2,11 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct TaskListView: View, TaskListViewProtocol {
-    struct FocusStateData {
-        var focusedField: FocusField?
-        var selectedTaskID: UUID?
-        var pendingFocus: FocusField?
-    }
-
     struct InteractionStateData {
         var dragState: DragState = .idle
         var liftedTaskID: UUID?
         var draftTaskPlacement: DraftTaskPlacement?
         var draftTaskTitle: String = ""
-    }
-
-    struct TaskStateData {
-        var refreshID = UUID()
     }
 
     @Environment(\.undoManager) var undoManager
@@ -31,9 +21,8 @@ struct TaskListView: View, TaskListViewProtocol {
     )
     var tasks: FetchedResults<TaskItem>
     @FocusState private var focusedFieldBinding: FocusField?
-    @State private var fState = FocusStateData()
+    @State var fState = FocusStateData()
     @State private var iState = InteractionStateData()
-    @State private var tState = TaskStateData()
 
     var focusedField: FocusField? {
         get { fState.focusedField }
@@ -43,24 +32,9 @@ struct TaskListView: View, TaskListViewProtocol {
         }
     }
 
-    var selectedTaskID: UUID? {
-        get { fState.selectedTaskID }
-        nonmutating set { fState.selectedTaskID = newValue }
-    }
-
-    var pendingFocus: FocusField? {
-        get { fState.pendingFocus }
-        nonmutating set { fState.pendingFocus = newValue }
-    }
-
     var dragState: DragState {
         get { iState.dragState }
         nonmutating set { iState.dragState = newValue }
-    }
-
-    var liftedTaskID: UUID? {
-        get { iState.liftedTaskID }
-        nonmutating set { iState.liftedTaskID = newValue }
     }
 
     var draftTaskPlacement: DraftTaskPlacement? {
@@ -73,30 +47,25 @@ struct TaskListView: View, TaskListViewProtocol {
         nonmutating set { iState.draftTaskTitle = newValue }
     }
 
-    var refreshID: UUID {
-        get { tState.refreshID }
-        nonmutating set { tState.refreshID = newValue }
-    }
-
     var vStackSpacing: CGFloat { 0 }
     var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
     var selectedIndex: Int? {
-        guard let currentID = selectedTaskID else { return nil }
+        guard let currentID = fState.selectedTaskID else { return nil }
         return activeTasks.firstIndex(where: { $0.id == currentID })
     }
 
     var canDeleteSelectionFromList: Bool {
-        selectedTaskID != nil && focusedField == .scrollView
+        fState.selectedTaskID != nil && focusedField == .scrollView
     }
 
     var canMarkSelectionCompleted: Bool {
         guard focusedField == .scrollView else { return false }
-        guard let currentID = selectedTaskID else { return false }
+        guard let currentID = fState.selectedTaskID else { return false }
         return allTasksInDisplayOrder.contains(where: { $0.id == currentID })
     }
 
     var markCompletedMenuTitle: String {
-        completedTasks.contains(where: { $0.id == selectedTaskID })
+        completedTasks.contains(where: { $0.id == fState.selectedTaskID })
             ? "Mark as Incomplete" : "Mark as Complete"
     }
 
@@ -122,7 +91,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var menuCoordinatorTrigger: MenuState {
         MenuState(
-            selectedTaskID: selectedTaskID,
+            selectedTaskID: fState.selectedTaskID,
             isScrollViewFocused: focusedField == .scrollView,
             activeTaskCount: activeTasks.count,
             completedTaskCount: completedTasks.count,
@@ -134,14 +103,14 @@ struct TaskListView: View, TaskListViewProtocol {
         let coord = menuCoordinator
         coord.newTask = { createNewTask(); focusedField = nil }
         coord.copySelectedTask = {
-            guard let taskID = selectedTaskID,
+            guard let taskID = fState.selectedTaskID,
                   let task = tasks.first(where: { $0.id == taskID }) else { return }
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
             pasteboard.setString(task.title, forType: .string)
         }
         coord.cutSelectedTask = {
-            guard let taskID = selectedTaskID,
+            guard let taskID = fState.selectedTaskID,
                   let task = tasks.first(where: { $0.id == taskID }) else { return }
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
@@ -149,7 +118,7 @@ struct TaskListView: View, TaskListViewProtocol {
             deleteTask(task)
         }
         coord.pasteAfterSelectedTask = {
-            guard let taskID = selectedTaskID,
+            guard let taskID = fState.selectedTaskID,
                   let string = NSPasteboard.general.string(forType: .string) else { return }
             createTask(title: string, afterTaskID: taskID)
         }
@@ -159,8 +128,8 @@ struct TaskListView: View, TaskListViewProtocol {
         coord.markSelectedTaskCompleted = { markSelectedTaskCompleted() }
         coord.clearCompletedTasks = { clearCompletedTasks() }
         let inNavMode = focusedField == .scrollView
-        coord.canCopySelectedTask = selectedTaskID != nil && inNavMode
-        coord.canCutSelectedTask = selectedTaskID != nil && inNavMode
+        coord.canCopySelectedTask = fState.selectedTaskID != nil && inNavMode
+        coord.canCutSelectedTask = fState.selectedTaskID != nil && inNavMode
         coord.canPasteAfterSelectedTask = selectedIndex != nil && inNavMode
         coord.canDeleteSelectedTask = canDeleteSelectionFromList
         coord.canMoveSelectedTaskUp = canMoveSelectionUp
@@ -177,7 +146,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     func isRowLifted(_ taskID: UUID) -> Bool {
-        liftedTaskID == taskID || draggedTaskID == taskID
+        iState.liftedTaskID == taskID || draggedTaskID == taskID
     }
 
     func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle _: Bool) {
@@ -185,8 +154,8 @@ struct TaskListView: View, TaskListViewProtocol {
             draftTaskPlacement = nil
         }
         draftTaskTitle = ""
-        if selectedTaskID == draftTaskID(for: placement) {
-            selectedTaskID = nil
+        if fState.selectedTaskID == draftTaskID(for: placement) {
+            fState.selectedTaskID = nil
         }
         focusedField = nil
     }
@@ -203,7 +172,7 @@ struct TaskListView: View, TaskListViewProtocol {
                         taskID: taskID,
                         index: index,
                         totalTasks: displayActiveTasks.count,
-                        isSelected: selectedTaskID == taskID,
+                        isSelected: fState.selectedTaskID == taskID,
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
@@ -217,11 +186,11 @@ struct TaskListView: View, TaskListViewProtocol {
                         isActive: !task.isCompleted,
                         taskID: task.id,
                         onDragStart: {
-                            liftedTaskID = nil
+                            iState.liftedTaskID = nil
                             startDrag(taskID: task.id)
                         },
-                        onLift: { liftedTaskID = task.id },
-                        onLiftEnd: { if liftedTaskID == task.id { liftedTaskID = nil } }
+                        onLift: { iState.liftedTaskID = task.id },
+                        onLiftEnd: { if iState.liftedTaskID == task.id { iState.liftedTaskID = nil } }
                     )
                     .scaleEffect(isRowLifted(taskID) ? 1.03 : 1.0)
                     .shadow(
@@ -279,7 +248,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     let accentColor = cachedTaskColor(
                         forIndex: index, total: total
                     )
-                    let isSelected = selectedTaskID == draftAppendRowID
+                    let isSelected = fState.selectedTaskID == draftAppendRowID
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
                         Image(systemName: "circle")
                             .foregroundStyle(.primary)
@@ -341,7 +310,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     TaskRowView(
                         task: task,
                         taskID: taskID,
-                        isSelected: selectedTaskID == taskID,
+                        isSelected: fState.selectedTaskID == taskID,
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
@@ -399,10 +368,10 @@ struct TaskListView: View, TaskListViewProtocol {
             handleFocusChange(from: oldValue, to: newValue)
 
             if newValue == nil {
-                if let pending = pendingFocus {
+                if let pending = fState.pendingFocus {
                     focusedFieldBinding = pending
                     fState.focusedField = pending
-                    pendingFocus = nil
+                    fState.pendingFocus = nil
                 } else {
                     focusedFieldBinding = .scrollView
                     fState.focusedField = .scrollView

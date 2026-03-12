@@ -98,17 +98,17 @@ extension TaskListViewProtocol {
         let taskID = draftTaskID(for: placement)
         draftTaskTitle = ""
         draftTaskPlacement = placement
-        pendingFocus = .task(taskID)
+        fState.pendingFocus = .task(taskID)
         focusedField = .task(taskID)
-        selectedTaskID = taskID
+        fState.selectedTaskID = taskID
     }
 
     func beginDraftTaskEditing(_ placement: DraftTaskPlacement) {
         guard draftTaskPlacement == placement else { return }
         let taskID = draftTaskID(for: placement)
-        selectedTaskID = taskID
-        if case .task(let id) = pendingFocus, id == taskID {
-            pendingFocus = nil
+        fState.selectedTaskID = taskID
+        if case .task(let id) = fState.pendingFocus, id == taskID {
+            fState.pendingFocus = nil
         }
     }
 
@@ -117,17 +117,17 @@ extension TaskListViewProtocol {
         let taskID = draftTaskID(for: placement)
         let title = draftTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Clear pendingFocus before clearDraftTaskUI so that the iOS
+        // Clear fState.pendingFocus before clearDraftTaskUI so that the iOS
         // onChange(of: focusedFieldBinding) nil-redirect doesn't re-focus
-        // the draft row via a stale pendingFocus value.
-        if case .task(let id) = pendingFocus, id == taskID {
-            pendingFocus = nil
+        // the draft row via a stale fState.pendingFocus value.
+        if case .task(let id) = fState.pendingFocus, id == taskID {
+            fState.pendingFocus = nil
         }
 
         clearDraftTaskUI(at: placement, hasTitle: !title.isEmpty)
 
-        if selectedTaskID == taskID {
-            selectedTaskID = nil
+        if fState.selectedTaskID == taskID {
+            fState.selectedTaskID = nil
         }
 
         guard !title.isEmpty else { return }
@@ -141,7 +141,7 @@ extension TaskListViewProtocol {
             }
             try store.save()
             if placement == .append {
-                selectedTaskID = task.id
+                fState.selectedTaskID = task.id
             }
         } catch {
             presentStoreError(error)
@@ -158,7 +158,7 @@ extension TaskListViewProtocol {
             let sortOrder = try sortOrderAfter(taskID: afterTaskID)
             let newTask = try store.createTask(title: title, sortOrder: sortOrder)
             try store.save()
-            selectedTaskID = newTask.id
+            fState.selectedTaskID = newTask.id
             focusedField = .scrollView
         } catch {
             presentStoreError(error)
@@ -191,12 +191,12 @@ extension TaskListViewProtocol {
     func handleBackgroundTap() {
         let isTaskFocused = if case .task = focusedField { true } else { false }
 
-        if isTaskFocused || selectedTaskID != nil {
-            pendingFocus = nil
+        if isTaskFocused || fState.selectedTaskID != nil {
+            fState.pendingFocus = nil
             if draftTaskPlacement != nil {
                 commitDraftTask()
             }
-            selectedTaskID = nil
+            fState.selectedTaskID = nil
             focusedField = nil
         } else {
             revealDraftTask(at: .append)
@@ -224,7 +224,7 @@ extension TaskListViewProtocol {
     }
 
     private func deleteIfEmpty(taskID: UUID) {
-        if case .task(let pendingTaskID) = pendingFocus, pendingTaskID == taskID {
+        if case .task(let pendingTaskID) = fState.pendingFocus, pendingTaskID == taskID {
             return
         }
 
@@ -272,15 +272,15 @@ extension TaskListViewProtocol {
     }
 
     func selectTask(_ taskID: UUID) {
-        selectedTaskID = taskID
+        fState.selectedTaskID = taskID
     }
 
     func deleteTask(_ task: TaskItem) {
         let taskID = task.id
         do {
             try store.delete(taskID: taskID)
-            if selectedTaskID == taskID {
-                selectedTaskID = nil
+            if fState.selectedTaskID == taskID {
+                fState.selectedTaskID = nil
             }
         } catch {
             presentStoreError(error)
@@ -304,8 +304,8 @@ extension TaskListViewProtocol {
             return .ignored
         }
 
-        guard let currentID = selectedTaskID else {
-            selectedTaskID = activeTasks.last?.id
+        guard let currentID = fState.selectedTaskID else {
+            fState.selectedTaskID = activeTasks.last?.id
             return .handled
         }
 
@@ -315,7 +315,7 @@ extension TaskListViewProtocol {
         }
 
         if currentIndex > 0 {
-            selectedTaskID = displayOrder[currentIndex - 1].id
+            fState.selectedTaskID = displayOrder[currentIndex - 1].id
         }
         return .handled
     }
@@ -325,8 +325,8 @@ extension TaskListViewProtocol {
             return .ignored
         }
 
-        guard let currentID = selectedTaskID else {
-            selectedTaskID = activeTasks.first?.id ?? completedTasks.first?.id
+        guard let currentID = fState.selectedTaskID else {
+            fState.selectedTaskID = activeTasks.first?.id ?? completedTasks.first?.id
             return .handled
         }
 
@@ -336,14 +336,14 @@ extension TaskListViewProtocol {
         }
 
         if currentIndex < displayOrder.count - 1 {
-            selectedTaskID = displayOrder[currentIndex + 1].id
+            fState.selectedTaskID = displayOrder[currentIndex + 1].id
         }
         return .handled
     }
 
     func toggleSelectedTask() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
-        guard let currentID = selectedTaskID else { return .handled }
+        guard let currentID = fState.selectedTaskID else { return .handled }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
             return .handled
         }
@@ -353,7 +353,7 @@ extension TaskListViewProtocol {
 
     func focusSelectedTask() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
-        guard let currentID = selectedTaskID else { return .handled }
+        guard let currentID = fState.selectedTaskID else { return .handled }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
             return .handled
         }
@@ -366,7 +366,7 @@ extension TaskListViewProtocol {
         guard focusedField == .scrollView else {
             return .ignored
         }
-        guard let currentID = selectedTaskID else {
+        guard let currentID = fState.selectedTaskID else {
             return .handled
         }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
@@ -378,7 +378,7 @@ extension TaskListViewProtocol {
 
     func moveSelectedTaskUp() {
         guard focusedField == .scrollView else { return }
-        guard let currentID = selectedTaskID else { return }
+        guard let currentID = fState.selectedTaskID else { return }
         guard let currentIndex = activeTasks.firstIndex(where: { $0.id == currentID }) else { return }
         guard currentIndex > 0 else { return }
 
@@ -391,7 +391,7 @@ extension TaskListViewProtocol {
 
     func moveSelectedTaskDown() {
         guard focusedField == .scrollView else { return }
-        guard let currentID = selectedTaskID else { return }
+        guard let currentID = fState.selectedTaskID else { return }
         guard let currentIndex = activeTasks.firstIndex(where: { $0.id == currentID }) else { return }
         guard currentIndex < activeTasks.count - 1 else { return }
 
@@ -404,7 +404,7 @@ extension TaskListViewProtocol {
 
     func markSelectedTaskCompleted() {
         guard focusedField == .scrollView else { return }
-        guard let currentID = selectedTaskID else { return }
+        guard let currentID = fState.selectedTaskID else { return }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return }
         toggleCompletion(task)
     }
@@ -416,9 +416,9 @@ extension TaskListViewProtocol {
     }
 
     func startEditing(_ taskID: UUID) {
-        selectedTaskID = taskID
+        fState.selectedTaskID = taskID
         focusedField = .task(taskID)
-        pendingFocus = nil
+        fState.pendingFocus = nil
     }
 
     func endEditing(_ taskID: UUID, shouldCreateNewTask: Bool) {
@@ -437,7 +437,7 @@ extension TaskListViewProtocol {
         let willBeDeleted = shouldDeleteIfEmpty(taskID: taskID)
 
         if willBeDeleted {
-            selectedTaskID = nil
+            fState.selectedTaskID = nil
             deleteIfEmpty(taskID: taskID)
         } else if wasLastActiveTask && shouldCreateNewTask {
             revealDraftTask(at: .append)

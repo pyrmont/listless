@@ -33,7 +33,7 @@ extension TaskListView {
         .padding(.bottom, 8)
         .contentShape(Rectangle())
         .onTapGesture {
-            selectedTaskID = nil
+            fState.selectedTaskID = nil
             focusedField = nil
         }
     }

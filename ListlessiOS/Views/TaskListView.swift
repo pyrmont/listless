@@ -2,12 +2,6 @@ import SwiftUI
 import UIKit
 
 struct TaskListView: View, TaskListViewProtocol {
-    struct FocusStateData {
-        var focusedField: FocusField?
-        var selectedTaskID: UUID?
-        var pendingFocus: FocusField?
-    }
-
     struct InteractionStateData {
         var dragState: DragState = .idle
         var pullToCreate = PullToCreateState()
@@ -22,10 +16,6 @@ struct TaskListView: View, TaskListViewProtocol {
         var draftTaskTitle: String = ""
     }
 
-    struct TaskStateData {
-        var refreshID = UUID()
-    }
-
     @AppStorage("headingText") var headingText = "Items"
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
@@ -38,9 +28,8 @@ struct TaskListView: View, TaskListViewProtocol {
     )
     var tasks: FetchedResults<TaskItem>
     @FocusState private var focusedFieldBinding: FocusField?
-    @State private var fState = FocusStateData()
-    @State private var iState = InteractionStateData()
-    @State private var tState = TaskStateData()
+    @State var fState = FocusStateData()
+    @State var iState = InteractionStateData()
 
     var focusedField: FocusField? {
         get { fState.focusedField }
@@ -50,49 +39,9 @@ struct TaskListView: View, TaskListViewProtocol {
         }
     }
 
-    var selectedTaskID: UUID? {
-        get { fState.selectedTaskID }
-        nonmutating set { fState.selectedTaskID = newValue }
-    }
-
-    var pendingFocus: FocusField? {
-        get { fState.pendingFocus }
-        nonmutating set { fState.pendingFocus = newValue }
-    }
-
     var dragState: DragState {
         get { iState.dragState }
         nonmutating set { iState.dragState = newValue }
-    }
-
-    var pullToCreate: PullToCreateState {
-        get { iState.pullToCreate }
-        nonmutating set { iState.pullToCreate = newValue }
-    }
-
-    var pullUpOffset: CGFloat {
-        get { iState.pullUpOffset }
-        nonmutating set { iState.pullUpOffset = newValue }
-    }
-
-    var isDragging: Bool {
-        get { iState.isDragging }
-        nonmutating set { iState.isDragging = newValue }
-    }
-
-    var rowFrames: [UUID: CGRect] {
-        get { iState.rowFrames }
-        nonmutating set { iState.rowFrames = newValue }
-    }
-
-    var refreshID: UUID {
-        get { tState.refreshID }
-        nonmutating set { tState.refreshID = newValue }
-    }
-
-    var undoToast: UndoToastData? {
-        get { iState.undoToast }
-        nonmutating set { iState.undoToast = newValue }
     }
 
     var draftTaskPlacement: DraftTaskPlacement? {
@@ -149,7 +98,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     private var selectedIndex: Int? {
-        guard let currentID = selectedTaskID else { return nil }
+        guard let currentID = fState.selectedTaskID else { return nil }
         return activeTasks.firstIndex(where: { $0.id == currentID })
     }
 
@@ -175,7 +124,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     private var menuCoordinatorTrigger: MenuState {
         MenuState(
-            selectedTaskID: selectedTaskID,
+            selectedTaskID: fState.selectedTaskID,
             isScrollViewFocused: focusedField == .scrollView,
             activeTaskCount: activeTasks.count,
             completedTaskCount: completedTasks.count,
@@ -191,11 +140,11 @@ struct TaskListView: View, TaskListViewProtocol {
         coord.moveDown = { moveSelectedTaskDown() }
         coord.markCompleted = { markSelectedTaskCompleted() }
         let inNavMode = focusedField == .scrollView
-        coord.canDelete = selectedTaskID != nil && inNavMode
+        coord.canDelete = fState.selectedTaskID != nil && inNavMode
         coord.canMoveUp = canMoveSelectionUp
         coord.canMoveDown = canMoveSelectionDown
-        coord.canMarkCompleted = selectedTaskID != nil && inNavMode
-        coord.markCompletedTitle = completedTasks.contains(where: { $0.id == selectedTaskID })
+        coord.canMarkCompleted = fState.selectedTaskID != nil && inNavMode
+        coord.markCompletedTitle = completedTasks.contains(where: { $0.id == fState.selectedTaskID })
             ? "Mark as Incomplete" : "Mark as Complete"
     }
 
@@ -215,16 +164,16 @@ struct TaskListView: View, TaskListViewProtocol {
                 draftTaskPlacement = nil
             }
             draftTaskTitle = ""
-            if selectedTaskID == draftTaskID(for: placement) {
-                selectedTaskID = nil
+            if fState.selectedTaskID == draftTaskID(for: placement) {
+                fState.selectedTaskID = nil
             }
 
             guard placement == .prepend else { return }
 
-            var state = pullToCreate
+            var state = iState.pullToCreate
             state.isInsertionPending = false
             state.indicatorOffset = 0
-            pullToCreate = state
+            iState.pullToCreate = state
         }
 
         if placement == .prepend, !hasTitle {
@@ -247,7 +196,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     func didStartDrag() {
-        isDragging = true
+        iState.isDragging = true
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
     }
@@ -262,20 +211,20 @@ struct TaskListView: View, TaskListViewProtocol {
 
     private func dragScaleEffect(for taskID: UUID) -> CGFloat {
         let liftPoints: CGFloat = 20
-        guard let width = rowFrames[taskID]?.width, width > 0 else { return 1.05 }
+        guard let width = iState.rowFrames[taskID]?.width, width > 0 else { return 1.05 }
         return (width + liftPoints) / width
     }
 
     private var pullToCreateRevealHeight: CGFloat {
         min(
-            pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold),
+            iState.pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold),
             PullToCreateIndicator.indicatorHeight
         )
     }
 
     private var pullToCreateGap: CGFloat {
-        guard pullToCreate.shouldShowIndicator, !isPrependDraftVisible else { return 0 }
-        let exposedPull = pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold)
+        guard iState.pullToCreate.shouldShowIndicator, !isPrependDraftVisible else { return 0 }
+        let exposedPull = iState.pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold)
         return min(
             vStackSpacing,
             max(0, exposedPull - PullToCreateIndicator.indicatorHeight)
@@ -283,7 +232,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     private var pullToCreateRowOverlap: CGFloat {
-        guard pullToCreate.shouldShowIndicator, !isPrependDraftVisible else {
+        guard iState.pullToCreate.shouldShowIndicator, !isPrependDraftVisible else {
             return 0
         }
         return PullToCreateIndicator.indicatorHeight - pullToCreateRevealHeight
@@ -293,12 +242,12 @@ struct TaskListView: View, TaskListViewProtocol {
     /// The phantom's UITextView is created while the indicator is visible
     /// (during the pull), so it's ready when the user releases.
     @ViewBuilder var pullToCreateIndicatorRow: some View {
-        let showIndicator = pullToCreate.shouldShowIndicator
+        let showIndicator = iState.pullToCreate.shouldShowIndicator
         let showPhantom = isPrependDraftVisible
         if showIndicator || showPhantom {
             ZStack(alignment: .topLeading) {
                 PullToCreateIndicator(
-                    pullOffset: pullToCreate.indicatorDisplayOffset(
+                    pullOffset: iState.pullToCreate.indicatorDisplayOffset(
                         threshold: pullCreateThreshold
                     ),
                     threshold: pullCreateThreshold,
@@ -326,7 +275,7 @@ struct TaskListView: View, TaskListViewProtocol {
         let accentColor = taskColor(
             forIndex: 0, total: max(1, displayActiveTasks.count + 1)
         )
-        let isSelected = selectedTaskID == draftPrependRowID
+        let isSelected = fState.selectedTaskID == draftPrependRowID
         HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
             Image(systemName: "circle")
                 .frame(width: 22, height: 22)
@@ -388,7 +337,7 @@ struct TaskListView: View, TaskListViewProtocol {
             let total = max(1, displayActiveTasks.count + 1)
             let index = displayActiveTasks.count
             let accentColor = taskColor(forIndex: index, total: total)
-            let isSelected = selectedTaskID == draftAppendRowID
+            let isSelected = fState.selectedTaskID == draftAppendRowID
             HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
                 Image(systemName: "circle")
                     .frame(width: 22, height: 22)
@@ -459,7 +408,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 taskID: taskID,
                 index: index,
                 totalTasks: displayActiveTasks.count,
-                isSelected: selectedTaskID == taskID,
+                isSelected: fState.selectedTaskID == taskID,
                 isDragging: isDraggingStateBinding,
                 isLastActiveTask: index == displayActiveTasks.count - 1,
                 focusedField: $focusedFieldBinding,
@@ -469,8 +418,8 @@ struct TaskListView: View, TaskListViewProtocol {
                 onSelect: { selectTask($0) },
                 onStartEdit: { startEditing($0) },
                 onEndEdit: {
-                    if selectedTaskID == $0 {
-                        selectedTaskID = nil
+                    if fState.selectedTaskID == $0 {
+                        fState.selectedTaskID = nil
                     }
                     endEditing($0, shouldCreateNewTask: $1)
                 }
@@ -491,7 +440,7 @@ struct TaskListView: View, TaskListViewProtocol {
             .onGeometryChange(for: CGRect.self) { proxy in
                 proxy.frame(in: .global)
             } action: { frame in
-                rowFrames[taskID] = frame
+                iState.rowFrames[taskID] = frame
             }
             .id(taskID)
         }
@@ -504,7 +453,7 @@ struct TaskListView: View, TaskListViewProtocol {
             TaskRowView(
                 task: task,
                 taskID: taskID,
-                isSelected: selectedTaskID == taskID,
+                isSelected: fState.selectedTaskID == taskID,
                 focusedField: $focusedFieldBinding,
                 onToggle: { toggleCompletion($0) },
                 onTitleChange: { updateTitle($0, $1) },
@@ -596,7 +545,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
                 .padding(
                     .bottom,
-                    (pullToCreate.shouldShowIndicator && !isPrependDraftVisible)
+                    (iState.pullToCreate.shouldShowIndicator && !isPrependDraftVisible)
                         ? (pullToCreateGap - vStackSpacing) : 0
                 )
                 taskRows
@@ -605,7 +554,7 @@ struct TaskListView: View, TaskListViewProtocol {
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.trailing, 16)
             .padding(.vertical, 12)
-            .offset(y: -pullToCreate.pullOffset)
+            .offset(y: -iState.pullToCreate.pullOffset)
             .onChange(of: focusedFieldBinding) { oldValue, newValue in
                 fState.focusedField = newValue
                 handleFocusChange(from: oldValue, to: newValue)
@@ -614,10 +563,10 @@ struct TaskListView: View, TaskListViewProtocol {
                     !iState.isShowingSettings,
                     !iState.isShowingSyncDiagnostics
                 {
-                    if let pending = pendingFocus {
+                    if let pending = fState.pendingFocus {
                         focusedFieldBinding = pending
                         fState.focusedField = pending
-                        pendingFocus = nil
+                        fState.pendingFocus = nil
                     } else {
                         focusedFieldBinding = .scrollView
                         fState.focusedField = .scrollView
