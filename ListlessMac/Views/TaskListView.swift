@@ -21,6 +21,7 @@ struct TaskListView: View, TaskListViewProtocol {
     @Environment(\.managedObjectContext) var managedObjectContext
 
     let store: TaskStore
+    let menuCoordinator: MenuCoordinator
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
     @FetchRequest(
         sortDescriptors: [],
@@ -118,7 +119,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     func updateMenuCoordinator() {
-        let coord = MenuCoordinator.shared
+        let coord = menuCoordinator
         coord.newTask = { createNewTask(); focusedField = nil }
         coord.copySelectedTask = {
             guard let taskID = selectedTaskID,
@@ -157,9 +158,10 @@ struct TaskListView: View, TaskListViewProtocol {
         coord.canClearCompletedTasks = !completedTasks.isEmpty
     }
 
-    init(store: TaskStore, syncMonitor: CloudKitSyncMonitor) {
+    init(store: TaskStore, syncMonitor: CloudKitSyncMonitor, menuCoordinator: MenuCoordinator) {
         self.store = store
         self.syncMonitor = syncMonitor
+        self.menuCoordinator = menuCoordinator
     }
 
     func isRowLifted(_ taskID: UUID) -> Bool {

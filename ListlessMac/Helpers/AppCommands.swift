@@ -1,10 +1,9 @@
 import Foundation
 
 // Bridges SwiftUI view state to AppKit menu items without using SwiftUI's Commands API.
+// One instance per window; AppDelegate resolves the key window's coordinator at dispatch time.
 @MainActor
 final class MenuCoordinator {
-    static let shared = MenuCoordinator()
-    private init() {}
 
     // Actions — set by TaskListView on each relevant state change.
     var newTask: (() -> Void)?

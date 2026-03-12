@@ -12,6 +12,12 @@ private enum MenuSelectors {
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private let persistenceController: PersistenceController
     private var syncDiagnosticsWindow: NSWindow?
+    private let coordinators = NSMapTable<NSWindow, MenuCoordinator>.weakToStrongObjects()
+
+    private var keyWindowCoordinator: MenuCoordinator? {
+        guard let window = NSApp.keyWindow else { return nil }
+        return coordinators.object(forKey: window)
+    }
 
     override init() {
         let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
@@ -52,9 +58,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     // menu opens and when keyboard shortcuts are evaluated.
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        let coord = MenuCoordinator.shared
         switch menuItem.action {
-        case #selector(handleNewWindow):      return true
+        case #selector(handleNewWindow), #selector(handleShowSyncDiagnostics):
+            return true
+        default:
+            break
+        }
+        guard let coord = keyWindowCoordinator else { return false }
+        switch menuItem.action {
         case #selector(cut(_:)):              return coord.canCutSelectedTask
         case #selector(copy(_:)):             return coord.canCopySelectedTask
         case #selector(paste(_:)):            return coord.canPasteAfterSelectedTask
@@ -65,7 +76,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             menuItem.title = coord.markCompletedTitle
             return coord.canMarkSelectedTaskCompleted
         case #selector(handleClearCompleted): return coord.canClearCompletedTasks
-        case #selector(handleShowSyncDiagnostics): return true
         default: return true
         }
     }
@@ -75,28 +85,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     @objc private func handleNewTask() {
         if NSApp.windows.filter({ $0.isVisible }).isEmpty {
             openNewWindow()
-            DispatchQueue.main.async {
-                MenuCoordinator.shared.newTask?()
+            Task { @MainActor in
+                keyWindowCoordinator?.newTask?()
             }
         } else {
-            MenuCoordinator.shared.newTask?()
+            keyWindowCoordinator?.newTask?()
         }
     }
 
     @objc func cut(_ sender: Any?) {
-        MenuCoordinator.shared.cutSelectedTask?()
+        keyWindowCoordinator?.cutSelectedTask?()
     }
 
     @objc func copy(_ sender: Any?) {
-        MenuCoordinator.shared.copySelectedTask?()
+        keyWindowCoordinator?.copySelectedTask?()
     }
 
     @objc func paste(_ sender: Any?) {
-        MenuCoordinator.shared.pasteAfterSelectedTask?()
+        keyWindowCoordinator?.pasteAfterSelectedTask?()
     }
 
     @objc private func handleDeleteTask() {
-        MenuCoordinator.shared.deleteSelectedTask?()
+        keyWindowCoordinator?.deleteSelectedTask?()
     }
 
     @objc private func handleNewWindow() {
@@ -104,19 +114,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     @objc private func handleMoveUp() {
-        MenuCoordinator.shared.moveSelectedTaskUp?()
+        keyWindowCoordinator?.moveSelectedTaskUp?()
     }
 
     @objc private func handleMoveDown() {
-        MenuCoordinator.shared.moveSelectedTaskDown?()
+        keyWindowCoordinator?.moveSelectedTaskDown?()
     }
 
     @objc private func handleMarkCompleted() {
-        MenuCoordinator.shared.markSelectedTaskCompleted?()
+        keyWindowCoordinator?.markSelectedTaskCompleted?()
     }
 
     @objc private func handleClearCompleted() {
-        MenuCoordinator.shared.clearCompletedTasks?()
+        keyWindowCoordinator?.clearCompletedTasks?()
     }
 
     @objc func handleShowSyncDiagnostics() {
@@ -125,9 +135,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     private func openNewWindow() {
         let defaultContentSize = NSSize(width: 400, height: 350)
+        let menuCoordinator = MenuCoordinator()
         let rootView = TaskListView(
             store: TaskStore(persistenceController: persistenceController),
-            syncMonitor: persistenceController.syncMonitor
+            syncMonitor: persistenceController.syncMonitor,
+            menuCoordinator: menuCoordinator
         )
         .environment(\.managedObjectContext, persistenceController.viewContext)
 
@@ -145,6 +157,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
         window.isRestorable = false
+        coordinators.setObject(menuCoordinator, forKey: window)
         let referenceWindow = NSApp.orderedWindows.first { existingWindow in
             existingWindow.isVisible && existingWindow.title == "Items"
         }
