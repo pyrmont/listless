@@ -60,6 +60,10 @@ struct ClickableTextField: NSViewRepresentable {
 
             // Apply styling (sets attributedStringValue)
             context.coordinator.applyStyle(to: textField, text: text, isCompleted: isCompleted)
+        } else if text.isEmpty && !textField.stringValue.isEmpty {
+            // External reset (e.g. phantom row chaining) — clear the field
+            // even though the field editor is active.
+            textField.stringValue = ""
         }
 
         // Disable if completed

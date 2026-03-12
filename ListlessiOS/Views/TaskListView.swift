@@ -18,11 +18,9 @@ struct TaskListView: View, TaskListViewProtocol {
         var clearingTaskIDs: Set<UUID> = []
         var rowFrames: [UUID: CGRect] = [:]
         var undoToast: UndoToastData? = nil
-        var phantomRowVisible: Bool = false
-        var phantomTitle: String = ""
+        var draftTaskPlacement: DraftTaskPlacement?
+        var draftTaskTitle: String = ""
     }
-
-    static let phantomRowID = UUID()
 
     struct TaskStateData {
         var refreshID = UUID()
@@ -97,20 +95,28 @@ struct TaskListView: View, TaskListViewProtocol {
         nonmutating set { iState.undoToast = newValue }
     }
 
-    var phantomRowVisible: Bool {
-        get { iState.phantomRowVisible }
-        nonmutating set { iState.phantomRowVisible = newValue }
+    var draftTaskPlacement: DraftTaskPlacement? {
+        get { iState.draftTaskPlacement }
+        nonmutating set { iState.draftTaskPlacement = newValue }
     }
 
-    var phantomTitle: String {
-        get { iState.phantomTitle }
-        nonmutating set { iState.phantomTitle = newValue }
+    var draftTaskTitle: String {
+        get { iState.draftTaskTitle }
+        nonmutating set { iState.draftTaskTitle = newValue }
     }
 
-    var phantomTitleBinding: Binding<String> {
+    private var isPrependDraftVisible: Bool {
+        draftTaskPlacement == .prepend
+    }
+
+    private var isAppendDraftVisible: Bool {
+        draftTaskPlacement == .append
+    }
+
+    var draftTaskTitleBinding: Binding<String> {
         Binding(
-            get: { iState.phantomTitle },
-            set: { iState.phantomTitle = $0 }
+            get: { iState.draftTaskTitle },
+            set: { iState.draftTaskTitle = $0 }
         )
     }
 
@@ -203,6 +209,43 @@ struct TaskListView: View, TaskListViewProtocol {
         self.syncMonitor = syncMonitor
     }
 
+    func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle: Bool) {
+        let clear: () -> Void = {
+            if draftTaskPlacement == placement {
+                draftTaskPlacement = nil
+            }
+            draftTaskTitle = ""
+            if selectedTaskID == draftTaskID(for: placement) {
+                selectedTaskID = nil
+            }
+
+            guard placement == .prepend else { return }
+
+            var state = pullToCreate
+            state.isInsertionPending = false
+            state.indicatorOffset = 0
+            pullToCreate = state
+        }
+
+        if placement == .prepend, !hasTitle {
+            withAnimation(.spring(response: 0.24, dampingFraction: 0.95)) {
+                clear()
+            }
+        } else if placement == .prepend {
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                clear()
+            }
+        } else {
+            clear()
+        }
+
+        if placement == .prepend || !hasTitle {
+            focusedField = nil
+        }
+    }
+
     func didStartDrag() {
         isDragging = true
         let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -231,7 +274,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     private var pullToCreateGap: CGFloat {
-        guard pullToCreate.shouldShowIndicator, !iState.phantomRowVisible else { return 0 }
+        guard pullToCreate.shouldShowIndicator, !isPrependDraftVisible else { return 0 }
         let exposedPull = pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold)
         return min(
             vStackSpacing,
@@ -240,7 +283,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     private var pullToCreateRowOverlap: CGFloat {
-        guard pullToCreate.shouldShowIndicator, !iState.phantomRowVisible else {
+        guard pullToCreate.shouldShowIndicator, !isPrependDraftVisible else {
             return 0
         }
         return PullToCreateIndicator.indicatorHeight - pullToCreateRevealHeight
@@ -251,7 +294,7 @@ struct TaskListView: View, TaskListViewProtocol {
     /// (during the pull), so it's ready when the user releases.
     @ViewBuilder var pullToCreateIndicatorRow: some View {
         let showIndicator = pullToCreate.shouldShowIndicator
-        let showPhantom = iState.phantomRowVisible
+        let showPhantom = isPrependDraftVisible
         if showIndicator || showPhantom {
             ZStack(alignment: .topLeading) {
                 PullToCreateIndicator(
@@ -283,7 +326,7 @@ struct TaskListView: View, TaskListViewProtocol {
         let accentColor = taskColor(
             forIndex: 0, total: max(1, displayActiveTasks.count + 1)
         )
-        let isSelected = selectedTaskID == Self.phantomRowID
+        let isSelected = selectedTaskID == draftPrependRowID
         HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
             Image(systemName: "circle")
                 .frame(width: 22, height: 22)
@@ -291,19 +334,21 @@ struct TaskListView: View, TaskListViewProtocol {
                 .font(.system(size: 17))
 
             TappableTextField(
-                text: phantomTitleBinding,
+                text: draftTaskTitleBinding,
                 isCompleted: false,
                 isDragging: false,
                 onEditingChanged: { editing, _ in
                     DispatchQueue.main.async {
-                        if !editing {
-                            commitPhantomRow()
+                        if editing {
+                            beginDraftTaskEditing(.prepend)
+                        } else {
+                            commitDraftTask()
                         }
                     }
                 },
                 returnKeyType: .done
             )
-            .focused($focusedFieldBinding, equals: .task(Self.phantomRowID))
+            .focused($focusedFieldBinding, equals: .task(draftPrependRowID))
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
@@ -338,6 +383,74 @@ struct TaskListView: View, TaskListViewProtocol {
         )
     }
 
+    @ViewBuilder private var phantomAppendRowContent: some View {
+        if isAppendDraftVisible {
+            let total = max(1, displayActiveTasks.count + 1)
+            let index = displayActiveTasks.count
+            let accentColor = taskColor(forIndex: index, total: total)
+            let isSelected = selectedTaskID == draftAppendRowID
+            HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
+                Image(systemName: "circle")
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(Color.secondary)
+                    .font(.system(size: 17))
+
+                TappableTextField(
+                    text: draftTaskTitleBinding,
+                    isCompleted: false,
+                    isDragging: false,
+                    onEditingChanged: { editing, shouldCreateNewTask in
+                        DispatchQueue.main.async {
+                            if editing {
+                                beginDraftTaskEditing(.append)
+                            } else {
+                                commitDraftTask(
+                                    shouldCreateNewTask: shouldCreateNewTask
+                                )
+                            }
+                        }
+                    },
+                    returnKeyType: draftTaskTitle.trimmingCharacters(
+                        in: .whitespacesAndNewlines
+                    ).isEmpty ? .done : .next
+                )
+                .focused($focusedFieldBinding, equals: .task(draftAppendRowID))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
+            .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
+            .padding(.leading, TaskRowMetrics.activeLeadingPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .background {
+                Color.taskCard.overlay(accentColor.opacity(0.15))
+            }
+            .clipShape(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 0, bottomLeadingRadius: 0,
+                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
+                )
+            )
+            .overlay(alignment: .leading) {
+                Rectangle()
+                    .fill(accentColor)
+                    .frame(width: TaskRowMetrics.accentBarWidth)
+            }
+            .overlay(
+                isSelected
+                    ? UnevenRoundedRectangle(
+                        topLeadingRadius: 0, bottomLeadingRadius: 0,
+                        bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
+                        topTrailingRadius: TaskRowMetrics.trailingCornerRadius
+                    )
+                    .stroke(accentColor.opacity(0.40), lineWidth: 2)
+                    : nil
+            )
+            .id(draftAppendRowID)
+        }
+    }
+
     @ViewBuilder private var taskRows: some View {
         ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
             let taskID = task.id
@@ -356,7 +469,9 @@ struct TaskListView: View, TaskListViewProtocol {
                 onSelect: { selectTask($0) },
                 onStartEdit: { startEditing($0) },
                 onEndEdit: {
-                    selectedTaskID = nil
+                    if selectedTaskID == $0 {
+                        selectedTaskID = nil
+                    }
                     endEditing($0, shouldCreateNewTask: $1)
                 }
             )
@@ -380,6 +495,8 @@ struct TaskListView: View, TaskListViewProtocol {
             }
             .id(taskID)
         }
+
+        phantomAppendRowContent
 
         ForEach(completedTasks) { task in
             let taskID = task.id
@@ -479,7 +596,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
                 .padding(
                     .bottom,
-                    (pullToCreate.shouldShowIndicator && !iState.phantomRowVisible)
+                    (pullToCreate.shouldShowIndicator && !isPrependDraftVisible)
                         ? (pullToCreateGap - vStackSpacing) : 0
                 )
                 taskRows
@@ -509,7 +626,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
                 if case .task(let id) = (newValue ?? fState.focusedField),
                     draggedTaskID == nil,
-                    id != Self.phantomRowID
+                    id != draftPrependRowID
                 {
                     withAnimation {
                         scrollProxy.scrollTo(id)
@@ -517,7 +634,8 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
             }
             .onChange(of: fState.selectedTaskID) { _, newID in
-                if let newID, draggedTaskID == nil, newID != Self.phantomRowID {
+                if let newID, draggedTaskID == nil {
+                    guard newID != draftPrependRowID else { return }
                     withAnimation {
                         scrollProxy.scrollTo(newID)
                     }

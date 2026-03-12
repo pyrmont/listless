@@ -42,6 +42,13 @@ struct TappableTextField: UIViewRepresentable {
     func updateUIView(_ textView: UITextView, context: Context) {
         if !textView.isFirstResponder {
             applyStyle(to: textView, text: text, isCompleted: isCompleted)
+        } else if text.isEmpty && !textView.text.isEmpty {
+            // External reset (e.g. phantom row chaining) — clear the view
+            // even though it's first responder.
+            textView.text = ""
+            if let placeholder = textView.viewWithTag(100) as? UILabel {
+                placeholder.isHidden = false
+            }
         }
         if textView.returnKeyType != returnKeyType {
             textView.returnKeyType = returnKeyType

@@ -58,37 +58,97 @@ extension TaskListViewProtocol {
         return lastTask.id == taskID
     }
 
-    // MARK: - Task Creation
-
-    func createNewTaskAtTop() -> UUID {
-        clearDragState()
-        do {
-            managedObjectContext.undoManager?.disableUndoRegistration()
-            let task = try store.createTask(title: "", atBeginning: true)
-            managedObjectContext.undoManager?.enableUndoRegistration()
-            pendingFocus = .task(task.id)
-            focusedField = .task(task.id)
-            selectedTaskID = task.id
-            return task.id
-        } catch {
-            managedObjectContext.undoManager?.enableUndoRegistration()
-            presentStoreError(error)
-            return UUID()
+    func draftTaskID(for placement: DraftTaskPlacement) -> UUID {
+        switch placement {
+        case .prepend:
+            draftPrependRowID
+        case .append:
+            draftAppendRowID
         }
     }
 
+    func draftTaskPlacement(for taskID: UUID) -> DraftTaskPlacement? {
+        switch taskID {
+        case draftPrependRowID:
+            .prepend
+        case draftAppendRowID:
+            .append
+        default:
+            nil
+        }
+    }
+
+    // MARK: - Task Creation
+
+    func createNewTaskAtTop() -> UUID {
+        revealDraftTask(at: .prepend)
+        return draftPrependRowID
+    }
+
     func createNewTask() {
+        revealDraftTask(at: .append)
+    }
+
+    func revealDraftTask(at placement: DraftTaskPlacement) {
+        if draftTaskPlacement != placement, draftTaskPlacement != nil {
+            commitDraftTask()
+        }
+
         clearDragState()
+        let taskID = draftTaskID(for: placement)
+        draftTaskTitle = ""
+        draftTaskPlacement = placement
+        pendingFocus = .task(taskID)
+        focusedField = .task(taskID)
+        selectedTaskID = taskID
+    }
+
+    func beginDraftTaskEditing(_ placement: DraftTaskPlacement) {
+        guard draftTaskPlacement == placement else { return }
+        let taskID = draftTaskID(for: placement)
+        selectedTaskID = taskID
+        if case .task(let id) = pendingFocus, id == taskID {
+            pendingFocus = nil
+        }
+    }
+
+    func commitDraftTask(shouldCreateNewTask: Bool = false) {
+        guard let placement = draftTaskPlacement else { return }
+        let taskID = draftTaskID(for: placement)
+        let title = draftTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Clear pendingFocus before clearDraftTaskUI so that the iOS
+        // onChange(of: focusedFieldBinding) nil-redirect doesn't re-focus
+        // the draft row via a stale pendingFocus value.
+        if case .task(let id) = pendingFocus, id == taskID {
+            pendingFocus = nil
+        }
+
+        clearDraftTaskUI(at: placement, hasTitle: !title.isEmpty)
+
+        if selectedTaskID == taskID {
+            selectedTaskID = nil
+        }
+
+        guard !title.isEmpty else { return }
+
         do {
-            managedObjectContext.undoManager?.disableUndoRegistration()
-            let task = try store.createTask(title: "")
-            managedObjectContext.undoManager?.enableUndoRegistration()
-            pendingFocus = .task(task.id)
-            focusedField = .task(task.id)
-            selectedTaskID = task.id
+            let task = switch placement {
+            case .prepend:
+                try store.createTask(title: title, atBeginning: true)
+            case .append:
+                try store.createTask(title: title)
+            }
+            try store.save()
+            if placement == .append {
+                selectedTaskID = task.id
+            }
         } catch {
-            managedObjectContext.undoManager?.enableUndoRegistration()
             presentStoreError(error)
+        }
+
+        if shouldCreateNewTask, placement == .append {
+            revealDraftTask(at: .append)
         }
     }
 
@@ -132,10 +192,14 @@ extension TaskListViewProtocol {
         let isTaskFocused = if case .task = focusedField { true } else { false }
 
         if isTaskFocused || selectedTaskID != nil {
+            pendingFocus = nil
+            if draftTaskPlacement != nil {
+                commitDraftTask()
+            }
             selectedTaskID = nil
             focusedField = nil
         } else {
-            createNewTask()
+            revealDraftTask(at: .append)
         }
     }
 
@@ -146,6 +210,11 @@ extension TaskListViewProtocol {
         guard oldID != newID, let oldID else {
             return
         }
+
+        if draftTaskPlacement(for: oldID) != nil {
+            return
+        }
+
         deleteIfEmpty(taskID: oldID)
     }
 
@@ -353,6 +422,11 @@ extension TaskListViewProtocol {
     }
 
     func endEditing(_ taskID: UUID, shouldCreateNewTask: Bool) {
+        if draftTaskPlacement(for: taskID) != nil {
+            commitDraftTask(shouldCreateNewTask: shouldCreateNewTask)
+            return
+        }
+
         do {
             try store.save()
         } catch {
@@ -366,7 +440,7 @@ extension TaskListViewProtocol {
             selectedTaskID = nil
             deleteIfEmpty(taskID: taskID)
         } else if wasLastActiveTask && shouldCreateNewTask {
-            createNewTask()
+            revealDraftTask(at: .append)
         } else if shouldCreateNewTask {
             focusedField = .scrollView
         }

@@ -11,6 +11,8 @@ struct TaskListView: View, TaskListViewProtocol {
     struct InteractionStateData {
         var dragState: DragState = .idle
         var liftedTaskID: UUID?
+        var draftTaskPlacement: DraftTaskPlacement?
+        var draftTaskTitle: String = ""
     }
 
     struct TaskStateData {
@@ -59,6 +61,16 @@ struct TaskListView: View, TaskListViewProtocol {
     var liftedTaskID: UUID? {
         get { iState.liftedTaskID }
         nonmutating set { iState.liftedTaskID = newValue }
+    }
+
+    var draftTaskPlacement: DraftTaskPlacement? {
+        get { iState.draftTaskPlacement }
+        nonmutating set { iState.draftTaskPlacement = newValue }
+    }
+
+    var draftTaskTitle: String {
+        get { iState.draftTaskTitle }
+        nonmutating set { iState.draftTaskTitle = newValue }
     }
 
     var refreshID: UUID {
@@ -168,6 +180,17 @@ struct TaskListView: View, TaskListViewProtocol {
         liftedTaskID == taskID || draggedTaskID == taskID
     }
 
+    func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle _: Bool) {
+        if draftTaskPlacement == placement {
+            draftTaskPlacement = nil
+        }
+        draftTaskTitle = ""
+        if selectedTaskID == draftTaskID(for: placement) {
+            selectedTaskID = nil
+        }
+        focusedField = nil
+    }
+
     func didStartDrag() {}
 
     var body: some View {
@@ -246,6 +269,69 @@ struct TaskListView: View, TaskListViewProtocol {
                                         )
                                     )
                             }
+                        }
+                    }
+                }
+
+                if draftTaskPlacement == .append {
+                    let total = max(1, displayActiveTasks.count + 1)
+                    let index = displayActiveTasks.count
+                    let accentColor = cachedTaskColor(
+                        forIndex: index, total: total
+                    )
+                    let isSelected = selectedTaskID == draftAppendRowID
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        Image(systemName: "circle")
+                            .foregroundStyle(.primary)
+                            .font(.system(size: 17))
+                            .fontWeight(.thin)
+                            .alignmentGuide(.firstTextBaseline) { d in
+                                d[VerticalAlignment.center] + 5
+                            }
+
+                        ClickableTextField(
+                            text: Binding(
+                                get: { iState.draftTaskTitle },
+                                set: { iState.draftTaskTitle = $0 }
+                            ),
+                            isCompleted: false,
+                            onEditingChanged: { editing, shouldCreateNewTask in
+                                if editing {
+                                    beginDraftTaskEditing(.append)
+                                } else {
+                                    commitDraftTask(
+                                        shouldCreateNewTask: shouldCreateNewTask
+                                    )
+                                }
+                            }
+                        )
+                        .focused(
+                            $focusedFieldBinding,
+                            equals: .task(draftAppendRowID)
+                        )
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.top, 4)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .background(
+                        isSelected
+                            ? RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(Color(nsColor: .controlBackgroundColor))
+                            : nil
+                    )
+                    .overlay(alignment: .leading) {
+                        Rectangle()
+                            .fill(accentColor)
+                            .frame(width: 4)
+                            .padding(.vertical, 1)
+                    }
+                    .overlay {
+                        if isSelected {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(accentColor.opacity(0.40), lineWidth: 2)
                         }
                     }
                 }
