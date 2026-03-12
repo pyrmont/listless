@@ -157,6 +157,7 @@ struct TaskRowView: View {
             Button("Paste") {
                 pasteFromPasteboard()
             }
+            .disabled(task.isCompleted)
             Divider()
             Button("Delete", role: .destructive) {
                 onDelete(task)

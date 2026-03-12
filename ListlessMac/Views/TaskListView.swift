@@ -149,7 +149,7 @@ struct TaskListView: View, TaskListViewProtocol {
         let inNavMode = focusedField == .scrollView
         coord.canCopySelectedTask = selectedTaskID != nil && inNavMode
         coord.canCutSelectedTask = selectedTaskID != nil && inNavMode
-        coord.canPasteAfterSelectedTask = selectedTaskID != nil && inNavMode
+        coord.canPasteAfterSelectedTask = selectedIndex != nil && inNavMode
         coord.canDeleteSelectedTask = canDeleteSelectionFromList
         coord.canMoveSelectedTaskUp = canMoveSelectionUp
         coord.canMoveSelectedTaskDown = canMoveSelectionDown
