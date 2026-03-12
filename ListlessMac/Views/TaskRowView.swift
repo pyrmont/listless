@@ -193,25 +193,24 @@ struct TaskRowView: View {
         }
     }
 
+    // These context menu actions only run in navigation mode — when a row is
+    // being edited, the NSTextField field editor is first responder and its
+    // native context menu handles Cut/Copy/Paste for text directly.
+
     private func cutToPasteboard() {
         copyToPasteboard()
         onDelete(task)
     }
 
     private func copyToPasteboard() {
-        let text = isCurrentlyEditing ? editingTitle : task.title
-        guard !text.isEmpty else { return }
+        guard !task.title.isEmpty else { return }
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+        pasteboard.setString(task.title, forType: .string)
     }
 
     private func pasteFromPasteboard() {
         guard let string = NSPasteboard.general.string(forType: .string) else { return }
-        if isCurrentlyEditing {
-            editingTitle = string
-        } else {
-            onPaste(string)
-        }
+        onPaste(string)
     }
 }
