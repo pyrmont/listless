@@ -55,34 +55,39 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     var canDeleteSelectionFromList: Bool {
-        fState.selectedTaskID != nil && focusedField == .scrollView
+        !fState.selectedTaskIDs.isEmpty && focusedField == .scrollView
     }
 
     var canMarkSelectionCompleted: Bool {
         guard focusedField == .scrollView else { return false }
-        guard let currentID = fState.selectedTaskID else { return false }
-        return allTasksInDisplayOrder.contains(where: { $0.id == currentID })
+        return allTasksInDisplayOrder.contains(where: { fState.isTaskSelected($0.id) })
     }
 
     var markCompletedMenuTitle: String {
-        completedTasks.contains(where: { $0.id == fState.selectedTaskID })
+        if fState.hasMultipleSelection {
+            let hasCompleted = completedTasks.contains(where: { fState.isTaskSelected($0.id) })
+            return hasCompleted ? "Mark as Incomplete" : "Mark as Complete"
+        }
+        return completedTasks.contains(where: { $0.id == fState.selectedTaskID })
             ? "Mark as Incomplete" : "Mark as Complete"
     }
 
     var canMoveSelectionUp: Bool {
         guard focusedField == .scrollView else { return false }
+        guard !fState.hasMultipleSelection else { return false }
         guard let index = selectedIndex else { return false }
         return index > 0
     }
 
     var canMoveSelectionDown: Bool {
         guard focusedField == .scrollView else { return false }
+        guard !fState.hasMultipleSelection else { return false }
         guard let index = selectedIndex else { return false }
         return index < activeTasks.count - 1
     }
 
     struct MenuState: Equatable {
-        let selectedTaskID: UUID?
+        let selectedTaskIDs: Set<UUID>
         let isScrollViewFocused: Bool
         let activeTaskCount: Int
         let completedTaskCount: Int
@@ -91,7 +96,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var menuCoordinatorTrigger: MenuState {
         MenuState(
-            selectedTaskID: fState.selectedTaskID,
+            selectedTaskIDs: fState.selectedTaskIDs,
             isScrollViewFocused: focusedField == .scrollView,
             activeTaskCount: activeTasks.count,
             completedTaskCount: completedTasks.count,
@@ -128,9 +133,10 @@ struct TaskListView: View, TaskListViewProtocol {
         coord.markSelectedTaskCompleted = { markSelectedTaskCompleted() }
         coord.clearCompletedTasks = { clearCompletedTasks() }
         let inNavMode = focusedField == .scrollView
-        coord.canCopySelectedTask = fState.selectedTaskID != nil && inNavMode
-        coord.canCutSelectedTask = fState.selectedTaskID != nil && inNavMode
-        coord.canPasteAfterSelectedTask = selectedIndex != nil && inNavMode
+        let singleSelect = !fState.selectedTaskIDs.isEmpty && !fState.hasMultipleSelection
+        coord.canCopySelectedTask = singleSelect && inNavMode
+        coord.canCutSelectedTask = singleSelect && inNavMode
+        coord.canPasteAfterSelectedTask = selectedIndex != nil && singleSelect && inNavMode
         coord.canDeleteSelectedTask = canDeleteSelectionFromList
         coord.canMoveSelectedTaskUp = canMoveSelectionUp
         coord.canMoveSelectedTaskDown = canMoveSelectionDown
@@ -177,7 +183,7 @@ struct TaskListView: View, TaskListViewProtocol {
                         taskID: taskID,
                         index: index,
                         totalTasks: displayActiveTasks.count,
-                        isSelected: fState.selectedTaskID == taskID,
+                        isSelected: fState.isTaskSelected(taskID),
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
@@ -253,7 +259,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     let accentColor = cachedTaskColor(
                         forIndex: index, total: total
                     )
-                    let isSelected = fState.selectedTaskID == draftAppendRowID
+                    let isSelected = fState.isTaskSelected(draftAppendRowID)
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
                         Image(systemName: "circle")
                             .foregroundStyle(.primary)
@@ -316,7 +322,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     TaskRowView(
                         task: task,
                         taskID: taskID,
-                        isSelected: fState.selectedTaskID == taskID,
+                        isSelected: fState.isTaskSelected(taskID),
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
@@ -380,6 +386,8 @@ struct TaskListView: View, TaskListViewProtocol {
         .keyboardNavigation([
             ShortcutKey(key: .upArrow): navigateUp,
             ShortcutKey(key: .downArrow): navigateDown,
+            ShortcutKey(key: .upArrow, modifiers: .shift): navigateUpExtend,
+            ShortcutKey(key: .downArrow, modifiers: .shift): navigateDownExtend,
             ShortcutKey(key: .return): focusSelectedTask,
         ])
         .onAppear {

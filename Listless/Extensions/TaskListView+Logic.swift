@@ -341,18 +341,76 @@ extension TaskListViewProtocol {
         return .handled
     }
 
-    func toggleSelectedTask() -> KeyPress.Result {
-        guard focusedField == .scrollView else { return .ignored }
-        guard let currentID = fState.selectedTaskID else { return .handled }
-        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
+    func navigateUpExtend() -> KeyPress.Result {
+        guard focusedField == .scrollView else {
+            return .ignored
+        }
+
+        let displayOrder = allTasksInDisplayOrder.map(\.id)
+
+        // If nothing is selected yet, start single-select at the bottom.
+        guard let cursorID = fState.cursorTaskID else {
+            fState.selectedTaskID = activeTasks.last?.id
             return .handled
         }
-        toggleCompletion(task)
+
+        guard let cursorIndex = displayOrder.firstIndex(of: cursorID),
+            cursorIndex > 0
+        else {
+            return .handled
+        }
+
+        let targetID = displayOrder[cursorIndex - 1]
+        // On the first extend, the anchor is wherever the cursor is.
+        if !fState.hasMultipleSelection {
+            fState.anchorTaskID = cursorID
+        }
+        fState.extendSelection(to: targetID, displayOrder: displayOrder)
+        return .handled
+    }
+
+    func navigateDownExtend() -> KeyPress.Result {
+        guard focusedField == .scrollView else {
+            return .ignored
+        }
+
+        let displayOrder = allTasksInDisplayOrder.map(\.id)
+
+        guard let cursorID = fState.cursorTaskID else {
+            fState.selectedTaskID = activeTasks.first?.id ?? completedTasks.first?.id
+            return .handled
+        }
+
+        guard let cursorIndex = displayOrder.firstIndex(of: cursorID),
+            cursorIndex < displayOrder.count - 1
+        else {
+            return .handled
+        }
+
+        let targetID = displayOrder[cursorIndex + 1]
+        if !fState.hasMultipleSelection {
+            fState.anchorTaskID = cursorID
+        }
+        fState.extendSelection(to: targetID, displayOrder: displayOrder)
+        return .handled
+    }
+
+    func toggleSelectedTask() -> KeyPress.Result {
+        guard focusedField == .scrollView else { return .ignored }
+        let ids = fState.selectedTaskIDs
+        guard !ids.isEmpty else { return .handled }
+        let tasksToToggle = allTasksInDisplayOrder.filter { ids.contains($0.id) }
+        guard !tasksToToggle.isEmpty else { return .handled }
+        fState.selectedTaskID = nil
+        for task in tasksToToggle {
+            toggleCompletion(task)
+        }
         return .handled
     }
 
     func focusSelectedTask() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
+        guard !fState.hasMultipleSelection else { return .handled }
         guard let currentID = fState.selectedTaskID else { return .handled }
         guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
             return .handled
@@ -366,13 +424,14 @@ extension TaskListViewProtocol {
         guard focusedField == .scrollView else {
             return .ignored
         }
-        guard let currentID = fState.selectedTaskID else {
-            return .handled
+        let ids = fState.selectedTaskIDs
+        guard !ids.isEmpty else { return .handled }
+        let tasksToDelete = allTasksInDisplayOrder.filter { ids.contains($0.id) }
+        guard !tasksToDelete.isEmpty else { return .handled }
+        fState.selectedTaskID = nil
+        for task in tasksToDelete {
+            deleteTask(task)
         }
-        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
-            return .handled
-        }
-        deleteTask(task)
         return .handled
     }
 
@@ -404,9 +463,13 @@ extension TaskListViewProtocol {
 
     func markSelectedTaskCompleted() {
         guard focusedField == .scrollView else { return }
-        guard let currentID = fState.selectedTaskID else { return }
-        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else { return }
-        toggleCompletion(task)
+        let ids = fState.selectedTaskIDs
+        guard !ids.isEmpty else { return }
+        let tasksToToggle = allTasksInDisplayOrder.filter { ids.contains($0.id) }
+        fState.selectedTaskID = nil
+        for task in tasksToToggle {
+            toggleCompletion(task)
+        }
     }
 
     // MARK: - Focus Management
