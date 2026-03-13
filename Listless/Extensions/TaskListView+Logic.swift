@@ -271,8 +271,18 @@ extension TaskListViewProtocol {
         deleteTask(task)
     }
 
-    func selectTask(_ taskID: UUID) {
-        fState.selectedTaskID = taskID
+    func selectTask(_ taskID: UUID, extendSelection: Bool = false) {
+        if extendSelection && fState.selectedTaskID != nil {
+            if fState.anchorTaskID == nil {
+                fState.anchorTaskID = fState.cursorTaskID
+            }
+            fState.extendSelection(
+                to: taskID,
+                displayOrder: allTasksInDisplayOrder.map(\.id)
+            )
+        } else {
+            fState.selectedTaskID = taskID
+        }
     }
 
     func deleteTask(_ task: TaskItem) {
@@ -401,6 +411,9 @@ extension TaskListViewProtocol {
         guard !ids.isEmpty else { return .handled }
         let tasksToToggle = allTasksInDisplayOrder.filter { ids.contains($0.id) }
         guard !tasksToToggle.isEmpty else { return .handled }
+        let hasActive = tasksToToggle.contains { !$0.isCompleted }
+        let hasCompleted = tasksToToggle.contains { $0.isCompleted }
+        guard !(hasActive && hasCompleted) else { return .handled }
         for task in tasksToToggle {
             toggleCompletion(task)
         }

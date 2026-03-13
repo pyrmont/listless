@@ -60,7 +60,11 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var canMarkSelectionCompleted: Bool {
         guard focusedField == .scrollView else { return false }
-        return allTasksInDisplayOrder.contains(where: { fState.isTaskSelected($0.id) })
+        let selected = allTasksInDisplayOrder.filter { fState.isTaskSelected($0.id) }
+        guard !selected.isEmpty else { return false }
+        let hasActive = selected.contains { !$0.isCompleted }
+        let hasCompleted = selected.contains { $0.isCompleted }
+        return !(hasActive && hasCompleted)
     }
 
     var markCompletedMenuTitle: String {
@@ -188,7 +192,12 @@ struct TaskListView: View, TaskListViewProtocol {
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
                         onDelete: { deleteTask($0) },
-                        onSelect: { selectTask($0) },
+                        onSelect: {
+                            selectTask(
+                                $0,
+                                extendSelection: NSEvent.modifierFlags.contains(.shift)
+                            )
+                        },
                         onStartEdit: { startEditing($0) },
                         onEndEdit: { endEditing($0, shouldCreateNewTask: $1) },
                         onPaste: { createTask(title: $0, afterTaskID: taskID) }
@@ -330,7 +339,12 @@ struct TaskListView: View, TaskListViewProtocol {
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
                         onDelete: { deleteTask($0) },
-                        onSelect: { selectTask($0) }
+                        onSelect: {
+                            selectTask(
+                                $0,
+                                extendSelection: NSEvent.modifierFlags.contains(.shift)
+                            )
+                        }
                     )
                 }
             }
