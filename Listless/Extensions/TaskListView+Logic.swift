@@ -58,7 +58,7 @@ extension TaskListViewProtocol {
         return lastTask.id == taskID
     }
 
-    func draftTaskID(for placement: DraftTaskPlacement) -> UUID {
+    func draftID(for placement: DraftTaskPlacement) -> UUID {
         switch placement {
         case .prepend:
             draftPrependRowID
@@ -67,7 +67,7 @@ extension TaskListViewProtocol {
         }
     }
 
-    func draftTaskPlacement(for taskID: UUID) -> DraftTaskPlacement? {
+    func draftPlacement(for taskID: UUID) -> DraftTaskPlacement? {
         switch taskID {
         case draftPrependRowID:
             .prepend
@@ -90,22 +90,22 @@ extension TaskListViewProtocol {
     }
 
     func revealDraftTask(at placement: DraftTaskPlacement) {
-        if draftTaskPlacement != placement, draftTaskPlacement != nil {
+        if draftPlacement != placement, draftPlacement != nil {
             commitDraftTask()
         }
 
         clearDragState()
-        let taskID = draftTaskID(for: placement)
-        draftTaskTitle = ""
-        draftTaskPlacement = placement
+        let taskID = draftID(for: placement)
+        draftTitle = ""
+        draftPlacement = placement
         fState.pendingFocus = .task(taskID)
         focusedField = .task(taskID)
         fState.selectedTaskID = taskID
     }
 
     func beginDraftTaskEditing(_ placement: DraftTaskPlacement) {
-        guard draftTaskPlacement == placement else { return }
-        let taskID = draftTaskID(for: placement)
+        guard draftPlacement == placement else { return }
+        let taskID = draftID(for: placement)
         fState.selectedTaskID = taskID
         if case .task(let id) = fState.pendingFocus, id == taskID {
             fState.pendingFocus = nil
@@ -113,9 +113,9 @@ extension TaskListViewProtocol {
     }
 
     func commitDraftTask(shouldCreateNewTask: Bool = false) {
-        guard let placement = draftTaskPlacement else { return }
-        let taskID = draftTaskID(for: placement)
-        let title = draftTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let placement = draftPlacement else { return }
+        let taskID = draftID(for: placement)
+        let title = draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Clear fState.pendingFocus before clearDraftTaskUI so that the iOS
         // onChange(of: focusedFieldBinding) nil-redirect doesn't re-focus
@@ -193,7 +193,7 @@ extension TaskListViewProtocol {
 
         if isTaskFocused || fState.selectedTaskID != nil {
             fState.pendingFocus = nil
-            if draftTaskPlacement != nil {
+            if draftPlacement != nil {
                 commitDraftTask()
             }
             fState.selectedTaskID = nil
@@ -211,7 +211,7 @@ extension TaskListViewProtocol {
             return
         }
 
-        if draftTaskPlacement(for: oldID) != nil {
+        if draftPlacement(for: oldID) != nil {
             return
         }
 
@@ -422,7 +422,7 @@ extension TaskListViewProtocol {
     }
 
     func endEditing(_ taskID: UUID, shouldCreateNewTask: Bool) {
-        if draftTaskPlacement(for: taskID) != nil {
+        if draftPlacement(for: taskID) != nil {
             commitDraftTask(shouldCreateNewTask: shouldCreateNewTask)
             return
         }

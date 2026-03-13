@@ -115,25 +115,16 @@ struct ClickableTextField: NSViewRepresentable {
 
     // Calculate text height with wrapping
     private func calculateHeight(for text: String, width: CGFloat, font: NSFont) -> CGFloat {
-        let attributedString = NSAttributedString(
-            string: text.isEmpty ? "Enter text" : text,
+        let displayText = text.isEmpty ? "Enter text" : text
+        let rect = (displayText as NSString).boundingRect(
+            with: CGSize(width: width, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
             attributes: [.font: font]
         )
-        let textStorage = NSTextStorage(attributedString: attributedString)
-        let layoutManager = NSLayoutManager()
-        let textContainer = NSTextContainer(
-            size: CGSize(width: width, height: .greatestFiniteMagnitude))
-        textContainer.lineFragmentPadding = 0
-
-        layoutManager.addTextContainer(textContainer)
-        textStorage.addLayoutManager(layoutManager)
-
-        layoutManager.ensureLayout(for: textContainer)
-        let rect = layoutManager.usedRect(for: textContainer)
-
         return ceil(rect.height) + 4
     }
 
+    @MainActor
     final class Coordinator: NSObject, NSTextFieldDelegate {
         @Binding var text: String
         let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
@@ -150,7 +141,6 @@ struct ClickableTextField: NSViewRepresentable {
             self.onContentChange = onContentChange
         }
 
-        @MainActor
         func applyStyle(to textField: NSTextField, text: String, isCompleted: Bool) {
             guard !text.isEmpty else {
                 textField.stringValue = ""
@@ -197,6 +187,9 @@ struct ClickableTextField: NSViewRepresentable {
         )
             -> Bool
         {
+            // Note: makeFirstResponder(nil) can trigger a Thread Performance
+            // Checker priority inversion warning. This is internal to AppKit's
+            // first responder machinery, not caused by our callback chain.
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
                 // Return key pressed
                 editEndReason = .returnKey

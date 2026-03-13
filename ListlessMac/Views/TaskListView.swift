@@ -5,8 +5,8 @@ struct TaskListView: View, TaskListViewProtocol {
     struct InteractionStateData {
         var dragState: DragState = .idle
         var liftedTaskID: UUID?
-        var draftTaskPlacement: DraftTaskPlacement?
-        var draftTaskTitle: String = ""
+        var draftPlacement: DraftTaskPlacement?
+        var draftTitle: String = ""
     }
 
     @Environment(\.undoManager) var undoManager
@@ -37,14 +37,14 @@ struct TaskListView: View, TaskListViewProtocol {
         nonmutating set { iState.dragState = newValue }
     }
 
-    var draftTaskPlacement: DraftTaskPlacement? {
-        get { iState.draftTaskPlacement }
-        nonmutating set { iState.draftTaskPlacement = newValue }
+    var draftPlacement: DraftTaskPlacement? {
+        get { iState.draftPlacement }
+        nonmutating set { iState.draftPlacement = newValue }
     }
 
-    var draftTaskTitle: String {
-        get { iState.draftTaskTitle }
-        nonmutating set { iState.draftTaskTitle = newValue }
+    var draftTitle: String {
+        get { iState.draftTitle }
+        nonmutating set { iState.draftTitle = newValue }
     }
 
     var vStackSpacing: CGFloat { 0 }
@@ -150,11 +150,11 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle _: Bool) {
-        if draftTaskPlacement == placement {
-            draftTaskPlacement = nil
+        if draftPlacement == placement {
+            draftPlacement = nil
         }
-        draftTaskTitle = ""
-        if fState.selectedTaskID == draftTaskID(for: placement) {
+        draftTitle = ""
+        if fState.selectedTaskID == draftID(for: placement) {
             fState.selectedTaskID = nil
         }
         focusedField = nil
@@ -242,7 +242,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     }
                 }
 
-                if draftTaskPlacement == .append {
+                if draftPlacement == .append {
                     let total = max(1, displayActiveTasks.count + 1)
                     let index = displayActiveTasks.count
                     let accentColor = cachedTaskColor(
@@ -260,8 +260,8 @@ struct TaskListView: View, TaskListViewProtocol {
 
                         ClickableTextField(
                             text: Binding(
-                                get: { iState.draftTaskTitle },
-                                set: { iState.draftTaskTitle = $0 }
+                                get: { iState.draftTitle },
+                                set: { iState.draftTitle = $0 }
                             ),
                             isCompleted: false,
                             onEditingChanged: { editing, shouldCreateNewTask in

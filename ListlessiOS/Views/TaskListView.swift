@@ -12,8 +12,8 @@ struct TaskListView: View, TaskListViewProtocol {
         var clearingTaskIDs: Set<UUID> = []
         var rowFrames: [UUID: CGRect] = [:]
         var undoToast: UndoToastData? = nil
-        var draftTaskPlacement: DraftTaskPlacement?
-        var draftTaskTitle: String = ""
+        var draftPlacement: DraftTaskPlacement?
+        var draftTitle: String = ""
     }
 
     @AppStorage("headingText") var headingText = "Items"
@@ -44,28 +44,28 @@ struct TaskListView: View, TaskListViewProtocol {
         nonmutating set { iState.dragState = newValue }
     }
 
-    var draftTaskPlacement: DraftTaskPlacement? {
-        get { iState.draftTaskPlacement }
-        nonmutating set { iState.draftTaskPlacement = newValue }
+    var draftPlacement: DraftTaskPlacement? {
+        get { iState.draftPlacement }
+        nonmutating set { iState.draftPlacement = newValue }
     }
 
-    var draftTaskTitle: String {
-        get { iState.draftTaskTitle }
-        nonmutating set { iState.draftTaskTitle = newValue }
+    var draftTitle: String {
+        get { iState.draftTitle }
+        nonmutating set { iState.draftTitle = newValue }
     }
 
     private var isPrependDraftVisible: Bool {
-        draftTaskPlacement == .prepend
+        draftPlacement == .prepend
     }
 
     private var isAppendDraftVisible: Bool {
-        draftTaskPlacement == .append
+        draftPlacement == .append
     }
 
-    var draftTaskTitleBinding: Binding<String> {
+    var draftTitleBinding: Binding<String> {
         Binding(
-            get: { iState.draftTaskTitle },
-            set: { iState.draftTaskTitle = $0 }
+            get: { iState.draftTitle },
+            set: { iState.draftTitle = $0 }
         )
     }
 
@@ -160,11 +160,11 @@ struct TaskListView: View, TaskListViewProtocol {
 
     func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle: Bool) {
         let clear: () -> Void = {
-            if draftTaskPlacement == placement {
-                draftTaskPlacement = nil
+            if draftPlacement == placement {
+                draftPlacement = nil
             }
-            draftTaskTitle = ""
-            if fState.selectedTaskID == draftTaskID(for: placement) {
+            draftTitle = ""
+            if fState.selectedTaskID == draftID(for: placement) {
                 fState.selectedTaskID = nil
             }
 
@@ -283,7 +283,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 .font(.system(size: 17))
 
             TappableTextField(
-                text: draftTaskTitleBinding,
+                text: draftTitleBinding,
                 isCompleted: false,
                 isDragging: false,
                 onEditingChanged: { editing, _ in
@@ -345,7 +345,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     .font(.system(size: 17))
 
                 TappableTextField(
-                    text: draftTaskTitleBinding,
+                    text: draftTitleBinding,
                     isCompleted: false,
                     isDragging: false,
                     onEditingChanged: { editing, shouldCreateNewTask in
@@ -359,7 +359,7 @@ struct TaskListView: View, TaskListViewProtocol {
                             }
                         }
                     },
-                    returnKeyType: draftTaskTitle.trimmingCharacters(
+                    returnKeyType: draftTitle.trimmingCharacters(
                         in: .whitespacesAndNewlines
                     ).isEmpty ? .done : .next
                 )

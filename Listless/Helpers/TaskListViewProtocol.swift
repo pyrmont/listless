@@ -10,8 +10,8 @@ protocol TaskListViewProtocol {
     var focusedField: FocusField? { get nonmutating set }
     var fState: FocusStateData { get nonmutating set }
     var dragState: DragState { get nonmutating set }
-    var draftTaskPlacement: DraftTaskPlacement? { get nonmutating set }
-    var draftTaskTitle: String { get nonmutating set }
+    var draftPlacement: DraftTaskPlacement? { get nonmutating set }
+    var draftTitle: String { get nonmutating set }
     func didStartDrag()
     func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle: Bool)
 }
