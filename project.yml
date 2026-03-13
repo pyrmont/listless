@@ -176,6 +176,18 @@ targets:
       BUNDLE_LOADER: $(TEST_HOST)
       GENERATE_INFOPLIST_FILE: YES
 
+  Listless macOS UI Tests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - Tests/UI
+    dependencies:
+      - target: Listless macOS
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.macos.uitests
+      CODE_SIGN_STYLE: Automatic
+      GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   Listless iOS:
     build:
@@ -220,6 +232,9 @@ schemes:
       config: Debug
       targets:
         - name: Listless macOS Unit Tests
+          parallelizable: true
+          randomExecutionOrder: true
+        - name: Listless macOS UI Tests
           parallelizable: true
           randomExecutionOrder: true
     profile:

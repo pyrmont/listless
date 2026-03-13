@@ -326,6 +326,7 @@ struct TaskListView: View, TaskListViewProtocol {
                                 .stroke(accentColor.opacity(0.40), lineWidth: 2)
                         }
                     }
+                    .accessibilityIdentifier("draft-row-append")
                     .id(draftAppendRowID)
                 }
 
@@ -394,6 +395,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .allowsHitTesting(false)
+                    .accessibilityIdentifier("empty-state-label")
             }
         }
         .focusable()

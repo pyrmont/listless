@@ -50,7 +50,7 @@ private final class UpdatedAtMergePolicy: NSMergePolicy {
 final class PersistenceController {
     static let shared = PersistenceController()
 
-    let container: NSPersistentCloudKitContainer
+    let container: NSPersistentContainer
     let syncMonitor: CloudKitSyncMonitor
 
     var viewContext: NSManagedObjectContext {
@@ -58,12 +58,18 @@ final class PersistenceController {
     }
 
     init(inMemory: Bool = false) {
-        container = NSPersistentCloudKitContainer(name: "Listless")
         syncMonitor = CloudKitSyncMonitor()
 
         if inMemory {
-            container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
+            // Use a plain NSPersistentContainer (no CloudKit) with a unique
+            // temporary store so each launch is fully isolated.
+            let tempURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension("sqlite")
+            container = NSPersistentContainer(name: "Listless")
+            container.persistentStoreDescriptions.first?.url = tempURL
         } else {
+            container = NSPersistentCloudKitContainer(name: "Listless")
             // Configure CloudKit sync
             guard let description = container.persistentStoreDescriptions.first else {
                 fatalError("Failed to retrieve persistent store description")
@@ -96,8 +102,8 @@ final class PersistenceController {
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = UpdatedAtMergePolicy()
 
-        if !inMemory {
-            syncMonitor.startMonitoring(container: container)
+        if !inMemory, let cloudContainer = container as? NSPersistentCloudKitContainer {
+            syncMonitor.startMonitoring(container: cloudContainer)
         }
 
     }

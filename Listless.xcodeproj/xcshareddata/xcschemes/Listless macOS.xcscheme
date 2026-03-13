@@ -67,6 +67,18 @@
                ReferencedContainer = "container:Listless.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES"
+            testExecutionOrdering = "random">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "ECF4D3D0597D0648A1FBC4A4"
+               BuildableName = "Listless macOS UI Tests.xctest"
+               BlueprintName = "Listless macOS UI Tests"
+               ReferencedContainer = "container:Listless.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

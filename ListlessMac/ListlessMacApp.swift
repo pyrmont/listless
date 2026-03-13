@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 private enum MenuSelectors {
     static let showSettingsWindow = Selector(("showSettingsWindow:"))
@@ -26,21 +26,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // When the system launches the app for background work (e.g. CloudKit
-        // sync), there is no Apple Event. Only open a window for user-initiated
-        // launches; terminate otherwise so the app doesn't linger.
-        guard
-            let event = NSAppleEventManager.shared().currentAppleEvent,
-            event.eventID == kAEOpenApplication
-        else {
-            NSApp.terminate(nil)
-            return
-        }
-
         NSWindow.allowsAutomaticWindowTabbing = false
         installMainMenu()
         openNewWindow()
     }
+
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         if !flag {
