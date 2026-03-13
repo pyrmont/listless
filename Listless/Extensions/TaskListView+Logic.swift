@@ -401,7 +401,6 @@ extension TaskListViewProtocol {
         guard !ids.isEmpty else { return .handled }
         let tasksToToggle = allTasksInDisplayOrder.filter { ids.contains($0.id) }
         guard !tasksToToggle.isEmpty else { return .handled }
-        fState.selectedTaskID = nil
         for task in tasksToToggle {
             toggleCompletion(task)
         }
@@ -426,11 +425,22 @@ extension TaskListViewProtocol {
         }
         let ids = fState.selectedTaskIDs
         guard !ids.isEmpty else { return .handled }
-        let tasksToDelete = allTasksInDisplayOrder.filter { ids.contains($0.id) }
+        let displayOrder = allTasksInDisplayOrder
+        let tasksToDelete = displayOrder.filter { ids.contains($0.id) }
         guard !tasksToDelete.isEmpty else { return .handled }
+
+        // Find the next task after the last selected one to move selection to.
+        let lastSelectedIndex = displayOrder.lastIndex(where: { ids.contains($0.id) })
+        let nextTask = lastSelectedIndex.flatMap { idx in
+            displayOrder.dropFirst(idx + 1).first(where: { !ids.contains($0.id) })
+        }
+
         fState.selectedTaskID = nil
         for task in tasksToDelete {
             deleteTask(task)
+        }
+        if let nextTask {
+            fState.selectedTaskID = nextTask.id
         }
         return .handled
     }
@@ -466,7 +476,6 @@ extension TaskListViewProtocol {
         let ids = fState.selectedTaskIDs
         guard !ids.isEmpty else { return }
         let tasksToToggle = allTasksInDisplayOrder.filter { ids.contains($0.id) }
-        fState.selectedTaskID = nil
         for task in tasksToToggle {
             toggleCompletion(task)
         }
