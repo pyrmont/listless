@@ -55,6 +55,18 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES"
+            testExecutionOrdering = "random">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "7F0B17D1EC9FD4A80BC99002"
+               BuildableName = "Listless macOS Unit Tests.xctest"
+               BlueprintName = "Listless macOS Unit Tests"
+               ReferencedContainer = "container:Listless.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

@@ -1,7 +1,11 @@
 import Foundation
 import Testing
 
+#if os(macOS)
+@testable import Listless
+#else
 @testable import Listless_iOS
+#endif
 
 /// Creates a fresh TaskStore with in-memory persistence for isolated testing.
 @MainActor

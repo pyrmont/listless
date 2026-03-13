@@ -161,6 +161,21 @@ targets:
       BUNDLE_LOADER: $(TEST_HOST)
       GENERATE_INFOPLIST_FILE: YES
 
+  Listless macOS Unit Tests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/Unit
+      - Tests/Support
+    dependencies:
+      - target: Listless macOS
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.macos.unittests
+      CODE_SIGN_STYLE: Automatic
+      TEST_HOST: $(BUILT_PRODUCTS_DIR)/Listless.app/Contents/MacOS/Listless
+      BUNDLE_LOADER: $(TEST_HOST)
+      GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   Listless iOS:
     build:
@@ -201,6 +216,12 @@ schemes:
           settingsTarget: Listless macOS
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - name: Listless macOS Unit Tests
+          parallelizable: true
+          randomExecutionOrder: true
     profile:
       config: Release
     analyze:

@@ -2,7 +2,11 @@ import Foundation
 import CoreData
 import Testing
 
+#if os(macOS)
+@testable import Listless
+#else
 @testable import Listless_iOS
+#endif
 
 @Suite("TaskStore Edge Cases", .serialized)
 @MainActor

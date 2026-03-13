@@ -2,7 +2,11 @@ import CloudKit
 import Foundation
 import Testing
 
+#if os(macOS)
+@testable import Listless
+#else
 @testable import Listless_iOS
+#endif
 
 @Suite("CloudKitErrorClassifier")
 struct CloudKitErrorClassifierTests {

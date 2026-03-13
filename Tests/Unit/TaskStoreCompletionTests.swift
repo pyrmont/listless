@@ -1,7 +1,11 @@
 import Foundation
 import Testing
 
+#if os(macOS)
+@testable import Listless
+#else
 @testable import Listless_iOS
+#endif
 
 @Suite("TaskStore Completion Behavior", .serialized)
 @MainActor
