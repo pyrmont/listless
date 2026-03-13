@@ -157,6 +157,10 @@ struct TaskListView: View, TaskListViewProtocol {
         if fState.selectedTaskID == draftID(for: placement) {
             fState.selectedTaskID = nil
         }
+        // Resign AppKit first responder explicitly — SwiftUI's @FocusState
+        // and AppKit's responder chain are parallel systems, so setting
+        // focusedField alone may not dismiss the NSTextField.
+        NSApp.keyWindow?.makeFirstResponder(nil)
         focusedField = nil
     }
 
@@ -164,6 +168,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var body: some View {
         ScrollView {
+          ScrollViewReader { scrollProxy in
             VStack(alignment: .leading, spacing: vStackSpacing) {
                 ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
                     let taskID = task.id
@@ -303,6 +308,7 @@ struct TaskListView: View, TaskListViewProtocol {
                                 .stroke(accentColor.opacity(0.40), lineWidth: 2)
                         }
                     }
+                    .id(draftAppendRowID)
                 }
 
                 ForEach(completedTasks) { task in
@@ -327,6 +333,25 @@ struct TaskListView: View, TaskListViewProtocol {
                     onPerform: { commitCurrentDrag() }
                 )
             )
+            .onChange(of: focusedFieldBinding) { _, newValue in
+                if case .task(let id) = (newValue ?? fState.focusedField),
+                    draggedTaskID == nil,
+                    id != draftPrependRowID
+                {
+                    withAnimation {
+                        scrollProxy.scrollTo(id)
+                    }
+                }
+            }
+            .onChange(of: fState.selectedTaskID) { _, newID in
+                if let newID, draggedTaskID == nil {
+                    guard newID != draftPrependRowID else { return }
+                    withAnimation {
+                        scrollProxy.scrollTo(newID)
+                    }
+                }
+            }
+          }
         }
         .onDrop(
             of: [UTType.text],
@@ -335,9 +360,10 @@ struct TaskListView: View, TaskListViewProtocol {
                 onPerform: { commitCurrentDrag() }
             )
         )
-        .contentShape(Rectangle())
-        .onTapGesture {
-            handleBackgroundTap()
+        .background {
+            BackgroundClickMonitor {
+                handleBackgroundTap()
+            }
         }
         .overlay {
             if isCompletelyEmpty {

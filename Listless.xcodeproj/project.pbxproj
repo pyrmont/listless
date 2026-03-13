@@ -28,6 +28,7 @@
 		2CCB5FE0084742D018E52A3D /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		322EE74CBED492693B92AD59 /* TaskListView+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A440253D045A0896D94ADD0 /* TaskListView+Toolbar.swift */; };
 		365FDEE6823D7A114F3FB12A /* TaskListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C018476BD91B73870244B9 /* TaskListViewProtocol.swift */; };
+		37AEF10712B3325BF9BC72E4 /* BackgroundClickMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */; };
 		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
 		3D1F551A03B97ECF4E3DC8B0 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06485DBE35B60868E14202A /* TaskRowView.swift */; };
 		3EDB6A9A30B4226C15E7F44D /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C46FC97E6DB6FF81AC5C22 /* AppCommands.swift */; };
@@ -198,6 +199,7 @@
 		E8448C5778F75F52719114AF /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
 		E8B5E429B253183F887C5FD6 /* KeyCommandBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommandBridge.swift; sourceTree = "<group>"; };
 		E9288507CE6023425D1DE724 /* SyncDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDiagnosticsView.swift; sourceTree = "<group>"; };
+		F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClickMonitor.swift; sourceTree = "<group>"; };
 		F1E998119283F784B9ADEE28 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		F416DD868A4C044F0D64F8D0 /* TaskRowDragGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowDragGesture.swift; sourceTree = "<group>"; };
 		FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformScrollIndicatorsModifier.swift; sourceTree = "<group>"; };
@@ -248,6 +250,7 @@
 			isa = PBXGroup;
 			children = (
 				4C79ABB39A40D3E1828716C7 /* AppCommands.swift */,
+				F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */,
 				D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */,
 				9F5D8B5866362D422A2A331C /* HoverCursorModifier.swift */,
 				466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */,
@@ -602,6 +605,7 @@
 			files = (
 				99D17075DA3F00F52A18BB4D /* AccentColor.swift in Sources */,
 				B7CFDCA5EA48EDE1C768FA21 /* AppCommands.swift in Sources */,
+				37AEF10712B3325BF9BC72E4 /* BackgroundClickMonitor.swift in Sources */,
 				DB5FF6C1AA57D4C9BDDD50FD /* ClickableTextField.swift in Sources */,
 				E4BD761E34CBB84CE80F7F49 /* CloudKitErrorClassifier.swift in Sources */,
 				E429067963379F99DD184FED /* CloudKitSyncMonitor.swift in Sources */,
