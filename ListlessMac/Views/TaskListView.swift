@@ -201,7 +201,10 @@ struct TaskListView: View, TaskListViewProtocol {
                             startDrag(taskID: task.id)
                         },
                         onLift: { iState.liftedTaskID = task.id },
-                        onLiftEnd: { if iState.liftedTaskID == task.id { iState.liftedTaskID = nil } }
+                        onLiftEnd: {
+                            if iState.liftedTaskID == task.id { iState.liftedTaskID = nil }
+                            if draggedTaskID == task.id { clearDragState() }
+                        }
                     )
                     .scaleEffect(isRowLifted(taskID) ? 1.03 : 1.0)
                     .shadow(
