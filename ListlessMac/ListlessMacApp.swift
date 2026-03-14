@@ -149,7 +149,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         window.setContentSize(defaultContentSize)
         window.minSize = NSSize(width: 320, height: 240)
         window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
+        window.titlebarAppearsTransparent = false
         window.isReleasedWhenClosed = false
         window.isRestorable = false
         coordinators.setObject(menuCoordinator, forKey: window)
