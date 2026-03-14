@@ -135,9 +135,13 @@ struct TaskListView: View, TaskListViewProtocol {
         coord.moveSelectedTaskUp = { moveSelectedTaskUp() }
         coord.moveSelectedTaskDown = { moveSelectedTaskDown() }
         coord.markSelectedTaskCompleted = { markSelectedTaskCompleted() }
+        coord.selectAllTasks = {
+            fState.selectAll(displayOrder: allTasksInDisplayOrder.map(\.id))
+        }
         coord.clearCompletedTasks = { clearCompletedTasks() }
         let inNavMode = focusedField == .scrollView
         let singleSelect = !fState.selectedTaskIDs.isEmpty && !fState.hasMultipleSelection
+        coord.canSelectAllTasks = inNavMode && !allTasksInDisplayOrder.isEmpty
         coord.canCopySelectedTask = singleSelect && inNavMode
         coord.canCutSelectedTask = singleSelect && inNavMode
         coord.canPasteAfterSelectedTask = selectedIndex != nil && singleSelect && inNavMode

@@ -15,9 +15,11 @@ final class MenuCoordinator {
     var moveSelectedTaskUp: (() -> Void)?
     var moveSelectedTaskDown: (() -> Void)?
     var markSelectedTaskCompleted: (() -> Void)?
+    var selectAllTasks: (() -> Void)?
     var clearCompletedTasks: (() -> Void)?
 
     // Enabled state — read by AppDelegate in menuWillOpen and validateMenuItem.
+    var canSelectAllTasks = false
     var canCopySelectedTask = false
     var canCutSelectedTask = false
     var canPasteAfterSelectedTask = false

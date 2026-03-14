@@ -214,6 +214,43 @@ final class ListlessMacUITests: XCTestCase {
         )
     }
 
+    // MARK: - Select All
+
+    func testSelectAllThenDelete() {
+        createTask("Alpha")
+        createTask("Bravo")
+        createTask("Charlie")
+        navigateToTask(at: 0)
+        app.typeKey("a", modifierFlags: .command)
+        app.typeKey(.delete, modifierFlags: [])
+        XCTAssertTrue(
+            emptyStateLabel.waitForExistence(timeout: 2),
+            "All tasks should be deleted after Select All + Delete"
+        )
+    }
+
+    func testSelectAllIncludesCompletedTasks() {
+        createTask("Active item")
+        createTask("Done item")
+        app.typeKey(.escape, modifierFlags: [])
+
+        // Complete the second task
+        taskCheckbox(at: 1).click()
+        let completed = app.buttons.matching(
+            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'checkmark.circle.fill'")
+        ).firstMatch
+        XCTAssertTrue(completed.waitForExistence(timeout: 3))
+
+        // Navigate to first task, then select all and delete
+        navigateToTask(at: 0)
+        app.typeKey("a", modifierFlags: .command)
+        app.typeKey(.delete, modifierFlags: [])
+        XCTAssertTrue(
+            emptyStateLabel.waitForExistence(timeout: 2),
+            "Both active and completed tasks should be deleted after Select All + Delete"
+        )
+    }
+
     // MARK: - Clear Completed
 
     func testClearCompleted() {

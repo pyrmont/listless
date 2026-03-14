@@ -53,6 +53,15 @@ struct FocusStateData {
         selectedTaskIDs.count > 1
     }
 
+    /// Select all tasks in display order, anchoring at the first and
+    /// placing the cursor at the last.
+    mutating func selectAll(displayOrder: [UUID]) {
+        guard !displayOrder.isEmpty else { return }
+        anchorTaskID = displayOrder.first
+        cursorTaskID = displayOrder.last
+        selectedTaskIDs = Set(displayOrder)
+    }
+
     /// Extend or contract the selection from the anchor to `targetID`,
     /// selecting all tasks between them in `displayOrder`.
     mutating func extendSelection(to targetID: UUID, displayOrder: [UUID]) {

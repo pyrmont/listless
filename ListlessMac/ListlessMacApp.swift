@@ -56,6 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         }
         guard let coord = keyWindowCoordinator else { return false }
         switch menuItem.action {
+        case #selector(selectAll(_:)):         return coord.canSelectAllTasks
         case #selector(cut(_:)):              return coord.canCutSelectedTask
         case #selector(copy(_:)):             return coord.canCopySelectedTask
         case #selector(paste(_:)):            return coord.canPasteAfterSelectedTask
@@ -81,6 +82,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         } else {
             keyWindowCoordinator?.newTask?()
         }
+    }
+
+    @objc func selectAll(_ sender: Any?) {
+        keyWindowCoordinator?.selectAllTasks?()
     }
 
     @objc func cut(_ sender: Any?) {
