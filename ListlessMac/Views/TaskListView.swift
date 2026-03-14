@@ -394,7 +394,7 @@ struct TaskListView: View, TaskListViewProtocol {
             }
         }
         .overlay {
-            if isCompletelyEmpty {
+            if isCompletelyEmpty && draftPlacement == nil {
                 Text("Click to create")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
