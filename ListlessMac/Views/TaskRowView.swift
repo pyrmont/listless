@@ -99,7 +99,7 @@ struct TaskRowView: View {
             .focused($focusedField, equals: .task(taskID))
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier(
-                isCurrentlyEditing ? "task-textfield" : "task-text-\(task.title)")
+                isCurrentlyEditing ? "task-textfield" : "task-text-\(taskID.uuidString)")
         }
         .padding(.top, 4)
         .padding(.vertical, 8)

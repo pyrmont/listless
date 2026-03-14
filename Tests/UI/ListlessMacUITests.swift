@@ -27,9 +27,10 @@ final class ListlessMacUITests: XCTestCase {
     }
 
     /// Returns the text field for a committed task with the given title.
-    /// Committed tasks expose as TextField with identifier "task-text-\(title)".
     func taskText(_ title: String) -> XCUIElement {
-        app.textFields["task-text-\(title)"]
+        app.textFields.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'task-text-' AND value == %@", title)
+        ).firstMatch
     }
 
     /// Creates a task by typing into the draft field and pressing Return.
@@ -187,9 +188,8 @@ final class ListlessMacUITests: XCTestCase {
         navigateToTask(at: 1)
         app.typeKey(.upArrow, modifierFlags: .command)
 
-        // Use firstMatch to avoid ambiguity if draft row duplicates an identifier
-        let bravo = app.textFields.matching(identifier: "task-text-Bravo").firstMatch
-        let alpha = app.textFields.matching(identifier: "task-text-Alpha").firstMatch
+        let bravo = taskText("Bravo")
+        let alpha = taskText("Alpha")
         XCTAssertTrue(bravo.waitForExistence(timeout: 2))
         XCTAssertTrue(alpha.exists)
         XCTAssertLessThan(
@@ -204,8 +204,8 @@ final class ListlessMacUITests: XCTestCase {
         navigateToTask(at: 0)
         app.typeKey(.downArrow, modifierFlags: .command)
 
-        let alpha = app.textFields.matching(identifier: "task-text-Alpha").firstMatch
-        let bravo = app.textFields.matching(identifier: "task-text-Bravo").firstMatch
+        let alpha = taskText("Alpha")
+        let bravo = taskText("Bravo")
         XCTAssertTrue(alpha.waitForExistence(timeout: 2))
         XCTAssertTrue(bravo.exists)
         XCTAssertGreaterThan(
