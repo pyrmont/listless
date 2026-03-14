@@ -110,7 +110,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     func updateMenuCoordinator() {
         let coord = menuCoordinator
-        coord.newTask = { createNewTask(); focusedField = nil }
+        coord.newTask = { createNewTask() }
         coord.copySelectedTask = {
             guard let taskID = fState.selectedTaskID,
                   let task = tasks.first(where: { $0.id == taskID }) else { return }

@@ -25,8 +25,6 @@ extension TaskListView {
 
                 Button {
                     createNewTask()
-                    // Trigger focus resolution by setting to nil
-                    focusedField = nil
                 } label: {
                     Label("New Item", systemImage: "plus")
                 }

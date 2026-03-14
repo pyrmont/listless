@@ -80,6 +80,22 @@ final class ListlessMacUITests: XCTestCase {
 
     // MARK: - Task Creation
 
+    func testCmdNFocusesDraftField() {
+        app.typeKey("n", modifierFlags: .command)
+        let textField = draftTextField
+        XCTAssertTrue(
+            textField.waitForExistence(timeout: 2),
+            "Draft text field should appear after Cmd+N"
+        )
+        // Type directly without clicking — verifies the field has focus
+        textField.typeText("Focused item")
+        textField.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(
+            taskText("Focused item").waitForExistence(timeout: 2),
+            "Typing without clicking should commit the task if draft field has focus"
+        )
+    }
+
     func testCreateTaskViaMenuShortcut() {
         createTask("Buy groceries")
         XCTAssertTrue(
