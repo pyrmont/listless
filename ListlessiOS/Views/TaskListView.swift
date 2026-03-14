@@ -295,7 +295,8 @@ struct TaskListView: View, TaskListViewProtocol {
                         }
                     }
                 },
-                returnKeyType: .done
+                returnKeyType: .done,
+                uiAccessibilityIdentifier: "draft-row-prepend"
             )
             .focused($focusedFieldBinding, equals: .task(draftPrependRowID))
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -361,7 +362,8 @@ struct TaskListView: View, TaskListViewProtocol {
                     },
                     returnKeyType: draftTitle.trimmingCharacters(
                         in: .whitespacesAndNewlines
-                    ).isEmpty ? .done : .next
+                    ).isEmpty ? .done : .next,
+                    uiAccessibilityIdentifier: "draft-row-append"
                 )
                 .focused($focusedFieldBinding, equals: .task(draftAppendRowID))
                 .frame(maxWidth: .infinity, alignment: .leading)

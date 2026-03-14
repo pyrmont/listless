@@ -71,6 +71,8 @@ struct TaskRowView: View {
                     .font(.system(size: 17))
             }
             .buttonStyle(.borderless)
+            .accessibilityIdentifier("task-checkbox")
+            .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
 
             TappableTextField(
                 text: $editingTitle,
@@ -89,7 +91,8 @@ struct TaskRowView: View {
                 onContentChange: { newTitle in
                     guard !task.isCompleted else { return }
                     onTitleChange(task, newTitle)
-                }
+                },
+                uiAccessibilityIdentifier: "task-text-\(taskID.uuidString)"
             )
             .focused($focusedField, equals: .task(taskID))
             .frame(maxWidth: .infinity, alignment: .leading)

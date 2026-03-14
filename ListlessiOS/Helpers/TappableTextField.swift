@@ -11,9 +11,11 @@ struct TappableTextField: UIViewRepresentable {
     let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
     var returnKeyType: UIReturnKeyType = .done
     var onContentChange: ((String) -> Void)? = nil
+    var uiAccessibilityIdentifier: String? = nil
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
+        textView.accessibilityIdentifier = uiAccessibilityIdentifier
         textView.delegate = context.coordinator
         textView.font = TaskRowMetrics.bodyUIK
         textView.backgroundColor = .clear
@@ -54,6 +56,7 @@ struct TappableTextField: UIViewRepresentable {
             textView.returnKeyType = returnKeyType
             textView.reloadInputViews()
         }
+        textView.accessibilityIdentifier = uiAccessibilityIdentifier
         textView.isEditable = !isCompleted && !isDragging
         textView.isSelectable = !isCompleted && !isDragging
         if let placeholder = textView.viewWithTag(100) as? UILabel {
@@ -65,7 +68,8 @@ struct TappableTextField: UIViewRepresentable {
         let proposedWidth = proposal.width ?? uiView.bounds.width
         let width = proposedWidth > 0 ? proposedWidth : (uiView.window?.bounds.width ?? 0)
         guard width > 0 else { return nil }
-        return uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        let fitted = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        return CGSize(width: width, height: fitted.height)
     }
 
     func makeCoordinator() -> Coordinator {

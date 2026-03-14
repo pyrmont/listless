@@ -21,6 +21,7 @@
 		19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		1A66A0454558B207AF9265D4 /* UndoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658295C1386BFF48CE3C2419 /* UndoToast.swift */; };
 		1AA328A921EF8A7FDD03119A /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
+		239F975836FD432A5FF04036 /* ListlessiOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C0D6F2667BD14F29CB84E5 /* ListlessiOSUITests.swift */; };
 		264BD64C1DD30376E8BDAF79 /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		269B93D5543770B464DFB37A /* TaskStoreOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */; };
 		26F609518DE1055DF09B0159 /* TaskListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712ADAD0FE66175DAA9A6D50 /* TaskListView+NavigationHeader.swift */; };
@@ -131,6 +132,13 @@
 			remoteGlobalIDString = 0FB4F07A37999BBC6DFE4DBB;
 			remoteInfo = "Listless macOS";
 		};
+		EE50B14FCB0F89292F1E2A01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3256C2BF8F1DAF371DA32120 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 34A03D42B91730DEAC2EBD8E;
+			remoteInfo = "Listless iOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -150,6 +158,7 @@
 /* Begin PBXFileReference section */
 		01E141436176F83594E2F26B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowSwipeGesture.swift; sourceTree = "<group>"; };
+		0B750F1634E250256AF3FEB6 /* Listless iOS UI Tests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Listless iOS UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		126108860D7878DDC3BECC4B /* Listless iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Listless iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
 		199CC2F58DD7CBA3F2229366 /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
@@ -184,6 +193,7 @@
 		75B048B19C5219862BBED2E7 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		7A7BD42B1E3C71333FA24893 /* TaskListView+SyncUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+SyncUI.swift"; sourceTree = "<group>"; };
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
+		88C0D6F2667BD14F29CB84E5 /* ListlessiOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSUITests.swift; sourceTree = "<group>"; };
 		8AACB5E40BEBA75E7FE8B930 /* TaskListView+Undo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Undo.swift"; sourceTree = "<group>"; };
 		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		92D1AF0DE30657AAD86482CA /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
@@ -251,6 +261,7 @@
 		20349AB212EAB4FB5F21D959 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				88C0D6F2667BD14F29CB84E5 /* ListlessiOSUITests.swift */,
 				EADAA53B8BCBC80AEFF191EF /* ListlessMacUITests.swift */,
 			);
 			name = UI;
@@ -271,6 +282,7 @@
 		3936BDEE64D16E6C4C85B3DD /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				0B750F1634E250256AF3FEB6 /* Listless iOS UI Tests.xctest */,
 				C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */,
 				126108860D7878DDC3BECC4B /* Listless iOS.app */,
 				CCB5F87A520B1CD47F2F71D0 /* Listless macOS UI Tests.xctest */,
@@ -575,6 +587,24 @@
 			productReference = C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		E550C54CD9C9DD7CAF62B601 /* Listless iOS UI Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54D8A976635B970879C3A083 /* Build configuration list for PBXNativeTarget "Listless iOS UI Tests" */;
+			buildPhases = (
+				8A2F25417981C1E116479B25 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0338860A3D6FCAAFEECA5254 /* PBXTargetDependency */,
+			);
+			name = "Listless iOS UI Tests";
+			packageProductDependencies = (
+			);
+			productName = "Listless iOS UI Tests";
+			productReference = 0B750F1634E250256AF3FEB6 /* Listless iOS UI Tests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		ECF4D3D0597D0648A1FBC4A4 /* Listless macOS UI Tests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CD8CF62F04D9EA70CFD04DDD /* Build configuration list for PBXNativeTarget "Listless macOS UI Tests" */;
@@ -622,6 +652,11 @@
 						DevelopmentTeam = 7TD7PZBNXP;
 						ProvisioningStyle = Automatic;
 					};
+					E550C54CD9C9DD7CAF62B601 = {
+						DevelopmentTeam = 7TD7PZBNXP;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 34A03D42B91730DEAC2EBD8E;
+					};
 					ECF4D3D0597D0648A1FBC4A4 = {
 						DevelopmentTeam = 7TD7PZBNXP;
 						ProvisioningStyle = Automatic;
@@ -644,6 +679,7 @@
 			projectRoot = "";
 			targets = (
 				34A03D42B91730DEAC2EBD8E /* Listless iOS */,
+				E550C54CD9C9DD7CAF62B601 /* Listless iOS UI Tests */,
 				D533FDEDCE6DFCA2E8CB70F5 /* Listless iOS Unit Tests */,
 				0FB4F07A37999BBC6DFE4DBB /* Listless macOS */,
 				ECF4D3D0597D0648A1FBC4A4 /* Listless macOS UI Tests */,
@@ -799,6 +835,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8A2F25417981C1E116479B25 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				239F975836FD432A5FF04036 /* ListlessiOSUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D959A967B1BB3E9246C006D7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -815,6 +859,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0338860A3D6FCAAFEECA5254 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 34A03D42B91730DEAC2EBD8E /* Listless iOS */;
+			targetProxy = EE50B14FCB0F89292F1E2A01 /* PBXContainerItemProxy */;
+		};
 		03DCFDF6E769DBF0DBC470F6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 34A03D42B91730DEAC2EBD8E /* Listless iOS */;
@@ -906,6 +955,24 @@
 				TARGETED_DEVICE_FAMILY = 4;
 			};
 			name = Release;
+		};
+		A59B52CB6CD91C01F164C0F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Listless iOS";
+			};
+			name = Debug;
 		};
 		A5A377EA0FE470803E2B6BA1 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -1022,6 +1089,24 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Listless iOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Listless iOS";
 			};
 			name = Debug;
+		};
+		C8A7D13CC2AAF9DEA65CA25E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.ios.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Listless iOS";
+			};
+			name = Release;
 		};
 		CF2E8B9803D045F7F301E05E /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1202,6 +1287,15 @@
 			buildConfigurations = (
 				2D4E3CC5FF8E6299F754CCFC /* Debug */,
 				A5A377EA0FE470803E2B6BA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		54D8A976635B970879C3A083 /* Build configuration list for PBXNativeTarget "Listless iOS UI Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A59B52CB6CD91C01F164C0F6 /* Debug */,
+				C8A7D13CC2AAF9DEA65CA25E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
