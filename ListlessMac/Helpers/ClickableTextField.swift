@@ -5,6 +5,24 @@ import SwiftUI
 class ClickableNSTextField: NSTextField {
     var onBecomeFirstResponder: (() -> Void)?
 
+    /// When true, text fields that are not currently editing refuse first
+    /// responder. Set around `makeFirstResponder(nil)` calls triggered by
+    /// Return/Escape so that AppKit's key-view loop does not jump focus to
+    /// the first text field in the window.
+    static var blockKeyViewLoop = false
+
+    override var acceptsFirstResponder: Bool {
+        if ClickableNSTextField.blockKeyViewLoop && currentEditor() == nil {
+            // Allow click-initiated focus even while blocking the key-view loop.
+            if let event = NSApp.currentEvent, event.type == .leftMouseDown {
+                ClickableNSTextField.blockKeyViewLoop = false
+            } else {
+                return false
+            }
+        }
+        return super.acceptsFirstResponder
+    }
+
     override func becomeFirstResponder() -> Bool {
         let result = super.becomeFirstResponder()
         if result, let event = NSApp.currentEvent, event.type == .leftMouseDown {
@@ -191,14 +209,18 @@ struct ClickableTextField: NSViewRepresentable {
             // Checker priority inversion warning. This is internal to AppKit's
             // first responder machinery, not caused by our callback chain.
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                // Return key pressed
+                // Return key pressed — block the key-view loop until
+                // SwiftUI has finished processing the focus change.
+                // The flag is cleared in TaskListView's outer onChange.
                 editEndReason = .returnKey
+                ClickableNSTextField.blockKeyViewLoop = true
                 control.window?.makeFirstResponder(nil)
                 return true  // Prevent newline insertion
             }
             if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
-                // Escape key pressed
+                // Escape key pressed — same blocking strategy as Return.
                 editEndReason = .escape
+                ClickableNSTextField.blockKeyViewLoop = true
                 control.window?.makeFirstResponder(nil)
                 return true
             }

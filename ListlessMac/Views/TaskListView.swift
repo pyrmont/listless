@@ -421,6 +421,13 @@ struct TaskListView: View, TaskListViewProtocol {
             updateMenuCoordinator()
         }
         .onChange(of: focusedFieldBinding) { oldValue, newValue in
+            // Clear the key-view-loop block set by doCommandBy on
+            // Return/Escape. Safe because all current endEditing paths
+            // target either .scrollView (not an NSTextField) or a new
+            // draft view (not yet rendered). If a future path needs to
+            // focus an existing text field, it must clear this flag
+            // before setting focusedField.
+            ClickableNSTextField.blockKeyViewLoop = false
             fState.focusedField = newValue
             handleFocusChange(from: oldValue, to: newValue)
 

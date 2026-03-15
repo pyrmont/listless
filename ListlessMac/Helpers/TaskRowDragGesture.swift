@@ -108,7 +108,7 @@ struct TaskRowDragGesture: ViewModifier {
 // MARK: - Drag Source
 
 @MainActor
-class DragSourceManager: NSObject, @preconcurrency NSDraggingSource {
+class DragSourceManager: NSObject, NSDraggingSource {
     weak var sourceView: NSView?
     var isActive = false
     var onDragEnd: (() -> Void)?
