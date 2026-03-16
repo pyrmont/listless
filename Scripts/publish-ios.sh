@@ -102,7 +102,10 @@ echo "==> Checking entitlements in exported IPA..."
 CHECK_DIR="/tmp/Listless-ipa-check"
 rm -rf "$CHECK_DIR"
 unzip -q "$IPA_PATH" -d "$CHECK_DIR"
+echo "--- iOS app entitlements ---"
 codesign -d --entitlements - "$CHECK_DIR/Payload/Listless iOS.app"
+echo "--- watchOS app entitlements ---"
+codesign -d --entitlements - "$CHECK_DIR/Payload/Listless iOS.app/Watch/Listless.app"
 rm -rf "$CHECK_DIR"
 
 if $CHECK_ONLY; then
