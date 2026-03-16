@@ -197,9 +197,11 @@ struct TaskListView: View, TaskListViewProtocol {
                         onTitleChange: { updateTitle($0, $1) },
                         onDelete: { deleteTask($0) },
                         onSelect: {
+                            let modifiers = NSApp.currentEvent?.modifierFlags ?? []
                             selectTask(
                                 $0,
-                                extendSelection: NSEvent.modifierFlags.contains(.shift)
+                                extendSelection: modifiers.contains(.shift),
+                                toggleSelection: modifiers.contains(.command)
                             )
                         },
                         onStartEdit: { startEditing($0) },

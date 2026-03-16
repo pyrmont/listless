@@ -1,3 +1,4 @@
+import CoreGraphics
 import XCTest
 
 final class ListlessMacUITests: XCTestCase {
@@ -61,6 +62,38 @@ final class ListlessMacUITests: XCTestCase {
         for _ in 0...index {
             app.typeKey(.downArrow, modifierFlags: [])
         }
+    }
+
+    /// Performs a Command+Click on the row containing the given task title.
+    /// Uses CGEvent mouse events with `.maskCommand` so the app sees the
+    /// modifier via `NSApp.currentEvent?.modifierFlags`. Clicks in the
+    /// row's left padding area (before the checkbox) so the tap gesture
+    /// fires rather than the text field or checkbox.
+    func cmdClickRow(withText title: String) {
+        let textField = taskText(title)
+        XCTAssertTrue(textField.waitForExistence(timeout: 2))
+        // Offset to the left of the text field, into the row's 16pt left padding.
+        let coord = textField.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5))
+            .withOffset(CGVector(dx: -40, dy: 0))
+        let point = coord.screenPoint
+
+        let src = CGEventSource(stateID: .combinedSessionState)
+
+        let mouseDown = CGEvent(
+            mouseEventSource: src, mouseType: .leftMouseDown,
+            mouseCursorPosition: point, mouseButton: .left
+        )!
+        mouseDown.flags = .maskCommand
+        mouseDown.post(tap: .cgSessionEventTap)
+        usleep(50_000)
+
+        let mouseUp = CGEvent(
+            mouseEventSource: src, mouseType: .leftMouseUp,
+            mouseCursorPosition: point, mouseButton: .left
+        )!
+        mouseUp.flags = .maskCommand
+        mouseUp.post(tap: .cgSessionEventTap)
+        usleep(200_000)
     }
 
     // MARK: - Empty State
@@ -286,6 +319,138 @@ final class ListlessMacUITests: XCTestCase {
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 3),
             "Empty state should reappear after clearing the only completed task"
+        )
+    }
+
+    // MARK: - Shift+Arrow Selection
+
+    func testShiftDownExtendsSelection() {
+        createTask("Alpha")
+        createTask("Bravo")
+        createTask("Charlie")
+        navigateToTask(at: 0)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        // All three should be selected; delete removes them all.
+        app.typeKey(.delete, modifierFlags: [])
+        XCTAssertTrue(
+            emptyStateLabel.waitForExistence(timeout: 2),
+            "All three tasks should be deleted after Shift+Down range select"
+        )
+    }
+
+    func testShiftUpContractsSelection() {
+        createTask("Alpha")
+        createTask("Bravo")
+        createTask("Charlie")
+        navigateToTask(at: 0)
+        // Extend down to select Alpha, Bravo, Charlie
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        // Contract back up: deselect Charlie, then Bravo
+        app.typeKey(.upArrow, modifierFlags: .shift)
+        app.typeKey(.upArrow, modifierFlags: .shift)
+        // Only Alpha should be selected now.
+        app.typeKey(.delete, modifierFlags: [])
+        XCTAssertTrue(taskText("Bravo").waitForExistence(timeout: 2), "Bravo should remain")
+        XCTAssertTrue(taskText("Charlie").exists, "Charlie should remain")
+        XCTAssertFalse(taskText("Alpha").exists, "Alpha should be deleted")
+    }
+
+    func testSelectAllThenShiftDown() {
+        createTask("Alpha")
+        createTask("Bravo")
+        createTask("Charlie")
+        navigateToTask(at: 0)
+        // Select all via Cmd+A
+        app.typeKey("a", modifierFlags: .command)
+        // Shift+Down should be a no-op (cursor already at last item).
+        // All three should still be selected.
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        app.typeKey(.delete, modifierFlags: [])
+        XCTAssertTrue(
+            emptyStateLabel.waitForExistence(timeout: 2),
+            "All tasks should still be selected after Shift+Down at end"
+        )
+    }
+
+    // MARK: - Cmd+Click Selection
+
+    func testCmdClickDeselectsFromRange() {
+        createTask("Alpha")
+        createTask("Bravo")
+        createTask("Charlie")
+        navigateToTask(at: 0)
+        // Extend selection to all three
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        // Cmd+Click Bravo to deselect it
+        cmdClickRow(withText: "Bravo")
+        app.typeKey(.delete, modifierFlags: [])
+
+        XCTAssertTrue(
+            taskText("Bravo").waitForExistence(timeout: 2),
+            "Bravo should remain (was deselected by Cmd+Click)"
+        )
+        XCTAssertFalse(taskText("Alpha").exists, "Alpha should be deleted")
+        XCTAssertFalse(taskText("Charlie").exists, "Charlie should be deleted")
+    }
+
+    func testCmdClickAddsToSelection() {
+        createTask("Alpha")
+        createTask("Bravo")
+        createTask("Charlie")
+        navigateToTask(at: 0)
+        // Cmd+Click Charlie to add it to selection
+        cmdClickRow(withText: "Charlie")
+        app.typeKey(.delete, modifierFlags: [])
+
+        XCTAssertTrue(
+            taskText("Bravo").waitForExistence(timeout: 2),
+            "Bravo should remain (was not selected)"
+        )
+        XCTAssertFalse(taskText("Alpha").exists, "Alpha should be deleted")
+        XCTAssertFalse(taskText("Charlie").exists, "Charlie should be deleted")
+    }
+
+    func testShiftUpAfterCmdClickDeselect() {
+        createTask("Delta")
+        createTask("Echo")
+        createTask("Foxtrot")
+        createTask("Golf")
+        navigateToTask(at: 0)
+        // Select Delta through Golf
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        // Cmd+Click Echo to deselect: {Delta, Foxtrot, Golf}
+        cmdClickRow(withText: "Echo")
+        // Shift+Up contracts from cursor end: removes Golf → {Delta, Foxtrot}
+        app.typeKey(.upArrow, modifierFlags: .shift)
+        app.typeKey(.delete, modifierFlags: [])
+
+        XCTAssertTrue(taskText("Echo").waitForExistence(timeout: 2), "Echo should remain")
+        XCTAssertTrue(taskText("Golf").exists, "Golf should remain")
+        XCTAssertFalse(taskText("Delta").exists, "Delta should be deleted")
+        XCTAssertFalse(taskText("Foxtrot").exists, "Foxtrot should be deleted")
+    }
+
+    func testSelectAllAfterCmdClick() {
+        createTask("Alpha")
+        createTask("Bravo")
+        createTask("Charlie")
+        navigateToTask(at: 0)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        app.typeKey(.downArrow, modifierFlags: .shift)
+        // Cmd+Click Bravo to create discontinuous selection {Alpha, Charlie}
+        cmdClickRow(withText: "Bravo")
+        // Cmd+A should select all, clearing any discontinuous state
+        app.typeKey("a", modifierFlags: .command)
+        app.typeKey(.delete, modifierFlags: [])
+
+        XCTAssertTrue(
+            emptyStateLabel.waitForExistence(timeout: 2),
+            "All tasks should be deleted after Select All"
         )
     }
 }

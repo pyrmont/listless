@@ -271,8 +271,17 @@ extension TaskListViewProtocol {
         deleteTask(task)
     }
 
-    func selectTask(_ taskID: UUID, extendSelection: Bool = false) {
-        if extendSelection && fState.selectedTaskID != nil {
+    func selectTask(
+        _ taskID: UUID,
+        extendSelection: Bool = false,
+        toggleSelection: Bool = false
+    ) {
+        if toggleSelection {
+            fState.toggleSelection(
+                taskID: taskID,
+                displayOrder: allTasksInDisplayOrder.map(\.id)
+            )
+        } else if extendSelection && fState.selectedTaskID != nil {
             if fState.anchorTaskID == nil {
                 fState.anchorTaskID = fState.cursorTaskID
             }
