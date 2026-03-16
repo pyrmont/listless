@@ -17,6 +17,6 @@
 		<string>iCloud.net.inqk.listless</string>
 	</array>
 	<key>com.apple.developer.ubiquity-kvstore-identifier</key>
-	<string>$(TeamIdentifierPrefix)$(CFBundleIdentifier)</string>
+	<string>$(TeamIdentifierPrefix)net.inqk.listless</string>
 </dict>
 </plist>
