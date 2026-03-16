@@ -12,11 +12,15 @@ private enum MenuSelectors {
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private let persistenceController: PersistenceController
     private var syncDiagnosticsWindow: NSWindow?
-    private let coordinators = NSMapTable<NSWindow, MenuCoordinator>.weakToStrongObjects()
+    private let coordinators = NSMapTable<NSWindow, WindowCoordinator>.weakToStrongObjects()
 
-    private var keyWindowCoordinator: MenuCoordinator? {
+    private var keyWindowCoordinator: WindowCoordinator? {
         guard let window = NSApp.keyWindow else { return nil }
         return coordinators.object(forKey: window)
+    }
+
+    func coordinator(for window: NSWindow) -> WindowCoordinator? {
+        coordinators.object(forKey: window)
     }
 
     override init() {
@@ -130,11 +134,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     private func openNewWindow() {
         let defaultContentSize = NSSize(width: 400, height: 350)
-        let menuCoordinator = MenuCoordinator()
+        let windowCoordinator = WindowCoordinator()
         let rootView = TaskListView(
             store: TaskStore(persistenceController: persistenceController),
             syncMonitor: persistenceController.syncMonitor,
-            menuCoordinator: menuCoordinator
+            windowCoordinator: windowCoordinator
         )
         .environment(\.managedObjectContext, persistenceController.viewContext)
 
@@ -152,7 +156,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         window.titlebarAppearsTransparent = false
         window.isReleasedWhenClosed = false
         window.isRestorable = false
-        coordinators.setObject(menuCoordinator, forKey: window)
+        coordinators.setObject(windowCoordinator, forKey: window)
         let referenceWindow = NSApp.orderedWindows.first { existingWindow in
             existingWindow.isVisible && existingWindow.title == "Items"
         }

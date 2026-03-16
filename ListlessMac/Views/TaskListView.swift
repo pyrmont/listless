@@ -13,7 +13,7 @@ struct TaskListView: View, TaskListViewProtocol {
     @Environment(\.managedObjectContext) var managedObjectContext
 
     let store: TaskStore
-    let menuCoordinator: MenuCoordinator
+    let windowCoordinator: WindowCoordinator
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
     @FetchRequest(
         sortDescriptors: [],
@@ -98,7 +98,7 @@ struct TaskListView: View, TaskListViewProtocol {
         let selectedIndex: Int?
     }
 
-    var menuCoordinatorTrigger: MenuState {
+    var windowCoordinatorTrigger: MenuState {
         MenuState(
             selectedTaskIDs: fState.selectedTaskIDs,
             isScrollViewFocused: focusedField == .scrollView,
@@ -108,8 +108,8 @@ struct TaskListView: View, TaskListViewProtocol {
         )
     }
 
-    func updateMenuCoordinator() {
-        let coord = menuCoordinator
+    func updateWindowCoordinator() {
+        let coord = windowCoordinator
         coord.newTask = { createNewTask() }
         coord.copySelectedTask = {
             guard let taskID = fState.selectedTaskID,
@@ -153,10 +153,10 @@ struct TaskListView: View, TaskListViewProtocol {
         coord.canClearCompletedTasks = !completedTasks.isEmpty
     }
 
-    init(store: TaskStore, syncMonitor: CloudKitSyncMonitor, menuCoordinator: MenuCoordinator) {
+    init(store: TaskStore, syncMonitor: CloudKitSyncMonitor, windowCoordinator: WindowCoordinator) {
         self.store = store
         self.syncMonitor = syncMonitor
-        self.menuCoordinator = menuCoordinator
+        self.windowCoordinator = windowCoordinator
     }
 
     func isRowLifted(_ taskID: UUID) -> Bool {
@@ -299,7 +299,8 @@ struct TaskListView: View, TaskListViewProtocol {
                                         shouldCreateNewTask: shouldCreateNewTask
                                     )
                                 }
-                            }
+                            },
+                            taskID: draftAppendRowID
                         )
                         .focused(
                             $focusedFieldBinding,
@@ -418,33 +419,35 @@ struct TaskListView: View, TaskListViewProtocol {
                 focusedFieldBinding = .scrollView
             }
             fState.focusedField = focusedFieldBinding
-            updateMenuCoordinator()
+            updateWindowCoordinator()
         }
         .onChange(of: focusedFieldBinding) { oldValue, newValue in
-            // Clear the key-view-loop block set by doCommandBy on
-            // Return/Escape. Safe because all current endEditing paths
-            // target either .scrollView (not an NSTextField) or a new
-            // draft view (not yet rendered). If a future path needs to
-            // focus an existing text field, it must clear this flag
-            // before setting focusedField.
-            ClickableNSTextField.blockKeyViewLoop = false
+            // Clear the per-window focus gate once we've landed on
+            // a non-nil value (reconciliation is done). Keep it set
+            // while nil so the redirect below doesn't open a window
+            // for AppKit's key-view loop.
+            if newValue != nil {
+                windowCoordinator.allowedFocusTarget = nil
+            }
             fState.focusedField = newValue
             handleFocusChange(from: oldValue, to: newValue)
 
-            if newValue == nil {
-                if let pending = fState.pendingFocus {
-                    focusedFieldBinding = pending
-                    fState.focusedField = pending
-                    fState.pendingFocus = nil
-                } else {
-                    focusedFieldBinding = .scrollView
-                    fState.focusedField = .scrollView
-                }
+            if let pending = fState.pendingFocus, newValue != pending {
+                // Focus landed somewhere other than the intended
+                // target (or went nil). Set the allowed target so
+                // the text field can claim focus in
+                // viewDidMoveToWindow if it's not yet in the
+                // hierarchy, and redirect immediately in case it is.
+                windowCoordinator.allowedFocusTarget = pending
+                fState.pendingFocus = nil
+                focusedField = pending
+            } else if newValue == nil {
+                focusedField = .scrollView
             }
 
-            updateMenuCoordinator()
+            updateWindowCoordinator()
         }
-        .onChange(of: menuCoordinatorTrigger) { _, _ in updateMenuCoordinator() }
+        .onChange(of: windowCoordinatorTrigger) { _, _ in updateWindowCoordinator() }
         .onChange(of: undoManager, initial: true) { _, newValue in
             managedObjectContext.undoManager = newValue
         }

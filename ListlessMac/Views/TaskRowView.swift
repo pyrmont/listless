@@ -91,6 +91,7 @@ struct TaskRowView: View {
                         onEndEdit(taskID, shouldCreateNewTask)
                     }
                 },
+                taskID: taskID,
                 onContentChange: { newTitle in
                     guard !task.isCompleted else { return }
                     onTitleChange(task, newTitle)

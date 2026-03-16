@@ -1,9 +1,9 @@
 import Foundation
 
-// Bridges SwiftUI view state to AppKit menu items without using SwiftUI's Commands API.
+// Bridges SwiftUI view state to AppKit without using SwiftUI's Commands API.
 // One instance per window; AppDelegate resolves the key window's coordinator at dispatch time.
 @MainActor
-final class MenuCoordinator {
+final class WindowCoordinator {
 
     // Actions — set by TaskListView on each relevant state change.
     var newTask: (() -> Void)?
@@ -31,4 +31,10 @@ final class MenuCoordinator {
 
     // Dynamic titles — read by AppDelegate in validateMenuItem.
     var markCompletedTitle: String = "Mark as Complete"
+
+    // Focus gating — checked by ClickableNSTextField.acceptsFirstResponder
+    // to prevent AppKit's key-view loop from focusing the wrong text field
+    // during SwiftUI reconciliation. When non-nil, only the text field
+    // matching this target may accept first responder.
+    var allowedFocusTarget: FocusField?
 }

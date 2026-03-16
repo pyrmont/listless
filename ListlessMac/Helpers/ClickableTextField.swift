@@ -5,22 +5,46 @@ import SwiftUI
 class ClickableNSTextField: NSTextField {
     var onBecomeFirstResponder: (() -> Void)?
 
-    /// When true, text fields that are not currently editing refuse first
-    /// responder. Set around `makeFirstResponder(nil)` calls triggered by
-    /// Return/Escape so that AppKit's key-view loop does not jump focus to
-    /// the first text field in the window.
-    static var blockKeyViewLoop = false
+    /// The task ID this text field represents, used by the per-window
+    /// `WindowCoordinator.allowedFocusTarget` check.
+    var taskID: UUID?
 
     override var acceptsFirstResponder: Bool {
-        if ClickableNSTextField.blockKeyViewLoop && currentEditor() == nil {
-            // Allow click-initiated focus even while blocking the key-view loop.
-            if let event = NSApp.currentEvent, event.type == .leftMouseDown {
-                ClickableNSTextField.blockKeyViewLoop = false
-            } else {
-                return false
+        // Always allow if this field is already editing.
+        if currentEditor() != nil { return super.acceptsFirstResponder }
+
+        // Always allow click-initiated focus.
+        if let event = NSApp.currentEvent, event.type == .leftMouseDown {
+            return super.acceptsFirstResponder
+        }
+
+        // Check the per-window coordinator for an allowed focus target.
+        if let window,
+            let delegate = NSApp.delegate as? AppDelegate,
+            let coordinator = delegate.coordinator(for: window)
+        {
+            if let allowed = coordinator.allowedFocusTarget {
+                // A specific target is set — only that field may accept.
+                guard let taskID, case .task(let allowedID) = allowed, allowedID == taskID else {
+                    return false
+                }
             }
         }
+
         return super.acceptsFirstResponder
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard let window,
+            let taskID,
+            let delegate = NSApp.delegate as? AppDelegate,
+            let coordinator = delegate.coordinator(for: window)
+        else { return }
+        if case .task(let allowedID) = coordinator.allowedFocusTarget, allowedID == taskID {
+            coordinator.allowedFocusTarget = nil
+            window.makeFirstResponder(self)
+        }
     }
 
     override func becomeFirstResponder() -> Bool {
@@ -40,10 +64,12 @@ struct ClickableTextField: NSViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
     let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+    var taskID: UUID? = nil
     var onContentChange: ((String) -> Void)? = nil
 
     func makeNSView(context: Context) -> ClickableNSTextField {
         let textField = ClickableNSTextField()
+        textField.taskID = taskID
         textField.delegate = context.coordinator
         textField.isBordered = false
         textField.drawsBackground = false
@@ -209,22 +235,31 @@ struct ClickableTextField: NSViewRepresentable {
             // Checker priority inversion warning. This is internal to AppKit's
             // first responder machinery, not caused by our callback chain.
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                // Return key pressed — block the key-view loop until
-                // SwiftUI has finished processing the focus change.
-                // The flag is cleared in TaskListView's outer onChange.
+                // Return key pressed — set the per-window allowed focus
+                // target to .scrollView so no text field can steal focus
+                // during reconciliation. Cleared in TaskListView's outer
+                // onChange(of: focusedFieldBinding).
                 editEndReason = .returnKey
-                ClickableNSTextField.blockKeyViewLoop = true
+                setAllowedFocusTarget(for: control.window, target: .scrollView)
                 control.window?.makeFirstResponder(nil)
                 return true  // Prevent newline insertion
             }
             if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
-                // Escape key pressed — same blocking strategy as Return.
+                // Escape key pressed — same strategy as Return.
                 editEndReason = .escape
-                ClickableNSTextField.blockKeyViewLoop = true
+                setAllowedFocusTarget(for: control.window, target: .scrollView)
                 control.window?.makeFirstResponder(nil)
                 return true
             }
             return false
+        }
+
+        private func setAllowedFocusTarget(for window: NSWindow?, target: FocusField) {
+            guard let window,
+                let delegate = NSApp.delegate as? AppDelegate,
+                let coordinator = delegate.coordinator(for: window)
+            else { return }
+            coordinator.allowedFocusTarget = target
         }
     }
 }
