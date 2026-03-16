@@ -5,21 +5,12 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("headingText") private var headingText = "Items"
     @AppStorage("appearanceMode") private var appearanceMode = 0
-    @AppStorage("flickThreshold") private var flickThreshold: Double = 800
 
     var body: some View {
         NavigationStack {
             List {
                 Section("List Title") {
                     TextField("List Title", text: $headingText)
-                }
-
-                Section("Flick Sensitivity") {
-                    HStack {
-                        Text("\(Int(flickThreshold)) pt/s")
-                            .monospacedDigit()
-                        Slider(value: $flickThreshold, in: 200...2000, step: 50)
-                    }
                 }
 
                 Section("Appearance") {
