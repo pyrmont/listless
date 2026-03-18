@@ -56,6 +56,7 @@
 		77970A2323A598E830D95301 /* TaskListView+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB43816B8E7F083A2AD07F28 /* TaskListView+Toolbar.swift */; };
 		77FE96F070B1F7FE31A9CE51 /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */; };
 		785721EB774EAC6BBA26C038 /* PullToClear.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567DBAC2A39FA2760D006AAB /* PullToClear.swift */; };
+		7BB45276D4EB96B8425D2EBD /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DB90B3400C191460F4F4BD /* AppColors.swift */; };
 		7E366008FF9335A77FE1636D /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199CC2F58DD7CBA3F2229366 /* TaskRowView.swift */; };
 		80BCA654FE694D8A77D9BF93 /* TaskListView+PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8D4C29E09FEE78AE5AB79 /* TaskListView+PullToCreate.swift */; };
 		82E75475E13FD847DDDC69D8 /* TaskListView+Drag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA75CA18C6270D68A755AEB /* TaskListView+Drag.swift */; };
@@ -212,6 +213,7 @@
 		BC845482926A73B0BF820328 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToCreate.swift; sourceTree = "<group>"; };
 		C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		C4DB90B3400C191460F4F4BD /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		C611E04943F1D82D6F975592 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C6812E535A24C599C28F9278 /* Listless watchOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless watchOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Listless iOS Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -296,6 +298,7 @@
 		42CC0393E2524624AEC54D03 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				C4DB90B3400C191460F4F4BD /* AppColors.swift */,
 				4C79ABB39A40D3E1828716C7 /* AppCommands.swift */,
 				F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */,
 				D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */,
@@ -744,6 +747,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99D17075DA3F00F52A18BB4D /* AccentColor.swift in Sources */,
+				7BB45276D4EB96B8425D2EBD /* AppColors.swift in Sources */,
 				B7CFDCA5EA48EDE1C768FA21 /* AppCommands.swift in Sources */,
 				37AEF10712B3325BF9BC72E4 /* BackgroundClickMonitor.swift in Sources */,
 				DB5FF6C1AA57D4C9BDDD50FD /* ClickableTextField.swift in Sources */,

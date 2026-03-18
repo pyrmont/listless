@@ -111,16 +111,6 @@ struct TaskRowView: View {
             onSelect(taskID)
         }
         .background(selectionBackground)
-        .overlay(alignment: .bottom) {
-            if !task.isCompleted {
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.15)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 6)
-            }
-        }
         .overlay(alignment: .leading) {
             // Colored accent bar on the left edge
             Rectangle()

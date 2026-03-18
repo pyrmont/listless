@@ -396,6 +396,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 handleBackgroundTap()
             }
         }
+        .background(Color.outerBackground)
         .overlay {
             if isCompletelyEmpty && draftPlacement == nil {
                 Text("Click to create")

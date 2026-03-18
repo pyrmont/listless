@@ -13,6 +13,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private let persistenceController: PersistenceController
     private var syncDiagnosticsWindow: NSWindow?
     private let coordinators = NSMapTable<NSWindow, WindowCoordinator>.weakToStrongObjects()
+    private static let appearanceModeKey = "appearanceMode"
 
     private var keyWindowCoordinator: WindowCoordinator? {
         guard let window = NSApp.keyWindow else { return nil }
@@ -31,6 +32,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSWindow.allowsAutomaticWindowTabbing = false
+        applyAppearanceMode(UserDefaults.standard.integer(forKey: Self.appearanceModeKey))
         installMainMenu()
         openNewWindow()
     }
@@ -54,6 +56,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
         case #selector(handleNewWindow), #selector(handleShowSyncDiagnostics):
+            return true
+        case #selector(handleAppearanceSystem), #selector(handleAppearanceLight), #selector(handleAppearanceDark):
+            let currentMode = UserDefaults.standard.integer(forKey: Self.appearanceModeKey)
+            let itemMode: Int = switch menuItem.action {
+            case #selector(handleAppearanceLight): 1
+            case #selector(handleAppearanceDark): 2
+            default: 0
+            }
+            menuItem.state = (currentMode == itemMode) ? .on : .off
             return true
         default:
             break
@@ -130,6 +141,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     @objc func handleShowSyncDiagnostics() {
         openSyncDiagnosticsWindow()
+    }
+
+    @objc private func handleAppearanceSystem() { setAppearanceMode(0) }
+    @objc private func handleAppearanceLight() { setAppearanceMode(1) }
+    @objc private func handleAppearanceDark() { setAppearanceMode(2) }
+
+    private func setAppearanceMode(_ mode: Int) {
+        UserDefaults.standard.set(mode, forKey: Self.appearanceModeKey)
+        applyAppearanceMode(mode)
+    }
+
+    private func applyAppearanceMode(_ mode: Int) {
+        NSApp.appearance = switch mode {
+        case 1: NSAppearance(named: .aqua)
+        case 2: NSAppearance(named: .darkAqua)
+        default: nil
+        }
     }
 
     private func openNewWindow() {
@@ -322,6 +350,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         mainMenu.addItem(editMenuItem)
 
         let viewMenu = NSMenu(title: "View")
+
+        let appearanceMenu = NSMenu(title: "Appearance")
+        let systemItem = NSMenuItem(title: "System", action: #selector(handleAppearanceSystem), keyEquivalent: "")
+        systemItem.target = self
+        appearanceMenu.addItem(systemItem)
+        let lightItem = NSMenuItem(title: "Light", action: #selector(handleAppearanceLight), keyEquivalent: "")
+        lightItem.target = self
+        appearanceMenu.addItem(lightItem)
+        let darkItem = NSMenuItem(title: "Dark", action: #selector(handleAppearanceDark), keyEquivalent: "")
+        darkItem.target = self
+        appearanceMenu.addItem(darkItem)
+        let appearanceMenuItem = NSMenuItem(title: "Appearance", action: nil, keyEquivalent: "")
+        appearanceMenuItem.submenu = appearanceMenu
+        viewMenu.addItem(appearanceMenuItem)
+        viewMenu.addItem(NSMenuItem.separator())
+
         let fullScreenItem = NSMenuItem(title: "Enter Full Screen", action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")
         fullScreenItem.keyEquivalentModifierMask = [.command, .control]
         viewMenu.addItem(fullScreenItem)
