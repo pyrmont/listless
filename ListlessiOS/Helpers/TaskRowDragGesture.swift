@@ -27,28 +27,97 @@ struct TaskRowDragGesture: ViewModifier {
     let onDragEnded: () -> Void
 
     func body(content: Content) -> some View {
-        content
-            .simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.4)
-                    .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                    .onChanged { value in
-                        switch value {
-                        case .second(true, let drag):
-                            // Fire onDragStart as soon as the long press completes so the
-                            // row lifts visually before any finger movement. onDragStart is
-                            // idempotent (guarded in TaskListView).
-                            onDragStart()
-                            if let drag {
-                                onDragChanged(drag.location)
+        if #available(iOS 18, *) {
+            content
+                .gesture(
+                    SimultaneousDragGesture(
+                        isActive: isActive,
+                        onDragStart: onDragStart,
+                        onDragChanged: onDragChanged,
+                        onDragEnded: onDragEnded
+                    )
+                )
+        } else {
+            content
+                .simultaneousGesture(
+                    LongPressGesture(minimumDuration: 0.4)
+                        .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+                        .onChanged { value in
+                            switch value {
+                            case .second(true, let drag):
+                                onDragStart()
+                                if let drag {
+                                    onDragChanged(drag.location)
+                                }
+                            default:
+                                break
                             }
-                        default:
-                            break
                         }
-                    }
-                    .onEnded { _ in
-                        onDragEnded()
-                    },
-                including: isActive ? .all : .none
-            )
+                        .onEnded { _ in
+                            onDragEnded()
+                        },
+                    including: isActive ? .all : .none
+                )
+        }
+    }
+}
+
+// MARK: - iOS 26 workaround
+
+/// Uses UILongPressGestureRecognizer (minimumPressDuration: 0.4) via
+/// UIGestureRecognizerRepresentable to avoid iOS 26's child-gesture-blocks-
+/// ancestor issue. The delegate returns shouldRecognizeSimultaneouslyWith:true
+/// so the ScrollView's pan gesture is preserved.
+@available(iOS 18.0, *)
+private struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
+    let isActive: Bool
+    let onDragStart: () -> Void
+    let onDragChanged: (CGPoint) -> Void
+    let onDragEnded: () -> Void
+
+    func makeUIGestureRecognizer(context: Context) -> UILongPressGestureRecognizer {
+        let recognizer = UILongPressGestureRecognizer()
+        recognizer.minimumPressDuration = 0.4
+        recognizer.delegate = context.coordinator
+        recognizer.isEnabled = isActive
+        return recognizer
+    }
+
+    func updateUIGestureRecognizer(_ recognizer: UILongPressGestureRecognizer, context: Context) {
+        recognizer.isEnabled = isActive
+    }
+
+    func handleUIGestureRecognizerAction(
+        _ recognizer: UILongPressGestureRecognizer, context: Context
+    ) {
+        switch recognizer.state {
+        case .began:
+            // Long press completed — fire drag start immediately so the row
+            // lifts visually before any finger movement.
+            onDragStart()
+
+        case .changed:
+            let location = recognizer.location(in: recognizer.view?.window)
+            onDragChanged(location)
+
+        case .ended, .cancelled:
+            onDragEnded()
+
+        default:
+            break
+        }
+    }
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+        Coordinator()
+    }
+
+    class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+        ) -> Bool {
+            true
+        }
     }
 }
