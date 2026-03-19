@@ -101,7 +101,7 @@ private struct PullGesturesModifier: ViewModifier {
             }
             .sensoryFeedback(
                 .impact(weight: .medium),
-                trigger: pullToCreate.pullOffset >= pullCreateThreshold
+                trigger: !isDraftOpen && pullToCreate.pullOffset >= pullCreateThreshold
             ) { old, new in
                 !old && new
             }
