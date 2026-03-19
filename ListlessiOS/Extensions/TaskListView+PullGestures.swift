@@ -70,6 +70,7 @@ private struct PullGesturesModifier: ViewModifier {
     @State private var isAtBottom = false
     @State private var clearPullStartedAtBottom = false
 
+    let isDraftOpen: Bool
     let hasCompletedTasks: Bool
     let pullCreateThreshold: CGFloat
     let flickThreshold: CGFloat
@@ -111,6 +112,7 @@ private struct PullGesturesModifier: ViewModifier {
     }
 
     private func handlePullToCreateScrollPhaseChange(from oldPhase: ScrollPhase, to newPhase: ScrollPhase) {
+        guard !isDraftOpen else { return }
         let action = pullToCreate.handlePhaseChange(
             from: oldPhase,
             to: newPhase,
@@ -169,6 +171,7 @@ extension View {
         pullToCreate: Binding<TaskListView.PullToCreateState>,
         pullUpOffset: Binding<CGFloat>,
         isDragging: Binding<Bool>,
+        isDraftOpen: Bool,
         hasCompletedTasks: Bool,
         pullCreateThreshold: CGFloat,
         flickThreshold: CGFloat,
@@ -181,6 +184,7 @@ extension View {
                 pullToCreate: pullToCreate,
                 pullUpOffset: pullUpOffset,
                 isDragging: isDragging,
+                isDraftOpen: isDraftOpen,
                 hasCompletedTasks: hasCompletedTasks,
                 pullCreateThreshold: pullCreateThreshold,
                 flickThreshold: flickThreshold,

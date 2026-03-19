@@ -409,13 +409,15 @@ struct TaskListView: View, TaskListViewProtocol {
 
     @ViewBuilder private var taskRows: some View {
         let _ = iState.fetchWorkaround
+        let draftOffset = isPrependDraftVisible ? 1 : 0
+        let draftTotal = draftPlacement != nil ? 1 : 0
         ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
             let taskID = task.id
             TaskRowView(
                 task: task,
                 taskID: taskID,
-                index: index,
-                totalTasks: displayActiveTasks.count,
+                index: index + draftOffset,
+                totalTasks: displayActiveTasks.count + draftTotal,
                 isSelected: fState.selectedTaskID == taskID,
                 isDragging: isDraggingStateBinding,
                 isScrolling: iState.isScrolling,
@@ -634,6 +636,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 pullToCreate: pullToCreateStateBinding,
                 pullUpOffset: pullUpOffsetStateBinding,
                 isDragging: isDraggingStateBinding,
+                isDraftOpen: draftPlacement != nil,
                 hasCompletedTasks: !completedTasks.isEmpty,
             pullCreateThreshold: pullCreateThreshold,
             flickThreshold: flickThreshold,
