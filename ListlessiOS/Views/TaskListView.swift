@@ -15,6 +15,8 @@ struct TaskListView: View, TaskListViewProtocol {
         var isScrolling: Bool = false
         var draftPlacement: DraftTaskPlacement?
         var draftTitle: String = ""
+        var contentBottomY: CGFloat = 0
+        var fetchWorkaround: Int = 0
     }
 
     @AppStorage("headingText") var headingText = "Items"
@@ -406,6 +408,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     @ViewBuilder private var taskRows: some View {
+        let _ = iState.fetchWorkaround
         ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
             let taskID = task.id
             TaskRowView(
@@ -418,7 +421,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 isScrolling: iState.isScrolling,
                 isLastActiveTask: index == displayActiveTasks.count - 1,
                 focusedField: $focusedFieldBinding,
-                onToggle: { toggleCompletion($0) },
+                onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
                 onTitleChange: { updateTitle($0, $1) },
                 onDelete: { deleteTaskWithUndo($0) },
                 onSelect: { selectTask($0) },
@@ -462,7 +465,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 isSelected: fState.selectedTaskID == taskID,
                 isScrolling: iState.isScrolling,
                 focusedField: $focusedFieldBinding,
-                onToggle: { toggleCompletion($0) },
+                onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
                 onTitleChange: { updateTitle($0, $1) },
                 onDelete: { deleteTaskWithUndo($0) },
                 onSelect: { selectTask($0) }
@@ -475,10 +478,12 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var body: some View {
         taskScrollView
-            .contentShape(Rectangle())
-            .onTapGesture {
-                handleBackgroundTap()
-            }
+            .simultaneousGesture(
+                SpatialTapGesture(coordinateSpace: .global).onEnded { value in
+                    guard value.location.y > iState.contentBottomY else { return }
+                    handleBackgroundTap()
+                }
+            )
             .accessibilityIdentifier("task-list-scrollview")
             .background {
                 let isEditing = if case .task = focusedFieldBinding { true } else { false }
@@ -559,6 +564,11 @@ struct TaskListView: View, TaskListViewProtocol {
                     .offset(y: -pullToCreateRowOverlap)
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
+            .onGeometryChange(for: CGFloat.self) {
+                $0.frame(in: .global).maxY
+            } action: {
+                iState.contentBottomY = $0
+            }
             .padding(.trailing, 16)
             .padding(.vertical, 12)
             .offset(y: -iState.pullToCreate.pullOffset)
@@ -641,3 +651,5 @@ struct TaskListView: View, TaskListViewProtocol {
         )
     }
 }
+
+
