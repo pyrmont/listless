@@ -7,6 +7,7 @@ struct TaskRowView: View {
     let totalTasks: Int
     let isSelected: Bool
     @Binding var isDragging: Bool
+    let isScrolling: Bool
     let onToggle: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
@@ -16,11 +17,9 @@ struct TaskRowView: View {
     let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
     @FocusState.Binding var focusedField: FocusField?
 
-    // Swipe state driven by parent (ScrollView-level gesture)
-    let swipeOffset: CGFloat
-    let swipeDirection: TaskRowSwipeGesture.SwipeDirection
-    let isSwipeTriggered: Bool
-
+    @State private var swipeOffset: CGFloat = 0
+    @State private var swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none
+    @State private var isSwipeTriggered: Bool = false
     @State private var editingTitle: String = ""
     @State private var isCurrentlyEditing: Bool = false
     @State private var cachedAccentColor: Color = .clear
@@ -32,11 +31,9 @@ struct TaskRowView: View {
         totalTasks: Int = 1,
         isSelected: Bool,
         isDragging: Binding<Bool> = .constant(false),
+        isScrolling: Bool = false,
         isLastActiveTask: Bool = false,
         focusedField: FocusState<FocusField?>.Binding,
-        swipeOffset: CGFloat = 0,
-        swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none,
-        isSwipeTriggered: Bool = false,
         onToggle: @escaping (TaskItem) -> Void,
         onTitleChange: @escaping (TaskItem, String) -> Void,
         onDelete: @escaping (TaskItem) -> Void,
@@ -50,6 +47,7 @@ struct TaskRowView: View {
         self.totalTasks = totalTasks
         self.isSelected = isSelected
         _isDragging = isDragging
+        self.isScrolling = isScrolling
         self.isLastActiveTask = isLastActiveTask
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
@@ -58,9 +56,6 @@ struct TaskRowView: View {
         self.onStartEdit = onStartEdit
         self.onEndEdit = onEndEdit
         _focusedField = focusedField
-        self.swipeOffset = swipeOffset
-        self.swipeDirection = swipeDirection
-        self.isSwipeTriggered = isSwipeTriggered
     }
 
     var body: some View {
@@ -153,12 +148,23 @@ struct TaskRowView: View {
         .onChange(of: totalTasks) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
-        .taskSwipeVisuals(
-            swipeOffset: swipeOffset,
-            swipeDirection: swipeDirection,
-            isTriggered: isSwipeTriggered,
-            completeColor: cachedAccentColor
+        .taskSwipeGesture(
+            isDragging: $isDragging,
+            isScrolling: isScrolling,
+            swipeOffset: $swipeOffset,
+            swipeDirection: $swipeDirection,
+            isTriggered: $isSwipeTriggered,
+            completeColor: cachedAccentColor,
+            onComplete: { onToggle(task) },
+            onDelete: { onDelete(task) }
         )
+        .onChange(of: isDragging) { _, newValue in
+            if newValue {
+                swipeOffset = 0
+                swipeDirection = .none
+                isSwipeTriggered = false
+            }
+        }
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0, bottomLeadingRadius: 0,

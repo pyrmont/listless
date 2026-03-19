@@ -12,15 +12,9 @@ struct TaskListView: View, TaskListViewProtocol {
         var clearingTaskIDs: Set<UUID> = []
         var rowFrames: [UUID: CGRect] = [:]
         var undoToast: UndoToastData? = nil
+        var isScrolling: Bool = false
         var draftPlacement: DraftTaskPlacement?
         var draftTitle: String = ""
-
-        // ScrollView-level swipe state (iOS 26 workaround)
-        var isScrolling: Bool = false
-        var swipingTaskID: UUID? = nil
-        var swipeOffset: CGFloat = 0
-        var swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none
-        var isSwipeTriggered: Bool = false
     }
 
     @AppStorage("headingText") var headingText = "Items"
@@ -204,94 +198,8 @@ struct TaskListView: View, TaskListViewProtocol {
 
     func didStartDrag() {
         iState.isDragging = true
-        resetSwipeState()
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
-    }
-
-    // MARK: - ScrollView-level swipe gesture
-
-    private func handleScrollSwipeChanged(_ value: DragGesture.Value) {
-        guard !iState.isDragging, !iState.isScrolling else { return }
-
-        // On first change, hit-test to find which row the gesture started in.
-        if iState.swipingTaskID == nil {
-            iState.swipeOffset = 0
-            iState.swipeDirection = .none
-            iState.isSwipeTriggered = false
-
-            for (id, frame) in iState.rowFrames {
-                if frame.contains(value.startLocation) {
-                    iState.swipingTaskID = id
-                    break
-                }
-            }
-        }
-
-        guard iState.swipingTaskID != nil else { return }
-
-        let horizontal = value.translation.width
-        let vertical = abs(value.translation.height)
-
-        // Require horizontal > vertical + buffer to activate swipe
-        guard abs(horizontal) > vertical + TaskRowSwipeGesture.horizontalBufferPt else {
-            return
-        }
-
-        if horizontal > 0 {
-            iState.swipeDirection = .right
-        } else {
-            iState.swipeDirection = .left
-        }
-
-        iState.swipeOffset = horizontal * TaskRowSwipeGesture.offsetDamping
-
-        if iState.swipeDirection == .right {
-            iState.isSwipeTriggered = iState.swipeOffset >= TaskRowSwipeGesture.completeThreshold
-        } else {
-            iState.isSwipeTriggered = abs(iState.swipeOffset) >= TaskRowSwipeGesture.deleteThreshold
-        }
-    }
-
-    private func handleScrollSwipeEnded(_ value: DragGesture.Value) {
-        guard !iState.isDragging else {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                resetSwipeState()
-            }
-            return
-        }
-
-        guard let taskID = iState.swipingTaskID,
-            iState.isSwipeTriggered,
-            let task = tasks.first(where: { $0.id == taskID })
-        else {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                resetSwipeState()
-            }
-            return
-        }
-
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.impactOccurred()
-
-        if iState.swipeDirection == .right {
-            toggleCompletion(task)
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                resetSwipeState()
-            }
-        } else if iState.swipeDirection == .left {
-            deleteTaskWithUndo(task)
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                iState.swipeOffset = -400
-            }
-        }
-    }
-
-    private func resetSwipeState() {
-        iState.swipingTaskID = nil
-        iState.swipeOffset = 0
-        iState.swipeDirection = .none
-        iState.isSwipeTriggered = false
     }
 
     func showSyncDiagnostics() {
@@ -507,11 +415,9 @@ struct TaskListView: View, TaskListViewProtocol {
                 totalTasks: displayActiveTasks.count,
                 isSelected: fState.selectedTaskID == taskID,
                 isDragging: isDraggingStateBinding,
+                isScrolling: iState.isScrolling,
                 isLastActiveTask: index == displayActiveTasks.count - 1,
                 focusedField: $focusedFieldBinding,
-                swipeOffset: iState.swipingTaskID == taskID ? iState.swipeOffset : 0,
-                swipeDirection: iState.swipingTaskID == taskID ? iState.swipeDirection : .none,
-                isSwipeTriggered: iState.swipingTaskID == taskID ? iState.isSwipeTriggered : false,
                 onToggle: { toggleCompletion($0) },
                 onTitleChange: { updateTitle($0, $1) },
                 onDelete: { deleteTaskWithUndo($0) },
@@ -554,10 +460,8 @@ struct TaskListView: View, TaskListViewProtocol {
                 task: task,
                 taskID: taskID,
                 isSelected: fState.selectedTaskID == taskID,
+                isScrolling: iState.isScrolling,
                 focusedField: $focusedFieldBinding,
-                swipeOffset: iState.swipingTaskID == taskID ? iState.swipeOffset : 0,
-                swipeDirection: iState.swipingTaskID == taskID ? iState.swipeDirection : .none,
-                isSwipeTriggered: iState.swipingTaskID == taskID ? iState.isSwipeTriggered : false,
                 onToggle: { toggleCompletion($0) },
                 onTitleChange: { updateTitle($0, $1) },
                 onDelete: { deleteTaskWithUndo($0) },
@@ -565,11 +469,6 @@ struct TaskListView: View, TaskListViewProtocol {
             )
             .opacity(isBeingCleared ? 0 : 1)
             .offset(y: isBeingCleared ? 40 : 0)
-            .onGeometryChange(for: CGRect.self) { proxy in
-                proxy.frame(in: .global)
-            } action: { frame in
-                iState.rowFrames[taskID] = frame
-            }
             .id(taskID)
         }
     }
@@ -739,12 +638,6 @@ struct TaskListView: View, TaskListViewProtocol {
                     clearCompletedTasksWithUndo()
                 }
             }
-        )
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 10, coordinateSpace: .global)
-                .onChanged { handleScrollSwipeChanged($0) }
-                .onEnded { handleScrollSwipeEnded($0) },
-            including: iState.isDragging ? .none : .all
         )
     }
 }
