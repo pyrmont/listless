@@ -1,8 +1,46 @@
 import SwiftUI
 
+enum ColorTheme: Int, CaseIterable, Identifiable {
+    case original = 0
+    case collaroy = 1
+
+    var id: Int { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .original: "Original"
+        case .collaroy: "Collaroy"
+        }
+    }
+
+    fileprivate typealias HSB = (h: Double, s: Double, b: Double)
+
+    fileprivate var top: HSB {
+        switch self {
+        case .original: (h: 0.98, s: 0.85, b: 1.00)
+        case .collaroy: (h: 0.58, s: 0.88, b: 1.00)
+        }
+    }
+
+    fileprivate var mid: HSB {
+        switch self {
+        case .original: (h: 0.88, s: 0.75, b: 0.95)
+        case .collaroy: (h: 0.51, s: 0.69, b: 0.90)
+        }
+    }
+
+    fileprivate var bottom: HSB {
+        switch self {
+        case .original: (h: 0.72, s: 0.65, b: 0.85)
+        case .collaroy: (h: 0.44, s: 0.50, b: 0.80)
+        }
+    }
+}
+
 private struct TaskAccentColorKey: Hashable {
     let index: Int
     let total: Int
+    let theme: ColorTheme
 }
 
 @MainActor
@@ -10,14 +48,13 @@ private enum TaskAccentColorCache {
     static var colors: [TaskAccentColorKey: Color] = [:]
 }
 
-func taskColor(forIndex index: Int, total: Int) -> Color {
-    guard total > 1 else { return Color(hue: 0.98, saturation: 0.85, brightness: 1.0) }
+func taskColor(forIndex index: Int, total: Int, theme: ColorTheme = .original) -> Color {
+    let top = theme.top
+    guard total > 1 else { return Color(hue: top.h, saturation: top.s, brightness: top.b) }
 
-    // Gradient matches gradient.png: coral/red → pink/magenta → purple/blue
     let progress = Double(index) / Double(total - 1)
-    let top    = (h: 0.98, s: 0.85, b: 1.00)
-    let mid    = (h: 0.88, s: 0.75, b: 0.95)
-    let bottom = (h: 0.72, s: 0.65, b: 0.85)
+    let mid = theme.mid
+    let bottom = theme.bottom
 
     if progress < 0.5 {
         return interpolateHSB(from: top, to: mid, progress: progress * 2.0)
@@ -27,13 +64,13 @@ func taskColor(forIndex index: Int, total: Int) -> Color {
 }
 
 @MainActor
-func cachedTaskColor(forIndex index: Int, total: Int) -> Color {
-    let key = TaskAccentColorKey(index: index, total: total)
+func cachedTaskColor(forIndex index: Int, total: Int, theme: ColorTheme = .original) -> Color {
+    let key = TaskAccentColorKey(index: index, total: total, theme: theme)
     if let cached = TaskAccentColorCache.colors[key] {
         return cached
     }
 
-    let computed = taskColor(forIndex: index, total: total)
+    let computed = taskColor(forIndex: index, total: total, theme: theme)
     TaskAccentColorCache.colors[key] = computed
     return computed
 }

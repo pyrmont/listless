@@ -20,6 +20,8 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     @AppStorage("headingText") var headingText = "Items"
+    @AppStorage("colorTheme") private var colorThemeRaw = 0
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .original }
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 
@@ -276,7 +278,7 @@ struct TaskListView: View, TaskListViewProtocol {
     /// ZStack in ``pullToCreateIndicatorRow`` rather than its own visibility.
     @ViewBuilder private var phantomEntryRowContent: some View {
         let accentColor = taskColor(
-            forIndex: 0, total: max(1, displayActiveTasks.count + 1)
+            forIndex: 0, total: max(1, displayActiveTasks.count + 1), theme: colorTheme
         )
         let isSelected = fState.selectedTaskID == draftPrependRowID
         HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
@@ -341,7 +343,7 @@ struct TaskListView: View, TaskListViewProtocol {
         if isAppendDraftVisible {
             let total = max(1, displayActiveTasks.count + 1)
             let index = displayActiveTasks.count
-            let accentColor = taskColor(forIndex: index, total: total)
+            let accentColor = taskColor(forIndex: index, total: total, theme: colorTheme)
             let isSelected = fState.selectedTaskID == draftAppendRowID
             HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
                 Image(systemName: "circle")

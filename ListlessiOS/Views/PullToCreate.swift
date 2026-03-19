@@ -4,6 +4,8 @@ struct PullToCreateIndicator: View {
     let pullOffset: CGFloat
     let threshold: CGFloat
     var hasRowsBelow: Bool = true
+    @AppStorage("colorTheme") private var colorThemeRaw = 0
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .original }
 
     static let indicatorHeight: CGFloat = 50
 
@@ -45,7 +47,7 @@ struct PullToCreateIndicator: View {
         )
         .overlay(alignment: .leading) {
             Rectangle()
-                .fill(taskColor(forIndex: 0, total: 1))
+                .fill(taskColor(forIndex: 0, total: 1, theme: colorTheme))
                 .frame(width: TaskRowMetrics.accentBarWidth)
         }
         .frame(height: Self.indicatorHeight, alignment: .top)

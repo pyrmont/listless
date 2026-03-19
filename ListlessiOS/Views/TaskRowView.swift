@@ -17,6 +17,8 @@ struct TaskRowView: View {
     let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
     @FocusState.Binding var focusedField: FocusField?
 
+    @AppStorage("colorTheme") private var colorThemeRaw = 0
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .original }
     @State private var swipeOffset: CGFloat = 0
     @State private var swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none
     @State private var isSwipeTriggered: Bool = false
@@ -148,6 +150,9 @@ struct TaskRowView: View {
         .onChange(of: totalTasks) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
+        .onChange(of: colorThemeRaw) { _, _ in
+            cachedAccentColor = computeAccentColor()
+        }
         .taskSwipeGesture(
             isDragging: $isDragging,
             isScrolling: isScrolling,
@@ -187,7 +192,7 @@ struct TaskRowView: View {
     @MainActor
     private func computeAccentColor() -> Color {
         guard !task.isCompleted else { return .clear }
-        return cachedTaskColor(forIndex: index, total: totalTasks)
+        return cachedTaskColor(forIndex: index, total: totalTasks, theme: colorTheme)
     }
 
     @ViewBuilder

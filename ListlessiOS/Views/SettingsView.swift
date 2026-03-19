@@ -5,12 +5,43 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("headingText") private var headingText = "Items"
     @AppStorage("appearanceMode") private var appearanceMode = 0
+    @AppStorage("colorTheme") private var colorThemeRaw = 0
 
     var body: some View {
         NavigationStack {
             List {
                 Section("List Title") {
                     TextField("List Title", text: $headingText)
+                }
+
+                Section("Theme") {
+                    ForEach(ColorTheme.allCases) { theme in
+                        Button {
+                            colorThemeRaw = theme.rawValue
+                        } label: {
+                            HStack {
+                                Image(systemName: "checkmark")
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.blue)
+                                    .opacity(colorThemeRaw == theme.rawValue ? 1 : 0)
+                                Text(theme.displayName)
+                                Spacer()
+                                LinearGradient(
+                                    colors: [
+                                        taskColor(forIndex: 0, total: 5, theme: theme),
+                                        taskColor(forIndex: 2, total: 5, theme: theme),
+                                        taskColor(forIndex: 4, total: 5, theme: theme),
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                                .frame(width: 80, height: 24)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
 
                 Section("Appearance") {
