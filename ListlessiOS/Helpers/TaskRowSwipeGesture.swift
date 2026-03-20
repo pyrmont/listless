@@ -3,6 +3,7 @@ import SwiftUI
 extension View {
     func taskSwipeGesture(
         isDragging: Binding<Bool>,
+        isEditing: Bool,
         isSwiping: Binding<Bool>,
         swipeOffset: Binding<CGFloat>,
         swipeDirection: Binding<TaskRowSwipeGesture.SwipeDirection>,
@@ -14,6 +15,7 @@ extension View {
         self.modifier(
             TaskRowSwipeGesture(
                 isDragging: isDragging,
+                isEditing: isEditing,
                 isSwiping: isSwiping,
                 swipeOffset: swipeOffset,
                 swipeDirection: swipeDirection,
@@ -27,6 +29,7 @@ extension View {
 
 struct TaskRowSwipeGesture: ViewModifier {
     @Binding var isDragging: Bool
+    let isEditing: Bool
     @Binding var isSwiping: Bool
     @Binding var swipeOffset: CGFloat
     @Binding var swipeDirection: SwipeDirection
@@ -68,9 +71,9 @@ struct TaskRowSwipeGesture: ViewModifier {
                 .contentShape(Rectangle())
         }
         .applySwipeGesture(
-            isDragging: isDragging,
+            isDisabled: isDragging || isEditing,
             onChanged: { translation in
-                guard !isDragging else { return }
+                guard !isDragging, !isEditing else { return }
                 updateActiveGestureAxis(
                     horizontalTranslation: translation.width,
                     verticalTranslation: abs(translation.height)
@@ -201,18 +204,18 @@ struct TaskRowSwipeGesture: ViewModifier {
 /// `shouldRecognizeSimultaneouslyWith: true` so scrolling is preserved.
 private extension View {
     func applySwipeGesture(
-        isDragging: Bool,
+        isDisabled: Bool,
         onChanged: @escaping (CGSize) -> Void,
         onEnded: @escaping () -> Void
     ) -> some View {
         self.gesture(
             SimultaneousSwipeGesture(
                 onChanged: { _, translation in
-                    guard !isDragging else { return }
+                    guard !isDisabled else { return }
                     onChanged(translation)
                 },
                 onEnded: { _, _ in
-                    guard !isDragging else { return }
+                    guard !isDisabled else { return }
                     onEnded()
                 }
             )

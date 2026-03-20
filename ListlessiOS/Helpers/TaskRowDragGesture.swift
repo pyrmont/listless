@@ -119,5 +119,16 @@ private struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
         ) -> Bool {
             true
         }
+
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer
+        ) -> Bool {
+            // Make text view gestures (loupe, selection) wait for the drag
+            // gesture to fail before they can fire. If the drag succeeds,
+            // the text view gesture is cancelled — preventing the loupe
+            // from appearing during drag.
+            otherGestureRecognizer.view is UITextView
+        }
     }
 }

@@ -155,6 +155,7 @@ struct TaskRowView: View {
         }
         .taskSwipeGesture(
             isDragging: $isDragging,
+            isEditing: focusedField == .task(taskID),
             isSwiping: $isSwiping,
             swipeOffset: $swipeOffset,
             swipeDirection: $swipeDirection,

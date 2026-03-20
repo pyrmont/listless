@@ -38,6 +38,7 @@ struct TappableTextField: UIViewRepresentable {
             placeholder.topAnchor.constraint(equalTo: textView.topAnchor),
         ])
 
+        context.coordinator.textView = textView
         return textView
     }
 
@@ -57,8 +58,20 @@ struct TappableTextField: UIViewRepresentable {
             textView.reloadInputViews()
         }
         textView.accessibilityIdentifier = uiAccessibilityIdentifier
-        textView.isEditable = !isCompleted && !isDragging
-        textView.isSelectable = !isCompleted && !isDragging
+        textView.isEditable = !isCompleted
+        textView.isSelectable = !isCompleted
+        // Defer isDragging updates to break an AttributeGraph cycle: setting
+        // isEditable/isSelectable during updateUIView causes UITextView to
+        // invalidate its intrinsic content size, creating a layout-to-state
+        // backward edge that SwiftUI's dependency graph flags as a cycle.
+        // Deferring moves the UIView mutation outside of the evaluation pass.
+        let dragging = isDragging
+        if dragging != context.coordinator.isDragging {
+            let coordinator = context.coordinator
+            Task { @MainActor in
+                coordinator.setDragging(dragging)
+            }
+        }
         if let placeholder = textView.viewWithTag(100) as? UILabel {
             placeholder.isHidden = !text.isEmpty
         }
@@ -93,6 +106,8 @@ struct TappableTextField: UIViewRepresentable {
         let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
         let onContentChange: ((String) -> Void)?
         var returnKeyPressed: Bool = false
+        weak var textView: UITextView?
+        private(set) var isDragging = false
 
         init(
             text: Binding<String>,
@@ -102,6 +117,21 @@ struct TappableTextField: UIViewRepresentable {
             _text = text
             self.onEditingChanged = onEditingChanged
             self.onContentChange = onContentChange
+        }
+
+        func setDragging(_ dragging: Bool) {
+            guard dragging != isDragging else { return }
+            isDragging = dragging
+            guard let textView else { return }
+            if dragging {
+                textView.isEditable = false
+                textView.isSelectable = false
+            } else {
+                // Restore based on current completion state — updateUIView
+                // will also set these on the next SwiftUI evaluation pass.
+                textView.isEditable = true
+                textView.isSelectable = true
+            }
         }
 
         func textViewDidChange(_ textView: UITextView) {
