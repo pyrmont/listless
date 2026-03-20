@@ -7,12 +7,12 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 - `project.yml` defines the Xcode project structure for XcodeGen; run `xcodegen generate` to regenerate the project after modifying it.
 - `Listless/Models` owns `TaskItem` (NSManagedObject), `TaskStore` (plain `final class` wrapping Core Data operations), and Core Data model definitions; keep CloudKit configuration inside `Listless/Sync`.
 - `Listless/Extensions` holds extensions on shared types; `TaskListView+Logic.swift` and `TaskListView+SyncUI.swift` are extensions on `TaskListViewProtocol` (not the concrete struct) so SourceKit can resolve them unambiguously across both targets.
-- `Listless/Helpers` holds shared non-view supporting code (`AccentColor`, `KeyboardNavigationModifier`, `TaskListTypes`, `TaskListViewProtocol`). `TaskListTypes.swift` defines the `FocusField` and `DragState` enums as top-level types (shared by both platform `TaskListView` structs) and the `FocusStateData` struct that manages selection state — including `inactiveSelections` for discontinuous selections created by Cmd+Click toggle on macOS. `TaskListViewProtocol.swift` defines the `@MainActor TaskListViewProtocol` that both structs conform to, declaring the shared property contract (`tasks`, `store`, `syncMonitor`, `managedObjectContext`, `focusedField`, `selectedTaskID`, `pendingFocus`, `dragState`, `didStartDrag()`).
+- `Listless/Helpers` holds shared non-view supporting code (`AccentColor`, `KeyboardNavigationModifier`, `TaskListTypes`, `TaskListViewProtocol`). `TaskListTypes.swift` defines the `FocusField` and `DragState` enums as top-level types (shared by both platform `TaskListView` structs) and the `FocusStateData` struct that manages selection state — including `inactiveSelections` for discontinuous selections created by Cmd+Click toggle on macOS. `TaskListViewProtocol.swift` defines the `@MainActor TaskListViewProtocol` that both structs conform to, declaring the shared property contract (`tasks`, `store`, `syncMonitor`, `managedObjectContext`, `focusedField`, `fState`, `dragState`, `draftPlacement`, `draftTitle`, `didStartDrag()`, `clearDraftTaskUI()`).
 - `ListlessiOS/` contains the iOS app entry point, organised into three subdirectories:
-  - `Views/` — iOS-specific view components (`TaskListView`, `TaskRowView`, `PullToCreate`, `PullToClear`, `UndoToast`, `SettingsView`, `SyncDiagnosticsView`, `AboutView`).
+  - `Views/` — iOS-specific view components (`TaskListView`, `TaskRowView`, `DraftRowView`, `PullToCreate`, `PullToClear`, `UndoToast`, `SettingsView`, `SyncDiagnosticsView`, `AboutView`).
   - `Helpers/` — gesture recognizers, UIKit representables, color definitions, and platform-shim view modifiers (`TappableTextField`, `TaskRowSwipeGesture`, `TaskRowDragGesture`, `AppColors`, `HoverCursorModifier`, etc.).
   - `Extensions/` — platform-specific extensions on shared types (`TaskListView+NavigationHeader`, `TaskListView+Toolbar`, `TaskListView+PullToCreate`, `TaskListView+PullToClear`, `TaskListView+PullGestures`, `TaskListView+Drag`, `TaskListView+Undo`).
-- `ListlessMac/` contains the macOS app entry point with the same three-subdirectory structure as `ListlessiOS/` (`Views/` includes `TaskListView`); an excluded `AppKit/` subdirectory holds the reverted AppKit implementation.
+- `ListlessMac/` contains the macOS app entry point with the same three-subdirectory structure as `ListlessiOS/` (`Views/` includes `TaskListView`).
 - `ListlessWatch/` contains the watchOS app entry point and a simplified `Views/` subdirectory (`TaskListView`, `TaskRowView`). The watchOS target selectively includes only `Listless/Models`, `Listless/Sync`, and `Listless/Helpers/AccentColor.swift` — it does not use `TaskListViewProtocol` or the shared extensions. The watch app is read-only (no creating, editing, reordering, or deleting) and supports toggling task completion only.
 - `Tests/Unit` covers ordering, editing, and persistence; `Tests/Support` holds shared test helpers and fixtures.
 
@@ -78,11 +78,7 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 
 ## macOS Implementation: SwiftUI vs AppKit
 - **Current implementation**: macOS uses SwiftUI (same as iOS)
-- **AppKit alternative**: A complete AppKit implementation exists in `ListlessMac/AppKit/` but is excluded from builds
-  - Attempted migration in Feb 2026 for better drag-and-drop control
-  - Reverted due to state management complexity, focus issues, and selection bugs
-  - SwiftUI's declarative patterns proved more maintainable for this app
-- **Switching to AppKit** (if needed): Update `project.yml` to exclude SwiftUI views and include `ListlessMac/AppKit/`, then run `xcodegen generate`
+- **AppKit migration attempt** (Feb 2026): Attempted for better drag-and-drop control, reverted due to state management complexity, focus issues, and selection bugs. SwiftUI's declarative patterns proved more maintainable for this app. The AppKit code has since been removed.
 
 ## Menu Customisation (both platforms)
 - **Do not use SwiftUI's `Commands` API** — broken on macOS 15 (dividers don't render, `CommandGroup(replacing:)` causes Window menu jitter) and on iPadOS (arrow key glyphs render as "?", `@FocusedValue` propagation fails when a UIKit view is first responder).
@@ -109,7 +105,7 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 - **Focus guard for sheets**: The `onChange(of: focusedFieldBinding)` handler skips "reclaim focus to `.scrollView`" logic when a sheet is presented, preventing focus theft from sheet TextFields.
 - **App icon in About screen**: Use `Image("AboutIcon")` from `Media.xcassets/AboutIcon.imageset` — `.appiconset` images can't be loaded via `Image()` in SwiftUI.
 - **iOS color system**: `ListlessiOS/Helpers/AppColors.swift` defines `Color.outerBackground` and `Color.taskCard`. Adjust these two values to shift the palette.
-- **Pull-to-create/clear**: Scroll gesture handling is in `.pullCreationGesture()` (`TaskListView+PullGestures.swift`); visual indicators are in `TaskListView+PullToCreate.swift` and `TaskListView+PullToClear.swift`. The macOS `body` omits all of these.
+- **Pull-to-create/clear**: Scroll gesture handling is in `.pullGestures()` (`TaskListView+PullGestures.swift`); visual indicators are in `TaskListView+PullToCreate.swift` and `TaskListView+PullToClear.swift`. The macOS `body` omits all of these.
 - **Selection on iOS/iPadOS is intentionally limited**: iOS supports single-task cursor navigation via arrow keys (for marking complete/incomplete) but does not support multi-select, Select All (Cmd+A), or Cmd+Click toggling. Full selection semantics (range select, multi-select, select all) are macOS-only. Do not add selection features to the iOS target.
 
 ## SwiftUI Implementation Notes
