@@ -36,11 +36,18 @@ struct TaskRowSwipeGesture: ViewModifier {
     let onDelete: () -> Void
 
     @State private var hapticTrigger = false
+    @State private var activeGestureAxis: ActiveGestureAxis = .undecided
 
     enum SwipeDirection: Equatable {
         case left
         case right
         case none
+    }
+
+    private enum ActiveGestureAxis {
+        case undecided
+        case horizontal
+        case vertical
     }
 
     private let completeThreshold: CGFloat = 40
@@ -63,7 +70,12 @@ struct TaskRowSwipeGesture: ViewModifier {
         .applySwipeGesture(
             isDragging: isDragging,
             onChanged: { translation in
-                guard !isDragging, !isScrolling else { return }
+                guard !isDragging else { return }
+                updateActiveGestureAxis(
+                    horizontalTranslation: translation.width,
+                    verticalTranslation: abs(translation.height)
+                )
+                guard activeGestureAxis == .horizontal else { return }
                 handleDragChanged(
                     horizontalTranslation: translation.width,
                     verticalTranslation: abs(translation.height)
@@ -123,6 +135,8 @@ struct TaskRowSwipeGesture: ViewModifier {
     }
 
     private func handleDragEnded() {
+        defer { activeGestureAxis = .undecided }
+
         guard !isDragging else {
             // A drag-reorder started during or after this swipe — spring back, no action.
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -162,11 +176,22 @@ struct TaskRowSwipeGesture: ViewModifier {
         swipeOffset = 0
         swipeDirection = .none
         isTriggered = false
+        activeGestureAxis = .undecided
     }
 
     private func backgroundOpacity(offset: CGFloat) -> CGFloat {
         let threshold = offset >= 0 ? completeThreshold : deleteThreshold
         return min(abs(offset) / threshold, 1.0)
+    }
+
+    private func updateActiveGestureAxis(horizontalTranslation: CGFloat, verticalTranslation: CGFloat) {
+        guard activeGestureAxis == .undecided else { return }
+
+        if abs(horizontalTranslation) > verticalTranslation + horizontalBufferPt {
+            activeGestureAxis = .horizontal
+        } else if verticalTranslation > abs(horizontalTranslation) + horizontalBufferPt {
+            activeGestureAxis = .vertical
+        }
     }
 }
 
