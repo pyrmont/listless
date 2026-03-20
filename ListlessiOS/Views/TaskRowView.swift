@@ -170,21 +170,11 @@ struct TaskRowView: View {
                 isSwipeTriggered = false
             }
         }
-        .clipShape(
-            UnevenRoundedRectangle(
-                topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-            )
-        )
+        .clipShape(TaskCardModifier.shape)
         .overlay(
             isSelected && !task.isCompleted
-                ? UnevenRoundedRectangle(
-                    topLeadingRadius: 0, bottomLeadingRadius: 0,
-                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-                )
-                .stroke(cachedAccentColor.opacity(0.40), lineWidth: 2)
+                ? TaskCardModifier.shape
+                    .stroke(cachedAccentColor.opacity(0.40), lineWidth: 2)
                 : nil
         )
     }

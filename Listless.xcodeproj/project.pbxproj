@@ -13,6 +13,7 @@
 		07E2BB2FF9E75A922C3756AB /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56DEECB5DC31DE5F34FB55A3 /* TaskListView.swift */; };
 		0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB8A3BEB346267B30B4675F /* TaskItem.swift */; };
 		0F12D56A528FCBF8A67864CB /* TappableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */; };
+		0F2E6817C315B947033DA2BE /* DraftRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CB2A88C7F19F8305EBED43 /* DraftRowView.swift */; };
 		11AA75BE98CFBE44AEAB7100 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9404C09EE1A4D91DFF338464 /* Media.xcassets */; };
 		12E43D0CD9124037022E3C38 /* KeyCommandBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B5E429B253183F887C5FD6 /* KeyCommandBridge.swift */; };
 		1477B460E3DEFA3FDB7DA65B /* TaskListTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9754B32B2FD5AF8552BC85 /* TaskListTypes.swift */; };
@@ -28,6 +29,7 @@
 		2C53717A0EAFA39240615C9A /* TaskRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */; };
 		2CCB5FE0084742D018E52A3D /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		322EE74CBED492693B92AD59 /* TaskListView+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A440253D045A0896D94ADD0 /* TaskListView+Toolbar.swift */; };
+		354687FCBBCC2432340BD5EB /* TaskCardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2143744C421C67E53A2674CF /* TaskCardModifier.swift */; };
 		365FDEE6823D7A114F3FB12A /* TaskListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C018476BD91B73870244B9 /* TaskListViewProtocol.swift */; };
 		37AEF10712B3325BF9BC72E4 /* BackgroundClickMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */; };
 		3ABE52A15C2059D8D5570528 /* TaskStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3DEE364304587D280C5672 /* TaskStore.swift */; };
@@ -164,6 +166,7 @@
 		17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
 		199CC2F58DD7CBA3F2229366 /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessMacApp.swift; sourceTree = "<group>"; };
+		2143744C421C67E53A2674CF /* TaskCardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCardModifier.swift; sourceTree = "<group>"; };
 		2A440253D045A0896D94ADD0 /* TaskListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskListView+Toolbar.swift"; sourceTree = "<group>"; };
 		2D3A2DDCE24E54ABCCFBBD4C /* TaskStoreOrderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreOrderingTests.swift; sourceTree = "<group>"; };
 		3313FEDB101EECA4B344EEF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -182,6 +185,7 @@
 		5E88DDD119EEEECCD45F36D2 /* TaskStoreCompletionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStoreCompletionTests.swift; sourceTree = "<group>"; };
 		632DA39B24C4CF1528A1A24D /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
 		658295C1386BFF48CE3C2419 /* UndoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoToast.swift; sourceTree = "<group>"; };
+		67CB2A88C7F19F8305EBED43 /* DraftRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftRowView.swift; sourceTree = "<group>"; };
 		68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorClassifier.swift; sourceTree = "<group>"; };
 		6BE7F4637B4F4C1FF4BE160B /* ListlessWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessWatchApp.swift; sourceTree = "<group>"; };
 		6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncMonitor.swift; sourceTree = "<group>"; };
@@ -253,6 +257,7 @@
 				FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */,
 				E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */,
 				6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */,
+				2143744C421C67E53A2674CF /* TaskCardModifier.swift */,
 				D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */,
 				A2EF927F09D67532F44BB80D /* TaskRowMetrics.swift */,
 				067D666DF0AF1C53404ECF7C /* TaskRowSwipeGesture.swift */,
@@ -333,6 +338,7 @@
 			isa = PBXGroup;
 			children = (
 				D3E995954787F0A14CCFF348 /* AboutView.swift */,
+				67CB2A88C7F19F8305EBED43 /* DraftRowView.swift */,
 				567DBAC2A39FA2760D006AAB /* PullToClear.swift */,
 				BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */,
 				C611E04943F1D82D6F975592 /* SettingsView.swift */,
@@ -803,6 +809,7 @@
 				3EDB6A9A30B4226C15E7F44D /* AppCommands.swift in Sources */,
 				CAB42FAA253E2B347AB0594B /* CloudKitErrorClassifier.swift in Sources */,
 				889DCB2BB3C01DDA281EA81A /* CloudKitSyncMonitor.swift in Sources */,
+				0F2E6817C315B947033DA2BE /* DraftRowView.swift in Sources */,
 				E60F81C7B930AACE67746759 /* HoverCursorModifier.swift in Sources */,
 				12E43D0CD9124037022E3C38 /* KeyCommandBridge.swift in Sources */,
 				19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */,
@@ -817,6 +824,7 @@
 				072594B24D88AD6D1DF7AFE5 /* SettingsView.swift in Sources */,
 				4DD2030E321567BD25661760 /* SyncDiagnosticsView.swift in Sources */,
 				0F12D56A528FCBF8A67864CB /* TappableTextField.swift in Sources */,
+				354687FCBBCC2432340BD5EB /* TaskCardModifier.swift in Sources */,
 				0ACA67F6578EFF181EE5C9A7 /* TaskItem.swift in Sources */,
 				1477B460E3DEFA3FDB7DA65B /* TaskListTypes.swift in Sources */,
 				82E75475E13FD847DDDC69D8 /* TaskListView+Drag.swift in Sources */,

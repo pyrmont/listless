@@ -260,7 +260,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 )
                 .opacity(showPhantom ? 0 : 1)
 
-                phantomEntryRowContent
+                draftPrependRow
                     .frame(height: showPhantom ? nil : 0)
                     .opacity(showPhantom ? 1 : 0)
                     // Instant swap — no animation on height or opacity.
@@ -274,136 +274,58 @@ struct TaskListView: View, TaskListViewProtocol {
         }
     }
 
-    /// The phantom row content styled to match a task row. Controlled by the
+    /// The draft row content styled to match a task row. Controlled by the
     /// ZStack in ``pullToCreateIndicatorRow`` rather than its own visibility.
-    @ViewBuilder private var phantomEntryRowContent: some View {
-        let accentColor = taskColor(
-            forIndex: 0, total: max(1, displayActiveTasks.count + 1), theme: colorTheme
-        )
-        let isSelected = fState.selectedTaskID == draftPrependRowID
-        HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
-            Image(systemName: "circle")
-                .frame(width: 22, height: 22)
-                .foregroundStyle(Color.secondary)
-                .font(.system(size: 17))
-
-            TappableTextField(
-                text: draftTitleBinding,
-                isCompleted: false,
-                isDragging: false,
-
-                onEditingChanged: { editing, _ in
-                    DispatchQueue.main.async {
-                        if editing {
-                            beginDraftTaskEditing(.prepend)
-                        } else {
-                            commitDraftTask()
-                        }
+    @ViewBuilder private var draftPrependRow: some View {
+        DraftRowView(
+            accentColor: taskColor(
+                forIndex: 0, total: max(1, displayActiveTasks.count + 1), theme: colorTheme
+            ),
+            isSelected: fState.selectedTaskID == draftPrependRowID,
+            draftID: draftPrependRowID,
+            title: draftTitleBinding,
+            onEditingChanged: { editing, _ in
+                DispatchQueue.main.async {
+                    if editing {
+                        beginDraftTaskEditing(.prepend)
+                    } else {
+                        commitDraftTask()
                     }
-                },
-                returnKeyType: .done,
-                uiAccessibilityIdentifier: "draft-row-prepend"
-            )
-            .focused($focusedFieldBinding, equals: .task(draftPrependRowID))
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
-        .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
-        .padding(.leading, TaskRowMetrics.activeLeadingPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-        .background {
-            Color.taskCard.overlay(accentColor.opacity(0.15))
-        }
-        .clipShape(
-            UnevenRoundedRectangle(
-                topLeadingRadius: 0, bottomLeadingRadius: 0,
-                bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-            )
-        )
-        .overlay(alignment: .leading) {
-            Rectangle()
-                .fill(accentColor)
-                .frame(width: TaskRowMetrics.accentBarWidth)
-        }
-        .overlay(
-            isSelected
-                ? UnevenRoundedRectangle(
-                    topLeadingRadius: 0, bottomLeadingRadius: 0,
-                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-                )
-                .stroke(accentColor.opacity(0.40), lineWidth: 2)
-                : nil
+                }
+            },
+            returnKeyType: .done,
+            accessibilityIdentifier: "draft-row-prepend",
+            focusedField: $focusedFieldBinding
         )
     }
 
-    @ViewBuilder private var phantomAppendRowContent: some View {
+    @ViewBuilder private var draftAppendRow: some View {
         if isAppendDraftVisible {
-            let total = max(1, displayActiveTasks.count + 1)
-            let index = displayActiveTasks.count
-            let accentColor = taskColor(forIndex: index, total: total, theme: colorTheme)
-            let isSelected = fState.selectedTaskID == draftAppendRowID
-            HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
-                Image(systemName: "circle")
-                    .frame(width: 22, height: 22)
-                    .foregroundStyle(Color.secondary)
-                    .font(.system(size: 17))
-
-                TappableTextField(
-                    text: draftTitleBinding,
-                    isCompleted: false,
-                    isDragging: false,
-    
-                    onEditingChanged: { editing, shouldCreateNewTask in
-                        DispatchQueue.main.async {
-                            if editing {
-                                beginDraftTaskEditing(.append)
-                            } else {
-                                commitDraftTask(
-                                    shouldCreateNewTask: shouldCreateNewTask
-                                )
-                            }
+            DraftRowView(
+                accentColor: taskColor(
+                    forIndex: displayActiveTasks.count,
+                    total: max(1, displayActiveTasks.count + 1),
+                    theme: colorTheme
+                ),
+                isSelected: fState.selectedTaskID == draftAppendRowID,
+                draftID: draftAppendRowID,
+                title: draftTitleBinding,
+                onEditingChanged: { editing, shouldCreateNewTask in
+                    DispatchQueue.main.async {
+                        if editing {
+                            beginDraftTaskEditing(.append)
+                        } else {
+                            commitDraftTask(
+                                shouldCreateNewTask: shouldCreateNewTask
+                            )
                         }
-                    },
-                    returnKeyType: draftTitle.trimmingCharacters(
-                        in: .whitespacesAndNewlines
-                    ).isEmpty ? .done : .next,
-                    uiAccessibilityIdentifier: "draft-row-append"
-                )
-                .focused($focusedFieldBinding, equals: .task(draftAppendRowID))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
-            .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
-            .padding(.leading, TaskRowMetrics.activeLeadingPadding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .background {
-                Color.taskCard.overlay(accentColor.opacity(0.15))
-            }
-            .clipShape(
-                UnevenRoundedRectangle(
-                    topLeadingRadius: 0, bottomLeadingRadius: 0,
-                    bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                    topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-                )
-            )
-            .overlay(alignment: .leading) {
-                Rectangle()
-                    .fill(accentColor)
-                    .frame(width: TaskRowMetrics.accentBarWidth)
-            }
-            .overlay(
-                isSelected
-                    ? UnevenRoundedRectangle(
-                        topLeadingRadius: 0, bottomLeadingRadius: 0,
-                        bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-                        topTrailingRadius: TaskRowMetrics.trailingCornerRadius
-                    )
-                    .stroke(accentColor.opacity(0.40), lineWidth: 2)
-                    : nil
+                    }
+                },
+                returnKeyType: draftTitle.trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                ).isEmpty ? .done : .next,
+                accessibilityIdentifier: "draft-row-append",
+                focusedField: $focusedFieldBinding
             )
             .id(draftAppendRowID)
         }
@@ -458,7 +380,7 @@ struct TaskListView: View, TaskListViewProtocol {
             .id(taskID)
         }
 
-        phantomAppendRowContent
+        draftAppendRow
 
         ForEach(completedTasks) { task in
             let taskID = task.id
