@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Pull distance at which the indicator signals readiness and completed task clearing triggers.
-let pullClearThreshold: CGFloat = 90
+let pullClearThreshold: CGFloat = 50
 
 struct PullToClearIndicator: View {
     let pullOffset: CGFloat

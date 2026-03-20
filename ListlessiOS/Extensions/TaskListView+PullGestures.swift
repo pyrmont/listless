@@ -65,10 +65,8 @@ extension TaskListView {
 private struct PullGesturesModifier: ViewModifier {
     @Binding var pullToCreate: TaskListView.PullToCreateState
     @Binding var pullUpOffset: CGFloat
-    @Binding var isDragging: Bool
 
-    @State private var isAtBottom = false
-    @State private var clearPullStartedAtBottom = false
+    @State private var isScrollInteracting = false
 
     let isDraftOpen: Bool
     let hasCompletedTasks: Bool
@@ -85,19 +83,28 @@ private struct PullGesturesModifier: ViewModifier {
             } action: { _, pullDistance in
                 pullToCreate.updatePullDistance(pullDistance)
             }
-            .onScrollGeometryChange(for: Bool.self) { geo in
-                // Match the same bottom inset adjustment used by the ScrollView.
+            .onScrollGeometryChange(for: CGFloat.self) { geo in
                 let adjustedBottomInset = geo.contentInsets.bottom - 20
                 let maxOffset = max(
                     -geo.contentInsets.top,
                     geo.contentSize.height - geo.bounds.size.height + adjustedBottomInset
                 )
-                return geo.contentOffset.y >= (maxOffset - 1)
-            } action: { _, atBottom in
-                isAtBottom = atBottom
+                return max(0, geo.contentOffset.y - maxOffset)
+            } action: { _, bottomOverscroll in
+                guard hasCompletedTasks, isScrollInteracting else { return }
+                pullUpOffset = bottomOverscroll
             }
             .onScrollPhaseChange { oldPhase, newPhase in
+                if newPhase == .interacting {
+                    isScrollInteracting = true
+                }
+
                 handlePullToCreateScrollPhaseChange(from: oldPhase, to: newPhase)
+
+                if oldPhase == .interacting, newPhase != .interacting {
+                    handlePullToClearRelease()
+                    isScrollInteracting = false
+                }
             }
             .sensoryFeedback(
                 .impact(weight: .medium),
@@ -108,7 +115,6 @@ private struct PullGesturesModifier: ViewModifier {
             .sensoryFeedback(.impact(weight: .medium), trigger: pullUpOffset >= pullClearThreshold) { old, new in
                 !old && new
             }
-            .simultaneousGesture(clearCompletedPullGesture)
     }
 
     private func handlePullToCreateScrollPhaseChange(from oldPhase: ScrollPhase, to newPhase: ScrollPhase) {
@@ -136,33 +142,15 @@ private struct PullGesturesModifier: ViewModifier {
         case .none:
             break
         }
-
     }
 
-    private var clearCompletedPullGesture: some Gesture {
-        DragGesture(minimumDistance: 0, coordinateSpace: .local)
-            .onChanged { value in
-                guard hasCompletedTasks, !isDragging else { return }
-
-                if !clearPullStartedAtBottom {
-                    clearPullStartedAtBottom = isAtBottom
-                }
-                guard clearPullStartedAtBottom else { return }
-
-                // Use finger travel, not ScrollView rubber-band displacement.
-                pullUpOffset = max(0, -value.translation.height)
-            }
-            .onEnded { _ in
-                defer {
-                    clearPullStartedAtBottom = false
-                    pullUpOffset = 0
-                }
-
-                guard hasCompletedTasks, clearPullStartedAtBottom else { return }
-                if pullUpOffset >= pullClearThreshold {
-                    onClearCompleted()
-                }
-            }
+    private func handlePullToClearRelease() {
+        guard hasCompletedTasks, pullUpOffset >= pullClearThreshold else {
+            pullUpOffset = 0
+            return
+        }
+        pullUpOffset = 0
+        onClearCompleted()
     }
 }
 
@@ -170,7 +158,6 @@ extension View {
     func pullGestures(
         pullToCreate: Binding<TaskListView.PullToCreateState>,
         pullUpOffset: Binding<CGFloat>,
-        isDragging: Binding<Bool>,
         isDraftOpen: Bool,
         hasCompletedTasks: Bool,
         pullCreateThreshold: CGFloat,
@@ -183,7 +170,6 @@ extension View {
             PullGesturesModifier(
                 pullToCreate: pullToCreate,
                 pullUpOffset: pullUpOffset,
-                isDragging: isDragging,
                 isDraftOpen: isDraftOpen,
                 hasCompletedTasks: hasCompletedTasks,
                 pullCreateThreshold: pullCreateThreshold,

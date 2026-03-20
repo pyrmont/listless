@@ -556,7 +556,6 @@ struct TaskListView: View, TaskListViewProtocol {
             .pullGestures(
                 pullToCreate: pullToCreateStateBinding,
                 pullUpOffset: pullUpOffsetStateBinding,
-                isDragging: isDraggingStateBinding,
                 isDraftOpen: draftPlacement != nil,
                 hasCompletedTasks: !completedTasks.isEmpty,
             pullCreateThreshold: pullCreateThreshold,
