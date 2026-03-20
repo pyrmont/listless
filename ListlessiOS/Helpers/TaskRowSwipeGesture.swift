@@ -3,7 +3,7 @@ import SwiftUI
 extension View {
     func taskSwipeGesture(
         isDragging: Binding<Bool>,
-        isScrolling: Bool,
+        isSwiping: Binding<Bool>,
         swipeOffset: Binding<CGFloat>,
         swipeDirection: Binding<TaskRowSwipeGesture.SwipeDirection>,
         isTriggered: Binding<Bool>,
@@ -14,7 +14,7 @@ extension View {
         self.modifier(
             TaskRowSwipeGesture(
                 isDragging: isDragging,
-                isScrolling: isScrolling,
+                isSwiping: isSwiping,
                 swipeOffset: swipeOffset,
                 swipeDirection: swipeDirection,
                 isTriggered: isTriggered,
@@ -27,7 +27,7 @@ extension View {
 
 struct TaskRowSwipeGesture: ViewModifier {
     @Binding var isDragging: Bool
-    let isScrolling: Bool
+    @Binding var isSwiping: Bool
     @Binding var swipeOffset: CGFloat
     @Binding var swipeDirection: SwipeDirection
     @Binding var isTriggered: Bool
@@ -76,10 +76,7 @@ struct TaskRowSwipeGesture: ViewModifier {
                     verticalTranslation: abs(translation.height)
                 )
                 guard activeGestureAxis == .horizontal else { return }
-                handleDragChanged(
-                    horizontalTranslation: translation.width,
-                    verticalTranslation: abs(translation.height)
-                )
+                handleDragChanged(horizontalTranslation: translation.width)
             },
             onEnded: {
                 handleDragEnded()
@@ -111,12 +108,7 @@ struct TaskRowSwipeGesture: ViewModifier {
         }
     }
 
-    private func handleDragChanged(horizontalTranslation: CGFloat, verticalTranslation: CGFloat) {
-        // Require horizontal > vertical + buffer to activate swipe
-        guard abs(horizontalTranslation) > verticalTranslation + horizontalBufferPt else {
-            return
-        }
-
+    private func handleDragChanged(horizontalTranslation: CGFloat) {
         if horizontalTranslation > 0 {
             swipeDirection = .right
         } else if horizontalTranslation < 0 {
@@ -135,7 +127,10 @@ struct TaskRowSwipeGesture: ViewModifier {
     }
 
     private func handleDragEnded() {
-        defer { activeGestureAxis = .undecided }
+        defer {
+            activeGestureAxis = .undecided
+            isSwiping = false
+        }
 
         guard !isDragging else {
             // A drag-reorder started during or after this swipe — spring back, no action.
@@ -176,6 +171,7 @@ struct TaskRowSwipeGesture: ViewModifier {
         swipeOffset = 0
         swipeDirection = .none
         isTriggered = false
+        isSwiping = false
         activeGestureAxis = .undecided
     }
 
@@ -189,58 +185,41 @@ struct TaskRowSwipeGesture: ViewModifier {
 
         if abs(horizontalTranslation) > verticalTranslation + horizontalBufferPt {
             activeGestureAxis = .horizontal
+            isSwiping = true
         } else if verticalTranslation > abs(horizontalTranslation) + horizontalBufferPt {
             activeGestureAxis = .vertical
         }
     }
 }
 
-// MARK: - iOS 26 workaround: UIGestureRecognizerRepresentable
+// MARK: - UIGestureRecognizerRepresentable swipe gesture
 
 /// On iOS 26, `.simultaneousGesture(DragGesture())` on a child view blocks the
 /// ancestor ScrollView's scrolling. This uses a `UILongPressGestureRecognizer`
 /// (with zero press duration and infinite allowable movement) as a pan substitute,
 /// applied via `UIGestureRecognizerRepresentable`. The gesture delegate returns
 /// `shouldRecognizeSimultaneouslyWith: true` so scrolling is preserved.
-///
-/// On iOS < 18 (where UIGestureRecognizerRepresentable isn't available), the
-/// original `.simultaneousGesture(DragGesture(...))` is used.
 private extension View {
-    @ViewBuilder
     func applySwipeGesture(
         isDragging: Bool,
         onChanged: @escaping (CGSize) -> Void,
         onEnded: @escaping () -> Void
     ) -> some View {
-        if #available(iOS 18, *) {
-            self.gesture(
-                SimultaneousSwipeGesture(
-                    onChanged: { _, translation in
-                        guard !isDragging else { return }
-                        onChanged(translation)
-                    },
-                    onEnded: { _, _ in
-                        guard !isDragging else { return }
-                        onEnded()
-                    }
-                )
+        self.gesture(
+            SimultaneousSwipeGesture(
+                onChanged: { _, translation in
+                    guard !isDragging else { return }
+                    onChanged(translation)
+                },
+                onEnded: { _, _ in
+                    guard !isDragging else { return }
+                    onEnded()
+                }
             )
-        } else {
-            self.simultaneousGesture(
-                DragGesture(minimumDistance: 10, coordinateSpace: .local)
-                    .onChanged { value in
-                        onChanged(value.translation)
-                    }
-                    .onEnded { _ in
-                        onEnded()
-                    },
-                including: isDragging ? .none : .all
-            )
-        }
+        )
     }
 }
 
-@available(iOS 18.0, *)
 private struct SimultaneousSwipeGesture: UIGestureRecognizerRepresentable {
     let onChanged: (UILongPressGestureRecognizer, CGSize) -> Void
     let onEnded: (UILongPressGestureRecognizer, CGSize) -> Void

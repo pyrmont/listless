@@ -12,7 +12,7 @@ struct TaskListView: View, TaskListViewProtocol {
         var clearingTaskIDs: Set<UUID> = []
         var rowFrames: [UUID: CGRect] = [:]
         var undoToast: UndoToastData? = nil
-        var isScrolling: Bool = false
+        var isSwiping: Bool = false
         var draftPlacement: DraftTaskPlacement?
         var draftTitle: String = ""
         var contentBottomY: CGFloat = 0
@@ -344,7 +344,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 totalTasks: displayActiveTasks.count + draftTotal,
                 isSelected: fState.selectedTaskID == taskID,
                 isDragging: isDraggingStateBinding,
-                isScrolling: iState.isScrolling,
+                isSwiping: $iState.isSwiping,
                 isLastActiveTask: index == displayActiveTasks.count - 1,
                 focusedField: $focusedFieldBinding,
                 onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
@@ -389,7 +389,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 task: task,
                 taskID: taskID,
                 isSelected: fState.selectedTaskID == taskID,
-                isScrolling: iState.isScrolling,
+                isSwiping: $iState.isSwiping,
                 focusedField: $focusedFieldBinding,
                 onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
                 onTitleChange: { updateTitle($0, $1) },
@@ -535,11 +535,8 @@ struct TaskListView: View, TaskListViewProtocol {
             }
           }
         }
-        .scrollDisabled(draggedTaskID != nil)
+        .scrollDisabled(draggedTaskID != nil || iState.isSwiping)
         .scrollBounceBehavior(.always)
-        .onScrollPhaseChange { _, newPhase in
-            iState.isScrolling = newPhase != .idle
-        }
         .contentMargins(.bottom, 20)
         .background {
             Color.outerBackground.ignoresSafeArea()

@@ -7,7 +7,7 @@ struct TaskRowView: View {
     let totalTasks: Int
     let isSelected: Bool
     @Binding var isDragging: Bool
-    let isScrolling: Bool
+    @Binding var isSwiping: Bool
     let onToggle: (TaskItem) -> Void
     let onTitleChange: (TaskItem, String) -> Void
     let onDelete: (TaskItem) -> Void
@@ -33,7 +33,7 @@ struct TaskRowView: View {
         totalTasks: Int = 1,
         isSelected: Bool,
         isDragging: Binding<Bool> = .constant(false),
-        isScrolling: Bool = false,
+        isSwiping: Binding<Bool> = .constant(false),
         isLastActiveTask: Bool = false,
         focusedField: FocusState<FocusField?>.Binding,
         onToggle: @escaping (TaskItem) -> Void,
@@ -49,7 +49,7 @@ struct TaskRowView: View {
         self.totalTasks = totalTasks
         self.isSelected = isSelected
         _isDragging = isDragging
-        self.isScrolling = isScrolling
+        _isSwiping = isSwiping
         self.isLastActiveTask = isLastActiveTask
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
@@ -155,7 +155,7 @@ struct TaskRowView: View {
         }
         .taskSwipeGesture(
             isDragging: $isDragging,
-            isScrolling: isScrolling,
+            isSwiping: $isSwiping,
             swipeOffset: $swipeOffset,
             swipeDirection: $swipeDirection,
             isTriggered: $isSwipeTriggered,
