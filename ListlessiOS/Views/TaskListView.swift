@@ -542,7 +542,7 @@ struct TaskListView: View, TaskListViewProtocol {
             Color.outerBackground.ignoresSafeArea()
         }
         .overlay {
-            if isCompletelyEmpty {
+            if isCompletelyEmpty && draftPlacement == nil {
                 Text("Pull down to create")
                     .font(TaskRowMetrics.hintSUI)
                     .foregroundStyle(.secondary)
