@@ -5,7 +5,18 @@ extension TaskListView {
     // MARK: - Pull-to-Create Draft Helpers
 
     func revealPhantomRow() -> UUID {
-        return createNewTaskAtTop()
+        let taskID = draftPrependRowID
+        if draftPlacement != .prepend, draftPlacement != nil {
+            commitDraftTask()
+        }
+        clearDragState()
+        draftTitle = ""
+        draftPlacement = .prepend
+        fState.selectedTaskID = taskID
+        pState.draftSettleOffset = -PullToCreateIndicator.indicatorHeight
+        fState.pendingFocus = .task(taskID)
+        focusedField = .task(taskID)
+        return taskID
     }
 
     func commitPhantomRow() {

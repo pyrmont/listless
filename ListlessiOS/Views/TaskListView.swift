@@ -22,6 +22,9 @@ struct TaskListView: View, TaskListViewProtocol {
     struct PullStateData {
         var pullToCreate = PullToCreateState()
         var pullUpOffset: CGFloat = 0
+        var draftSettleOffset: CGFloat = 0
+        var scrollUpAmount: CGFloat = 0
+        var headerHeight: CGFloat = 60
     }
 
     @AppStorage("headingText") var headingText = "Items"
@@ -180,6 +183,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
             guard placement == .prepend else { return }
 
+            pState.draftSettleOffset = 0
             var state = pState.pullToCreate
             state.isInsertionPending = false
             state.indicatorOffset = 0
@@ -225,58 +229,39 @@ struct TaskListView: View, TaskListViewProtocol {
         return (width + liftPoints) / width
     }
 
-    private var pullToCreateRevealHeight: CGFloat {
-        min(
-            pState.pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold),
-            PullToCreateIndicator.indicatorHeight
-        )
-    }
-
-    private var pullToCreateGap: CGFloat {
-        guard pState.pullToCreate.shouldShowIndicator, !isPrependDraftVisible else { return 0 }
-        let exposedPull = pState.pullToCreate.indicatorDisplayOffset(threshold: pullCreateThreshold)
-        return min(
-            vStackSpacing,
-            max(0, exposedPull - PullToCreateIndicator.indicatorHeight)
-        )
-    }
-
-    private var pullToCreateRowOverlap: CGFloat {
-        guard pState.pullToCreate.shouldShowIndicator, !isPrependDraftVisible else {
-            return 0
-        }
-        return PullToCreateIndicator.indicatorHeight - pullToCreateRevealHeight
-    }
-
     /// Combined indicator and phantom entry row sharing the same VStack slot.
     /// The phantom's UITextView is created while the indicator is visible
     /// (during the pull), so it's ready when the user releases.
     @ViewBuilder var pullToCreateIndicatorRow: some View {
-        let showIndicator = pState.pullToCreate.shouldShowIndicator
         let showPhantom = isPrependDraftVisible
-        if showIndicator || showPhantom {
-            ZStack(alignment: .topLeading) {
-                PullToCreateIndicator(
-                    pullOffset: pState.pullToCreate.indicatorDisplayOffset(
+        let pullOffset = pState.pullToCreate.pullOffset
+        let indicatorHeight = PullToCreateIndicator.indicatorHeight
+        ZStack(alignment: .topLeading) {
+            PullToCreateIndicator(
+                pullOffset: max(
+                    0,
+                    pState.pullToCreate.indicatorDisplayOffset(
                         threshold: pullCreateThreshold
-                    ),
-                    threshold: pullCreateThreshold,
-                    hasRowsBelow: !displayActiveTasks.isEmpty
-                )
-                .opacity(showPhantom ? 0 : 1)
-
-                draftPrependRow
-                    .frame(height: showPhantom ? nil : 0)
-                    .opacity(showPhantom ? 1 : 0)
-                    // Instant swap — no animation on height or opacity.
-                    .animation(nil, value: showPhantom)
-            }
-            .frame(
-                height: showPhantom ? nil : PullToCreateIndicator.indicatorHeight,
-                alignment: .top
+                    ) - vStackSpacing
+                ),
+                threshold: max(0, pullCreateThreshold - vStackSpacing),
+                hasRowsBelow: false
             )
-            .animation(nil, value: showPhantom)
+            .padding(.bottom, -indicatorHeight)
+            .opacity(showPhantom ? 0 : 1)
+
+            draftPrependRow
+                .frame(height: showPhantom ? nil : 0)
+                .opacity(showPhantom ? 1 : 0)
+                // Instant swap — no animation on height or opacity.
+                .animation(nil, value: showPhantom)
         }
+        .offset(
+            y: showPhantom
+                ? pState.draftSettleOffset
+                : vStackSpacing - min(pullOffset, indicatorHeight + vStackSpacing)
+        )
+        .animation(nil, value: showPhantom)
     }
 
     /// The draft row content styled to match a task row. Controlled by the
@@ -478,105 +463,134 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     private var taskScrollView: some View {
-        ScrollView {
-          ScrollViewReader { scrollProxy in
-            VStack(alignment: .leading, spacing: vStackSpacing) {
-                VStack(alignment: .leading, spacing: 0) {
-                    navigationHeader
-                    pullToCreateIndicatorRow
-                        .padding(.top, vStackSpacing)
+        ZStack(alignment: .top) {
+            ScrollView {
+              ScrollViewReader { scrollProxy in
+                VStack(alignment: .leading, spacing: vStackSpacing) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Color.clear.frame(height: pState.headerHeight)
+                        pullToCreateIndicatorRow
+                    }
+                    taskRows
                 }
-                .padding(
-                    .bottom,
-                    (pState.pullToCreate.shouldShowIndicator && !isPrependDraftVisible)
-                        ? (pullToCreateGap - vStackSpacing) : 0
+                .offset(
+                    y: -min(
+                        pState.pullToCreate.pullOffset,
+                        vStackSpacing
+                    )
                 )
-                taskRows
-                    .offset(y: -pullToCreateRowOverlap)
-            }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-            .onGeometryChange(for: CGFloat.self) {
-                $0.frame(in: .global).maxY
-            } action: {
-                layoutStorage.contentBottomY = $0
-            }
-            .padding(.trailing, 16)
-            .padding(.vertical, 12)
-            .offset(y: -pState.pullToCreate.pullOffset)
-            .onChange(of: focusedFieldBinding) { oldValue, newValue in
-                fState.focusedField = newValue
-                handleFocusChange(from: oldValue, to: newValue)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .onGeometryChange(for: CGFloat.self) {
+                    $0.frame(in: .global).maxY
+                } action: {
+                    layoutStorage.contentBottomY = $0
+                }
+                .padding(.trailing, 16)
+                .padding(.vertical, 12)
+                .onChange(of: isPrependDraftVisible) { old, new in
+                    if new {
+                        // Animate draftSettleOffset from -50 to 0 with the same
+                        // spring used for the draft reveal transaction. This runs
+                        // one frame after revealPhantomRow() snapped the offset to
+                        // -50, so SwiftUI treats it as a real change to animate.
+                        withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+                            pState.draftSettleOffset = 0
+                        }
+                    }
+                }
+                .onChange(of: focusedFieldBinding) { oldValue, newValue in
+                    fState.focusedField = newValue
+                    handleFocusChange(from: oldValue, to: newValue)
 
-                if newValue == nil,
-                    !iState.isShowingSettings,
-                    !iState.isShowingSyncDiagnostics
-                {
-                    if let pending = fState.pendingFocus {
-                        focusedFieldBinding = pending
-                        fState.focusedField = pending
-                        fState.pendingFocus = nil
-                    } else {
-                        focusedFieldBinding = .scrollView
-                        fState.focusedField = .scrollView
+                    if newValue == nil,
+                        !iState.isShowingSettings,
+                        !iState.isShowingSyncDiagnostics
+                    {
+                        if let pending = fState.pendingFocus {
+                            focusedFieldBinding = pending
+                            fState.focusedField = pending
+                            fState.pendingFocus = nil
+                        } else {
+                            focusedFieldBinding = .scrollView
+                            fState.focusedField = .scrollView
+                        }
                     }
-                }
 
-                if case .task(let id) = (newValue ?? fState.focusedField),
-                    draggedTaskID == nil,
-                    id != draftPrependRowID
-                {
-                    withAnimation {
-                        scrollProxy.scrollTo(id)
+                    if case .task(let id) = (newValue ?? fState.focusedField),
+                        draggedTaskID == nil,
+                        id != draftPrependRowID
+                    {
+                        withAnimation {
+                            scrollProxy.scrollTo(id)
+                        }
                     }
                 }
-            }
-            .onChange(of: fState.selectedTaskID) { _, newID in
-                if let newID, draggedTaskID == nil {
-                    guard newID != draftPrependRowID else { return }
-                    withAnimation {
-                        scrollProxy.scrollTo(newID)
+                .onChange(of: fState.selectedTaskID) { _, newID in
+                    if let newID, draggedTaskID == nil {
+                        guard newID != draftPrependRowID else { return }
+                        withAnimation {
+                            scrollProxy.scrollTo(newID)
+                        }
                     }
                 }
+              }
             }
-          }
-        }
-        .scrollDisabled(draggedTaskID != nil || iState.isSwiping)
-        .scrollBounceBehavior(.always)
-        .contentMargins(.bottom, 20)
-        .background {
-            Color.outerBackground.ignoresSafeArea()
-        }
-        .overlay {
-            if isCompletelyEmpty && draftPlacement == nil {
-                Text("Pull down to create")
-                    .font(TaskRowMetrics.hintSUI)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 24)
-                    .allowsHitTesting(false)
+            .scrollDisabled(draggedTaskID != nil || iState.isSwiping)
+            .scrollBounceBehavior(.always)
+            .contentMargins(.bottom, 20)
+            .onScrollGeometryChange(for: CGFloat.self) { geo in
+                max(0, geo.contentOffset.y + geo.contentInsets.top)
+            } action: { _, scrollUp in
+                pState.scrollUpAmount = scrollUp
             }
-        }
-        .overlay(alignment: .bottom) {
-            pullToClearIndicatorRow
-        }
+            .background {
+                Color.outerBackground.ignoresSafeArea()
+            }
+            .overlay {
+                if isCompletelyEmpty && draftPlacement == nil {
+                    Text("Pull down to create")
+                        .font(TaskRowMetrics.hintSUI)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 24)
+                        .allowsHitTesting(false)
+                }
+            }
+            .overlay(alignment: .bottom) {
+                pullToClearIndicatorRow
+            }
             .pullGestures(
                 pullToCreate: pullToCreateStateBinding,
                 pullUpOffset: pullUpOffsetStateBinding,
                 isDraftOpen: draftPlacement != nil,
                 hasCompletedTasks: !completedTasks.isEmpty,
-            pullCreateThreshold: pullCreateThreshold,
-            flickThreshold: flickThreshold,
-            pullClearThreshold: pullClearThreshold,
-            onCreateTaskAtTop: { revealPhantomRow() },
-            onClearCompleted: {
-                let ids = Set(completedTasks.map(\.id))
-                withAnimation(.easeIn(duration: 0.35)) {
-                    iState.clearingTaskIDs = ids
-                } completion: {
-                    iState.clearingTaskIDs = []
-                    clearCompletedTasksWithUndo()
+                pullCreateThreshold: pullCreateThreshold,
+                flickThreshold: flickThreshold,
+                pullClearThreshold: pullClearThreshold,
+                onCreateTaskAtTop: { revealPhantomRow() },
+                onClearCompleted: {
+                    let ids = Set(completedTasks.map(\.id))
+                    withAnimation(.easeIn(duration: 0.35)) {
+                        iState.clearingTaskIDs = ids
+                    } completion: {
+                        iState.clearingTaskIDs = []
+                        clearCompletedTasksWithUndo()
+                    }
                 }
-            }
-        )
+            )
+
+            navigationHeader
+                .padding(.top, 12)
+                .onGeometryChange(for: CGFloat.self) {
+                    $0.size.height
+                } action: {
+                    pState.headerHeight = $0
+                }
+                .offset(y: -pState.scrollUpAmount)
+                .background {
+                    Color.outerBackground
+                        .offset(y: -pState.scrollUpAmount)
+                }
+        }
     }
 }
 
