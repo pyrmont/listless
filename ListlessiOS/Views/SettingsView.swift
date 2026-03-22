@@ -15,7 +15,7 @@ struct SettingsView: View {
                 }
 
                 Section("Theme") {
-                    ForEach(ColorTheme.allCases) { theme in
+                    ForEach(ColorTheme.displayOrder) { theme in
                         Button {
                             colorThemeRaw = theme.rawValue
                         } label: {

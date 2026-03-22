@@ -1,14 +1,18 @@
 import SwiftUI
 
 enum ColorTheme: Int, CaseIterable, Identifiable {
-    case original = 0
+    case pilbara = 0
     case collaroy = 1
 
     var id: Int { rawValue }
 
+    static var displayOrder: [ColorTheme] {
+        allCases.sorted { $0.displayName < $1.displayName }
+    }
+
     var displayName: String {
         switch self {
-        case .original: "Original"
+        case .pilbara: "Pilbara"
         case .collaroy: "Collaroy"
         }
     }
@@ -17,21 +21,21 @@ enum ColorTheme: Int, CaseIterable, Identifiable {
 
     fileprivate var top: HSB {
         switch self {
-        case .original: (h: 0.98, s: 0.85, b: 1.00)
+        case .pilbara: (h: 0.98, s: 0.85, b: 1.00)
         case .collaroy: (h: 0.58, s: 0.88, b: 1.00)
         }
     }
 
     fileprivate var mid: HSB {
         switch self {
-        case .original: (h: 0.88, s: 0.75, b: 0.95)
+        case .pilbara: (h: 0.88, s: 0.75, b: 0.95)
         case .collaroy: (h: 0.51, s: 0.69, b: 0.90)
         }
     }
 
     fileprivate var bottom: HSB {
         switch self {
-        case .original: (h: 0.72, s: 0.65, b: 0.85)
+        case .pilbara: (h: 0.72, s: 0.65, b: 0.85)
         case .collaroy: (h: 0.44, s: 0.50, b: 0.80)
         }
     }
@@ -48,7 +52,7 @@ private enum TaskAccentColorCache {
     static var colors: [TaskAccentColorKey: Color] = [:]
 }
 
-func taskColor(forIndex index: Int, total: Int, theme: ColorTheme = .original) -> Color {
+func taskColor(forIndex index: Int, total: Int, theme: ColorTheme = .pilbara) -> Color {
     let top = theme.top
     guard total > 1 else { return Color(hue: top.h, saturation: top.s, brightness: top.b) }
 
@@ -64,7 +68,7 @@ func taskColor(forIndex index: Int, total: Int, theme: ColorTheme = .original) -
 }
 
 @MainActor
-func cachedTaskColor(forIndex index: Int, total: Int, theme: ColorTheme = .original) -> Color {
+func cachedTaskColor(forIndex index: Int, total: Int, theme: ColorTheme = .pilbara) -> Color {
     let key = TaskAccentColorKey(index: index, total: total, theme: theme)
     if let cached = TaskAccentColorCache.colors[key] {
         return cached

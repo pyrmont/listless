@@ -5,7 +5,7 @@ struct PullToCreateIndicator: View {
     let threshold: CGFloat
     var hasRowsBelow: Bool = true
     @AppStorage("colorTheme") private var colorThemeRaw = 0
-    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .original }
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
 
     static let indicatorHeight: CGFloat = 50
 

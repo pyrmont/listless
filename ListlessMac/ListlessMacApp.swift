@@ -14,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private var syncDiagnosticsWindow: NSWindow?
     private let coordinators = NSMapTable<NSWindow, WindowCoordinator>.weakToStrongObjects()
     private static let appearanceModeKey = "appearanceMode"
+    private static let colorThemeKey = "colorTheme"
 
     private var keyWindowCoordinator: WindowCoordinator? {
         guard let window = NSApp.keyWindow else { return nil }
@@ -65,6 +66,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             default: 0
             }
             menuItem.state = (currentMode == itemMode) ? .on : .off
+            return true
+        case #selector(handleThemeSelection(_:)):
+            let currentTheme = UserDefaults.standard.integer(forKey: Self.colorThemeKey)
+            menuItem.state = (currentTheme == menuItem.tag) ? .on : .off
             return true
         default:
             break
@@ -146,6 +151,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     @objc private func handleAppearanceSystem() { setAppearanceMode(0) }
     @objc private func handleAppearanceLight() { setAppearanceMode(1) }
     @objc private func handleAppearanceDark() { setAppearanceMode(2) }
+
+    @objc private func handleThemeSelection(_ sender: NSMenuItem) {
+        UserDefaults.standard.set(sender.tag, forKey: Self.colorThemeKey)
+    }
 
     private func setAppearanceMode(_ mode: Int) {
         UserDefaults.standard.set(mode, forKey: Self.appearanceModeKey)
@@ -364,6 +373,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let appearanceMenuItem = NSMenuItem(title: "Appearance", action: nil, keyEquivalent: "")
         appearanceMenuItem.submenu = appearanceMenu
         viewMenu.addItem(appearanceMenuItem)
+        viewMenu.addItem(NSMenuItem.separator())
+
+        let themeMenu = NSMenu(title: "Theme")
+        for theme in ColorTheme.displayOrder {
+            let item = NSMenuItem(title: theme.displayName, action: #selector(handleThemeSelection(_:)), keyEquivalent: "")
+            item.tag = theme.rawValue
+            item.target = self
+            themeMenu.addItem(item)
+        }
+        let themeMenuItem = NSMenuItem(title: "Theme", action: nil, keyEquivalent: "")
+        themeMenuItem.submenu = themeMenu
+        viewMenu.addItem(themeMenuItem)
+
         viewMenu.addItem(NSMenuItem.separator())
 
         let fullScreenItem = NSMenuItem(title: "Enter Full Screen", action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")

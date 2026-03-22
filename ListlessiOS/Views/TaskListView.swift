@@ -26,7 +26,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     @AppStorage("headingText") var headingText = "Items"
     @AppStorage("colorTheme") private var colorThemeRaw = 0
-    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .original }
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 

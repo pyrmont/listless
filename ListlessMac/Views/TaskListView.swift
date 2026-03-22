@@ -9,6 +9,9 @@ struct TaskListView: View, TaskListViewProtocol {
         var draftTitle: String = ""
     }
 
+    @AppStorage("colorTheme") private var colorThemeRaw = 0
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
+
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 
@@ -275,7 +278,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     let total = max(1, displayActiveTasks.count + 1)
                     let index = displayActiveTasks.count
                     let accentColor = cachedTaskColor(
-                        forIndex: index, total: total
+                        forIndex: index, total: total, theme: colorTheme
                     )
                     let isSelected = fState.isTaskSelected(draftAppendRowID)
                     HStack(alignment: .firstTextBaseline, spacing: 12) {

@@ -18,7 +18,7 @@ struct TaskRowView: View {
     @FocusState.Binding var focusedField: FocusField?
 
     @AppStorage("colorTheme") private var colorThemeRaw = 0
-    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .original }
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
     @State private var swipeOffset: CGFloat = 0
     @State private var swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none
     @State private var isSwipeTriggered: Bool = false

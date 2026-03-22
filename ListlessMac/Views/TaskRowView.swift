@@ -15,6 +15,9 @@ struct TaskRowView: View {
     let onPaste: (String) -> Void
     @FocusState.Binding var focusedField: FocusField?
 
+    @AppStorage("colorTheme") private var colorThemeRaw = 0
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
+
     @State private var editingTitle: String = ""
     @State private var isCurrentlyEditing: Bool = false
     @State private var cachedAccentColor: Color = .clear
@@ -30,7 +33,7 @@ struct TaskRowView: View {
     @MainActor
     private func computeAccentColor() -> Color {
         guard !task.isCompleted else { return .clear }
-        return cachedTaskColor(forIndex: index, total: totalTasks)
+        return cachedTaskColor(forIndex: index, total: totalTasks, theme: colorTheme)
     }
 
     init(
@@ -159,6 +162,9 @@ struct TaskRowView: View {
             if !isCurrentlyEditing {
                 editingTitle = newValue
             }
+        }
+        .onChange(of: colorThemeRaw) { _, _ in
+            cachedAccentColor = computeAccentColor()
         }
         .onChange(of: index) { _, _ in
             cachedAccentColor = computeAccentColor()
