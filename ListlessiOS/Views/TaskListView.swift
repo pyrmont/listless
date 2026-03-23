@@ -239,35 +239,23 @@ struct TaskListView: View, TaskListViewProtocol {
     /// The phantom's UITextView is created while the indicator is visible
     /// (during the pull), so it's ready when the user releases.
     @ViewBuilder var pullToCreateIndicatorRow: some View {
-        let showPhantom = isPrependDraftVisible
         let pullOffset = pState.pullToCreate.pullOffset
         let indicatorHeight = PullToCreateIndicator.indicatorHeight
-        ZStack(alignment: .topLeading) {
-            PullToCreateIndicator(
-                pullOffset: max(
-                    0,
-                    pState.pullToCreate.indicatorDisplayOffset(
-                        threshold: pullCreateThreshold
-                    ) - vStackSpacing
-                ),
-                threshold: max(0, pullCreateThreshold - vStackSpacing),
-                hasRowsBelow: false
-            )
-            .padding(.bottom, -indicatorHeight)
-            .opacity(showPhantom ? 0 : 1)
-
-            draftPrependRow
-                .frame(height: showPhantom ? nil : 0)
-                .opacity(showPhantom ? 1 : 0)
-                // Instant swap — no animation on height or opacity.
-                .animation(nil, value: showPhantom)
-        }
-        .offset(
-            y: showPhantom
-                ? pState.draftSettleOffset
-                : vStackSpacing - min(pullOffset, indicatorHeight + vStackSpacing)
+        PullToCreateIndicator(
+            pullOffset: max(
+                0,
+                pState.pullToCreate.indicatorDisplayOffset(
+                    threshold: pullCreateThreshold
+                ) - vStackSpacing
+            ),
+            threshold: max(0, pullCreateThreshold - vStackSpacing),
+            hasRowsBelow: false
         )
-        .animation(nil, value: showPhantom)
+        .padding(.bottom, -indicatorHeight)
+        .opacity(isPrependDraftVisible ? 0 : 1)
+        .offset(
+            y: vStackSpacing - min(pullOffset, indicatorHeight + vStackSpacing)
+        )
     }
 
     /// The draft row content styled to match a task row. Controlled by the
@@ -476,6 +464,10 @@ struct TaskListView: View, TaskListViewProtocol {
                     VStack(alignment: .leading, spacing: 0) {
                         Color.clear.frame(height: pState.headerHeight)
                         pullToCreateIndicatorRow
+                    }
+                    if isPrependDraftVisible {
+                        draftPrependRow
+                            .offset(y: pState.draftSettleOffset)
                     }
                     taskRows
                 }
