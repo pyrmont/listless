@@ -130,8 +130,8 @@ private struct PullGesturesModifier: ViewModifier {
 
         switch action {
         case .createTask:
-            var transaction = Transaction(animation: .spring(response: 0.28, dampingFraction: 0.9))
-            transaction.disablesAnimations = false
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
             withTransaction(transaction) {
                 _ = onCreateTaskAtTop()
             }

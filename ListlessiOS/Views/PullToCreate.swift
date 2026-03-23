@@ -3,13 +3,11 @@ import SwiftUI
 struct PullToCreateIndicator: View {
     let pullOffset: CGFloat
     let threshold: CGFloat
-    var hasRowsBelow: Bool = true
     @AppStorage("colorTheme") private var colorThemeRaw = 0
     private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
 
     static let indicatorHeight: CGFloat = 50
 
-    private var revealedHeight: CGFloat { min(pullOffset, Self.indicatorHeight) }
     private var isReady: Bool { pullOffset >= threshold }
     private let textSlideDistance: CGFloat = 22
 
@@ -51,22 +49,6 @@ struct PullToCreateIndicator: View {
                 .frame(width: TaskRowMetrics.accentBarWidth)
         }
         .frame(height: Self.indicatorHeight, alignment: .top)
-        .mask(alignment: .top) {
-            Rectangle()
-                .frame(height: revealedHeight)
-        }
-        .background(alignment: .top) {
-            if hasRowsBelow {
-                Color.taskCard
-                    .frame(
-                        height: min(
-                            TaskRowMetrics.trailingCornerRadius,
-                            Self.indicatorHeight - revealedHeight
-                        )
-                    )
-                    .offset(y: revealedHeight)
-            }
-        }
         .allowsHitTesting(false)
     }
 }

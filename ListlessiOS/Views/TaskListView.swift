@@ -23,7 +23,8 @@ struct TaskListView: View, TaskListViewProtocol {
     struct PullStateData {
         var pullToCreate = PullToCreateState()
         var pullUpOffset: CGFloat = 0
-        var draftSettleOffset: CGFloat = 0
+        var frozenOffset: CGFloat = 0
+
         var scrollUpAmount: CGFloat = 0
         var headerHeight: CGFloat = 60
     }
@@ -167,7 +168,8 @@ struct TaskListView: View, TaskListViewProtocol {
             ? "Mark as Incomplete" : "Mark as Complete"
     }
 
-    var vStackSpacing: CGFloat { 12 }
+    var vStackSpacing: CGFloat { 0 }
+    var rowGap: CGFloat { 12 }
     var pullCreateThreshold: CGFloat { 70 }
     var flickThreshold: CGFloat { 500 }
     var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
@@ -189,7 +191,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
             guard placement == .prepend else { return }
 
-            pState.draftSettleOffset = 0
+            pState.frozenOffset = 0
             var state = pState.pullToCreate
             state.isInsertionPending = false
             state.indicatorOffset = 0
@@ -246,16 +248,18 @@ struct TaskListView: View, TaskListViewProtocol {
                 0,
                 pState.pullToCreate.indicatorDisplayOffset(
                     threshold: pullCreateThreshold
-                ) - vStackSpacing
+                )
             ),
-            threshold: max(0, pullCreateThreshold - vStackSpacing),
-            hasRowsBelow: false
+            threshold: pullCreateThreshold
         )
-        .padding(.bottom, -indicatorHeight)
+        .frame(
+            height: isPrependDraftVisible
+                ? 0
+                : min(pullOffset, indicatorHeight + rowGap),
+            alignment: .top
+        )
+        .clipped()
         .opacity(isPrependDraftVisible ? 0 : 1)
-        .offset(
-            y: vStackSpacing - min(pullOffset, indicatorHeight + vStackSpacing)
-        )
     }
 
     /// The draft row content styled to match a task row. Controlled by the
@@ -312,6 +316,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 focusedField: $focusedFieldBinding
             )
             .id(draftAppendRowID)
+            .padding(.bottom, rowGap)
         }
     }
 
@@ -362,6 +367,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 layoutStorage.rowFrames[taskID] = frame
             }
             .id(taskID)
+            .padding(.bottom, rowGap)
         }
 
         draftAppendRow
@@ -383,6 +389,7 @@ struct TaskListView: View, TaskListViewProtocol {
             .opacity(isBeingCleared ? 0 : 1)
             .offset(y: isBeingCleared ? 40 : 0)
             .id(taskID)
+            .padding(.bottom, rowGap)
         }
     }
 
@@ -467,15 +474,21 @@ struct TaskListView: View, TaskListViewProtocol {
                     }
                     if isPrependDraftVisible {
                         draftPrependRow
-                            .offset(y: pState.draftSettleOffset)
+                            .padding(.bottom, rowGap)
                     }
                     taskRows
                 }
                 .offset(
-                    y: -min(
-                        pState.pullToCreate.pullOffset,
-                        vStackSpacing
-                    )
+                    y: isPrependDraftVisible
+                        ? pState.frozenOffset
+                        : -min(
+                            pState.pullToCreate.pullOffset,
+                            PullToCreateIndicator.indicatorHeight + rowGap
+                        )
+                )
+                .animation(
+                    .spring(response: 0.28, dampingFraction: 0.9),
+                    value: pState.frozenOffset
                 )
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .onGeometryChange(for: CGFloat.self) {
@@ -485,17 +498,6 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
                 .padding(.trailing, 16)
                 .padding(.vertical, 12)
-                .onChange(of: isPrependDraftVisible) { old, new in
-                    if new {
-                        // Animate draftSettleOffset from -50 to 0 with the same
-                        // spring used for the draft reveal transaction. This runs
-                        // one frame after revealPhantomRow() snapped the offset to
-                        // -50, so SwiftUI treats it as a real change to animate.
-                        withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
-                            pState.draftSettleOffset = 0
-                        }
-                    }
-                }
                 .onChange(of: focusedFieldBinding) { oldValue, newValue in
                     fState.focusedField = newValue
                     handleFocusChange(from: oldValue, to: newValue)
