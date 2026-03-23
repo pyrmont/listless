@@ -15,7 +15,7 @@ extension TaskListView {
         draftTitle = ""
         pState.frozenOffset = -min(pState.pullToCreate.pullOffset, maxOffset)
         draftPlacement = .prepend
-        DispatchQueue.main.async {
+        Task { @MainActor in
             pState.frozenOffset = 0
         }
         fState.selectedTaskID = taskID

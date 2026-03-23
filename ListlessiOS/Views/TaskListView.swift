@@ -199,7 +199,7 @@ struct TaskListView: View, TaskListViewProtocol {
         }
 
         if placement == .prepend, !hasTitle {
-            withAnimation(.spring(response: 0.24, dampingFraction: 0.95)) {
+            withAnimation(.spring(response: 0.24, dampingFraction: 1.0)) {
                 clear()
             }
         } else if placement == .prepend {
@@ -258,8 +258,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 : min(pullOffset, indicatorHeight + rowGap),
             alignment: .top
         )
-        .clipped()
-        .opacity(isPrependDraftVisible ? 0 : 1)
+        .opacity(isPrependDraftVisible || pullOffset <= 0 ? 0 : 1)
     }
 
     /// The draft row content styled to match a task row. Controlled by the
@@ -487,7 +486,7 @@ struct TaskListView: View, TaskListViewProtocol {
                         )
                 )
                 .animation(
-                    .spring(response: 0.28, dampingFraction: 0.9),
+                    .spring(response: 0.28, dampingFraction: 1.0),
                     value: pState.frozenOffset
                 )
                 .frame(maxWidth: .infinity, alignment: .topLeading)

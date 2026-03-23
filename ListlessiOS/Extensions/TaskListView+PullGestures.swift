@@ -136,7 +136,7 @@ private struct PullGesturesModifier: ViewModifier {
                 _ = onCreateTaskAtTop()
             }
         case .collapseIndicator:
-            withAnimation(.spring(response: 0.22, dampingFraction: 0.95)) {
+            withAnimation(.spring(response: 0.22, dampingFraction: 1.0)) {
                 pullToCreate.indicatorOffset = 0
             }
         case .none:
