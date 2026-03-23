@@ -9,6 +9,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     struct InteractionStateData {
         var dragState: DragState = .idle
+        var draftCount: Int = 0
         var isShowingSyncDiagnostics = false
         var isShowingSettings = false
         var clearingTaskIDs: Set<UUID> = []
@@ -62,7 +63,12 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var draftPlacement: DraftTaskPlacement? {
         get { iState.draftPlacement }
-        nonmutating set { iState.draftPlacement = newValue }
+        nonmutating set {
+            if newValue != nil, iState.draftPlacement == nil {
+                iState.draftCount += 1
+            }
+            iState.draftPlacement = newValue
+        }
     }
 
     var draftTitle: String {
@@ -577,6 +583,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     }
                 }
             )
+            .sensoryFeedback(.impact(weight: .medium), trigger: iState.draftCount)
 
             navigationHeader
                 .padding(.top, 12)
