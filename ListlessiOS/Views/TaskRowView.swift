@@ -175,7 +175,7 @@ struct TaskRowView: View {
         .overlay(
             isSelected && !task.isCompleted
                 ? TaskCardModifier.shape
-                    .stroke(cachedAccentColor.opacity(0.40), lineWidth: 2)
+                    .strokeBorder(cachedAccentColor.opacity(0.40), lineWidth: 2)
                 : nil
         )
     }

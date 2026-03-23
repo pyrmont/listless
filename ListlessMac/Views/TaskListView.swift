@@ -333,7 +333,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     .overlay {
                         if isSelected {
                             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .stroke(accentColor.opacity(0.40), lineWidth: 2)
+                                .strokeBorder(accentColor.opacity(0.40), lineWidth: 2)
                         }
                     }
                     .accessibilityIdentifier("draft-row-append")

@@ -21,7 +21,7 @@ struct TaskCardModifier: ViewModifier {
             .overlay(
                 isSelected
                     ? Self.shape
-                        .stroke(accentColor.opacity(0.40), lineWidth: 2)
+                        .strokeBorder(accentColor.opacity(0.40), lineWidth: 2)
                     : nil
             )
     }

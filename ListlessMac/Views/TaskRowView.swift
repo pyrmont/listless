@@ -134,7 +134,7 @@ struct TaskRowView: View {
         .overlay {
             if isSelected && !task.isCompleted {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .stroke(cachedAccentColor.opacity(0.40), lineWidth: 2)
+                    .strokeBorder(cachedAccentColor.opacity(0.40), lineWidth: 2)
             }
         }
         .contextMenu {
