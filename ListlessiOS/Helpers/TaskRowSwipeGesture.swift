@@ -85,7 +85,7 @@ struct TaskRowSwipeGesture: ViewModifier {
                 handleDragEnded()
             }
         )
-        .sensoryFeedback(.impact(weight: .medium), trigger: hapticTrigger)
+        .sensoryFeedback(.impact(weight: .light), trigger: hapticTrigger)
         .onDisappear {
             resetSwipeState()
         }

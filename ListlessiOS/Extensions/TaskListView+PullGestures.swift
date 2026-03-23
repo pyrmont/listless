@@ -112,7 +112,7 @@ private struct PullGesturesModifier: ViewModifier {
             ) { old, new in
                 !old && new
             }
-            .sensoryFeedback(.impact(weight: .medium), trigger: pullUpOffset >= pullClearThreshold) { old, new in
+            .sensoryFeedback(.impact(weight: .light), trigger: pullUpOffset >= pullClearThreshold) { old, new in
                 !old && new
             }
     }

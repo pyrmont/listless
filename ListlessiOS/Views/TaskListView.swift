@@ -219,7 +219,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     func didStartDrag() {
         isDragging = true
-        let generator = UIImpactFeedbackGenerator(style: .medium)
+        let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
     }
 
@@ -576,7 +576,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     }
                 }
             )
-            .sensoryFeedback(.impact(weight: .medium), trigger: iState.draftCount)
+            .sensoryFeedback(.impact(weight: .light), trigger: iState.draftCount)
 
             navigationHeader
                 .padding(.top, 12)
