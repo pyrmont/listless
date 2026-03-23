@@ -23,7 +23,6 @@ struct TaskListView: View, TaskListViewProtocol {
     struct PullStateData {
         var pullToCreate = PullToCreateState()
         var pullUpOffset: CGFloat = 0
-        var frozenOffset: CGFloat = 0
 
         var scrollUpAmount: CGFloat = 0
         var headerHeight: CGFloat = 60
@@ -31,6 +30,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     @AppStorage("headingText") var headingText = "Items"
     @AppStorage("colorTheme") private var colorThemeRaw = 0
+    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
@@ -181,6 +181,7 @@ struct TaskListView: View, TaskListViewProtocol {
 
     func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle: Bool) {
         let clear: () -> Void = {
+            print("[PullToCreate][clearDraftTaskUI] placement=\(placement) hasTitle=\(hasTitle) isInsertionPending=\(pState.pullToCreate.isInsertionPending) indicatorOffset=\(pState.pullToCreate.indicatorOffset)")
             if draftPlacement == placement {
                 draftPlacement = nil
             }
@@ -191,7 +192,6 @@ struct TaskListView: View, TaskListViewProtocol {
 
             guard placement == .prepend else { return }
 
-            pState.frozenOffset = 0
             var state = pState.pullToCreate
             state.isInsertionPending = false
             state.indicatorOffset = 0
@@ -219,8 +219,10 @@ struct TaskListView: View, TaskListViewProtocol {
 
     func didStartDrag() {
         isDragging = true
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
+        if hapticsEnabled {
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
+        }
     }
 
     func showSyncDiagnostics() {
@@ -243,27 +245,34 @@ struct TaskListView: View, TaskListViewProtocol {
     @ViewBuilder var pullToCreateIndicatorRow: some View {
         let pullOffset = pState.pullToCreate.pullOffset
         let indicatorHeight = PullToCreateIndicator.indicatorHeight
+        let indicatorDisplayOffset = pState.pullToCreate.indicatorDisplayOffset(
+            threshold: pullCreateThreshold
+        )
+        let frameHeight: CGFloat = isPrependDraftVisible
+            ? 0
+            : min(pullOffset, indicatorHeight + rowGap)
+        let opacity: Double = isPrependDraftVisible || pullOffset <= 0 ? 0 : 1
+        let _ = print("[PullToCreate][Indicator] pullOffset=\(pullOffset) indicatorDisplayOffset=\(indicatorDisplayOffset) frameHeight=\(frameHeight) opacity=\(opacity) isPrependDraftVisible=\(isPrependDraftVisible)")
         PullToCreateIndicator(
-            pullOffset: max(
-                0,
-                pState.pullToCreate.indicatorDisplayOffset(
-                    threshold: pullCreateThreshold
-                )
-            ),
+            pullOffset: max(0, indicatorDisplayOffset),
             threshold: pullCreateThreshold
         )
         .frame(
-            height: isPrependDraftVisible
-                ? 0
-                : min(pullOffset, indicatorHeight + rowGap),
+            height: frameHeight,
             alignment: .top
         )
-        .opacity(isPrependDraftVisible || pullOffset <= 0 ? 0 : 1)
+        .opacity(opacity)
+        .onGeometryChange(for: CGRect.self) {
+            $0.frame(in: .global)
+        } action: { frame in
+            print("[PullToCreate][Indicator][Geo] frame=\(frame)")
+        }
     }
 
     /// The draft row content styled to match a task row. Controlled by the
     /// ZStack in ``pullToCreateIndicatorRow`` rather than its own visibility.
     @ViewBuilder private var draftPrependRow: some View {
+        let _ = print("[PullToCreate][DraftRow] visible isInsertionPending=\(pState.pullToCreate.isInsertionPending)")
         DraftRowView(
             accentColor: taskColor(
                 forIndex: 0, total: max(1, displayActiveTasks.count + 1), theme: colorTheme
@@ -364,6 +373,9 @@ struct TaskListView: View, TaskListViewProtocol {
                 proxy.frame(in: .global)
             } action: { frame in
                 layoutStorage.rowFrames[taskID] = frame
+                if index == 0 {
+                    print("[PullToCreate][FirstTask][Geo] frame=\(frame)")
+                }
             }
             .padding(.bottom, rowGap)
             .id(taskID)
@@ -467,28 +479,26 @@ struct TaskListView: View, TaskListViewProtocol {
             ScrollView {
               ScrollViewReader { scrollProxy in
                 VStack(alignment: .leading, spacing: vStackSpacing) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Color.clear.frame(height: pState.headerHeight)
-                        pullToCreateIndicatorRow
-                    }
+                    navigationHeader
+                        .padding(.bottom, 12)
+                    pullToCreateIndicatorRow
                     if isPrependDraftVisible {
                         draftPrependRow
                             .padding(.bottom, rowGap)
+                            .onGeometryChange(for: CGRect.self) {
+                                $0.frame(in: .global)
+                            } action: { frame in
+                                print("[PullToCreate][DraftRow][Geo] frame=\(frame)")
+                            }
                     }
                     taskRows
                 }
-                .offset(
-                    y: isPrependDraftVisible
-                        ? pState.frozenOffset
-                        : -min(
-                            pState.pullToCreate.pullOffset,
-                            PullToCreateIndicator.indicatorHeight + rowGap
-                        )
-                )
-                .animation(
-                    .spring(response: 0.28, dampingFraction: 1.0),
-                    value: pState.frozenOffset
-                )
+                .offset(y: 0)
+                .onGeometryChange(for: CGRect.self) {
+                    $0.frame(in: .global)
+                } action: { frame in
+                    print("[PullToCreate][VStack][Geo] frame=\(frame)")
+                }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .onGeometryChange(for: CGFloat.self) {
                     $0.frame(in: .global).maxY
@@ -576,20 +586,8 @@ struct TaskListView: View, TaskListViewProtocol {
                     }
                 }
             )
-            .sensoryFeedback(.impact(weight: .light), trigger: iState.draftCount)
+            .sensoryFeedback(.impact(weight: .light), trigger: hapticsEnabled ? iState.draftCount : 0)
 
-            navigationHeader
-                .padding(.top, 12)
-                .onGeometryChange(for: CGFloat.self) {
-                    $0.size.height
-                } action: {
-                    pState.headerHeight = $0
-                }
-                .offset(y: -pState.scrollUpAmount)
-                .background {
-                    Color.outerBackground
-                        .offset(y: -pState.scrollUpAmount)
-                }
         }
     }
 }

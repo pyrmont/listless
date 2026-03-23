@@ -6,18 +6,14 @@ extension TaskListView {
 
     func revealPhantomRow() -> UUID {
         let taskID = draftPrependRowID
-        let maxOffset = PullToCreateIndicator.indicatorHeight + 12
 
         if draftPlacement != .prepend, draftPlacement != nil {
             commitDraftTask()
         }
         clearDragState()
         draftTitle = ""
-        pState.frozenOffset = -min(pState.pullToCreate.pullOffset, maxOffset)
+        print("[PullToCreate][revealPhantomRow] pullOffset=\(pState.pullToCreate.pullOffset)")
         draftPlacement = .prepend
-        Task { @MainActor in
-            pState.frozenOffset = 0
-        }
         fState.selectedTaskID = taskID
         fState.pendingFocus = .task(taskID)
         focusedField = .task(taskID)

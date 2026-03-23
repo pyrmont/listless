@@ -6,6 +6,7 @@ struct SettingsView: View {
     @AppStorage("headingText") private var headingText = "Items"
     @AppStorage("appearanceMode") private var appearanceMode = 0
     @AppStorage("colorTheme") private var colorThemeRaw = 0
+    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
 
     var body: some View {
         NavigationStack {
@@ -41,6 +42,12 @@ struct SettingsView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                    }
+                }
+
+                if UIDevice.current.userInterfaceIdiom == .phone {
+                    Section("Interactions") {
+                        Toggle("Haptics", isOn: $hapticsEnabled)
                     }
                 }
 

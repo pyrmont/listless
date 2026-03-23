@@ -38,6 +38,7 @@ struct TaskRowSwipeGesture: ViewModifier {
     let onComplete: () -> Void
     let onDelete: () -> Void
 
+    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @State private var hapticTrigger = false
     @State private var activeGestureAxis: ActiveGestureAxis = .undecided
 
@@ -85,7 +86,7 @@ struct TaskRowSwipeGesture: ViewModifier {
                 handleDragEnded()
             }
         )
-        .sensoryFeedback(.impact(weight: .light), trigger: hapticTrigger)
+        .sensoryFeedback(.impact(weight: .light), trigger: hapticsEnabled ? hapticTrigger : false)
         .onDisappear {
             resetSwipeState()
         }
