@@ -315,8 +315,8 @@ struct TaskListView: View, TaskListViewProtocol {
                 accessibilityIdentifier: "draft-row-append",
                 focusedField: $focusedFieldBinding
             )
-            .id(draftAppendRowID)
             .padding(.bottom, rowGap)
+            .id(draftAppendRowID)
         }
     }
 
@@ -366,8 +366,8 @@ struct TaskListView: View, TaskListViewProtocol {
             } action: { frame in
                 layoutStorage.rowFrames[taskID] = frame
             }
-            .id(taskID)
             .padding(.bottom, rowGap)
+            .id(taskID)
         }
 
         draftAppendRow
@@ -388,8 +388,8 @@ struct TaskListView: View, TaskListViewProtocol {
             )
             .opacity(isBeingCleared ? 0 : 1)
             .offset(y: isBeingCleared ? 40 : 0)
-            .id(taskID)
             .padding(.bottom, rowGap)
+            .id(taskID)
         }
     }
 
