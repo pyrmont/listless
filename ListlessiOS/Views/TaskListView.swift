@@ -31,6 +31,7 @@ struct TaskListView: View, TaskListViewProtocol {
     @AppStorage("headingText") var headingText = "Items"
     @AppStorage("colorTheme") private var colorThemeRaw = 0
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
+    @AppStorage("showFPSOverlay") private var showFPSOverlay = false
     private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
@@ -407,10 +408,12 @@ struct TaskListView: View, TaskListViewProtocol {
     var body: some View {
         taskScrollView
             .overlay(alignment: .topTrailing) {
-                FPSOverlay()
-                    .padding(.top, 4)
-                    .padding(.trailing, 8)
-                    .allowsHitTesting(false)
+                if showFPSOverlay {
+                    FPSOverlay()
+                        .padding(.top, 4)
+                        .padding(.trailing, 8)
+                        .allowsHitTesting(false)
+                }
             }
             .simultaneousGesture(
                 SpatialTapGesture(coordinateSpace: .global).onEnded { value in

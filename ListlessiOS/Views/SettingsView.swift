@@ -7,6 +7,9 @@ struct SettingsView: View {
     @AppStorage("appearanceMode") private var appearanceMode = 0
     @AppStorage("colorTheme") private var colorThemeRaw = 0
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
+    @AppStorage("debugMode") private var debugMode = false
+    @AppStorage("showFPSOverlay") private var showFPSOverlay = false
+    @State private var easterEggTaps = 0
 
     var body: some View {
         NavigationStack {
@@ -60,6 +63,12 @@ struct SettingsView: View {
                     .pickerStyle(.segmented)
                 }
 
+                if debugMode {
+                    Section("Debugging") {
+                        Toggle("FPS Overlay", isOn: $showFPSOverlay)
+                    }
+                }
+
                 Section {
                     NavigationLink("About") {
                         AboutView()
@@ -69,6 +78,16 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity)
                         .multilineTextAlignment(.center)
                         .padding(.top, 24)
+                        .onTapGesture {
+                            easterEggTaps += 1
+                            if easterEggTaps >= 4 {
+                                debugMode.toggle()
+                                if !debugMode {
+                                    showFPSOverlay = false
+                                }
+                                easterEggTaps = 0
+                            }
+                        }
                 }
             }
             .navigationTitle("Settings")
