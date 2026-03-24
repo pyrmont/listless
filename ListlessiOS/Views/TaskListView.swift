@@ -353,7 +353,6 @@ struct TaskListView: View, TaskListViewProtocol {
                 color: draggedTaskID == taskID ? .black.opacity(0.3) : .clear,
                 radius: 12, y: 4
             )
-            .zIndex(draggedTaskID == taskID ? 2 : 1)
             .taskDragGesture(
                 isActive: !task.isCompleted && focusedFieldBinding != .task(taskID),
                 taskID: taskID,
@@ -367,6 +366,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 layoutStorage.rowFrames[taskID] = frame
             }
             .padding(.bottom, rowGap)
+            .zIndex(draggedTaskID == taskID ? 2 : 1)
             .id(taskID)
         }
 

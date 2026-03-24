@@ -552,7 +552,9 @@ extension TaskListViewProtocol {
 
     func startDrag(taskID: UUID) {
         guard case .idle = dragState else { return }
-        dragState = .dragging(id: taskID, order: activeTasks.map(\.id))
+        withAnimation(.easeOut(duration: 0.15)) {
+            dragState = .dragging(id: taskID, order: activeTasks.map(\.id))
+        }
         didStartDrag()
     }
 
