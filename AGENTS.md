@@ -20,9 +20,9 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 - `xed .` launches the project in Xcode.
 - `xcodegen generate` regenerates `Listless.xcodeproj` from `project.yml`.
 - `xcodebuild -scheme "Listless macOS" -destination 'platform=macOS' build` builds the native macOS app.
-- `xcodebuild -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' build` builds the iOS app (includes embedded watchOS app).
+- `xcodebuild -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' build` builds the iOS app (includes embedded watchOS app).
 - `xcodebuild -scheme "Listless watchOS" -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm),OS=11.5' build` builds the watchOS app standalone.
-- `xcodebuild test -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'` runs unit + UI tests.
+- `xcodebuild test -scheme "Listless iOS" -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2'` runs unit + UI tests.
 - `swift format lint --recursive .` must be clean before opening a PR.
 
 ## App Store Connect Release
