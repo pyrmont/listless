@@ -31,6 +31,7 @@ private class FPSMonitor {
     func start(onUpdate: @escaping (Int) -> Void) {
         self.onUpdate = onUpdate
         let link = CADisplayLink(target: self, selector: #selector(tick))
+        link.preferredFrameRateRange = CAFrameRateRange(minimum: 80, maximum: 120, preferred: 120)
         link.add(to: .main, forMode: .common)
         displayLink = link
     }
