@@ -24,6 +24,7 @@ struct TaskRowView: View {
     @State private var isSwipeTriggered: Bool = false
     @State private var editingTitle: String = ""
     @State private var isCurrentlyEditing: Bool = false
+    @State private var tapPoint: CGPoint? = nil
     @State private var cachedAccentColor: Color = .clear
 
     init(
@@ -79,28 +80,44 @@ struct TaskRowView: View {
             .accessibilityIdentifier("task-checkbox")
             .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
 
-            TappableTextField(
-                text: $editingTitle,
-                isCompleted: task.isCompleted,
-                isDragging: isDragging,
-                onEditingChanged: { editing, shouldCreateNewTask in
-                    // TappableTextField is UIKit-backed; defer state mutations to avoid
-                    // "Modifying state during view update" warnings from SwiftUI.
-                    DispatchQueue.main.async {
-                        isCurrentlyEditing = editing
-                        if editing { onStartEdit(taskID) }
-                        else { onEndEdit(taskID, shouldCreateNewTask) }
-                    }
-                },
-                returnKeyType: isLastActiveTask && !editingTitle.isEmpty ? .next : .done,
-                onContentChange: { newTitle in
-                    guard !task.isCompleted else { return }
-                    onTitleChange(task, newTitle)
-                },
-                uiAccessibilityIdentifier: "task-text-\(taskID.uuidString)"
-            )
-            .focused($focusedField, equals: .task(taskID))
-            .frame(maxWidth: .infinity, alignment: .leading)
+            if !task.isCompleted && (isSelected || isEditing) {
+                TappableTextField(
+                    text: $editingTitle,
+                    isCompleted: task.isCompleted,
+                    isDragging: isDragging,
+                    onEditingChanged: { editing, shouldCreateNewTask in
+                        DispatchQueue.main.async {
+                            isCurrentlyEditing = editing
+                            if editing { onStartEdit(taskID) }
+                            else {
+                                tapPoint = nil
+                                onEndEdit(taskID, shouldCreateNewTask)
+                            }
+                        }
+                    },
+                    returnKeyType: isLastActiveTask && !editingTitle.isEmpty ? .next : .done,
+                    onContentChange: { newTitle in
+                        guard !task.isCompleted else { return }
+                        onTitleChange(task, newTitle)
+                    },
+                    uiAccessibilityIdentifier: "task-text-\(taskID.uuidString)",
+                    initialCursorPoint: tapPoint
+                )
+                .focused($focusedField, equals: .task(taskID))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else if !task.isCompleted {
+                taskProxy
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .gesture(SpatialTapGesture().onEnded { value in
+                        tapPoint = value.location
+                        onSelect(taskID)
+                        focusedField = .task(taskID)
+                    })
+            } else {
+                taskProxy
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
         .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
@@ -125,6 +142,7 @@ struct TaskRowView: View {
             if task.isCompleted {
                 withAnimation { onToggle(task) }
             } else {
+                tapPoint = nil
                 onSelect(taskID)
                 focusedField = .task(taskID)
             }
@@ -180,6 +198,26 @@ struct TaskRowView: View {
                     .strokeBorder(cachedAccentColor.opacity(0.40), lineWidth: 2)
                 : nil
         )
+    }
+
+    private var isEditing: Bool {
+        focusedField == .task(taskID)
+    }
+
+    @ViewBuilder
+    private var taskProxy: some View {
+        if task.isCompleted {
+            Text(editingTitle)
+                .font(TaskRowMetrics.bodySUI)
+                .foregroundStyle(.secondary)
+                .strikethrough(true, color: .secondary)
+                .accessibilityIdentifier("task-text-\(taskID.uuidString)")
+        } else {
+            Text(editingTitle)
+                .font(TaskRowMetrics.bodySUI)
+                .foregroundStyle(.primary)
+                .accessibilityIdentifier("task-text-\(taskID.uuidString)")
+        }
     }
 
     @MainActor

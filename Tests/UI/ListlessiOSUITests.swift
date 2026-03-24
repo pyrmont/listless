@@ -32,10 +32,10 @@ final class ListlessiOSUITests: XCTestCase {
         app.textViews.matching(identifier: "draft-row-append").firstMatch
     }
 
-    /// Returns the text view for a committed task with the given title.
+    /// Returns the static text for a committed task with the given title.
     func taskText(_ title: String) -> XCUIElement {
-        app.textViews.matching(
-            NSPredicate(format: "identifier BEGINSWITH 'task-text-' AND value == %@", title)
+        app.staticTexts.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'task-text-' AND label == %@", title)
         ).firstMatch
     }
 

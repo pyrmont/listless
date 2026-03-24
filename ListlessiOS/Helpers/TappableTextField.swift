@@ -12,6 +12,7 @@ struct TappableTextField: UIViewRepresentable {
     var returnKeyType: UIReturnKeyType = .done
     var onContentChange: ((String) -> Void)? = nil
     var uiAccessibilityIdentifier: String? = nil
+    var initialCursorPoint: CGPoint? = nil
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -87,7 +88,9 @@ struct TappableTextField: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, onEditingChanged: onEditingChanged, onContentChange: onContentChange)
+        let coordinator = Coordinator(text: $text, onEditingChanged: onEditingChanged, onContentChange: onContentChange)
+        coordinator.initialCursorPoint = initialCursorPoint
+        return coordinator
     }
 
     private func applyStyle(to textView: UITextView, text: String, isCompleted: Bool) {
@@ -109,6 +112,7 @@ struct TappableTextField: UIViewRepresentable {
         var returnKeyPressed: Bool = false
         weak var textView: UITextView?
         private(set) var isDragging = false
+        var initialCursorPoint: CGPoint?
 
         init(
             text: Binding<String>,
@@ -144,6 +148,13 @@ struct TappableTextField: UIViewRepresentable {
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
+            if let point = initialCursorPoint {
+                initialCursorPoint = nil
+                textView.layoutIfNeeded()
+                if let position = textView.closestPosition(to: point) {
+                    textView.selectedTextRange = textView.textRange(from: position, to: position)
+                }
+            }
             onEditingChanged(true, false)
         }
 
