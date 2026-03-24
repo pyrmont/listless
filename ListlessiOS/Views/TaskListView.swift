@@ -181,7 +181,6 @@ struct TaskListView: View, TaskListViewProtocol {
 
     func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle: Bool) {
         let clear: () -> Void = {
-            print("[PullToCreate][clearDraftTaskUI] placement=\(placement) hasTitle=\(hasTitle) isInsertionPending=\(pState.pullToCreate.isInsertionPending) indicatorOffset=\(pState.pullToCreate.indicatorOffset)")
             if draftPlacement == placement {
                 draftPlacement = nil
             }
@@ -252,7 +251,6 @@ struct TaskListView: View, TaskListViewProtocol {
             ? 0
             : min(pullOffset, indicatorHeight + rowGap)
         let opacity: Double = isPrependDraftVisible || pullOffset <= 0 ? 0 : 1
-        let _ = print("[PullToCreate][Indicator] pullOffset=\(pullOffset) indicatorDisplayOffset=\(indicatorDisplayOffset) frameHeight=\(frameHeight) opacity=\(opacity) isPrependDraftVisible=\(isPrependDraftVisible)")
         PullToCreateIndicator(
             pullOffset: max(0, indicatorDisplayOffset),
             threshold: pullCreateThreshold
@@ -262,17 +260,11 @@ struct TaskListView: View, TaskListViewProtocol {
             alignment: .top
         )
         .opacity(opacity)
-        .onGeometryChange(for: CGRect.self) {
-            $0.frame(in: .global)
-        } action: { frame in
-            print("[PullToCreate][Indicator][Geo] frame=\(frame)")
-        }
     }
 
     /// The draft row content styled to match a task row. Controlled by the
     /// ZStack in ``pullToCreateIndicatorRow`` rather than its own visibility.
     @ViewBuilder private var draftPrependRow: some View {
-        let _ = print("[PullToCreate][DraftRow] visible isInsertionPending=\(pState.pullToCreate.isInsertionPending)")
         DraftRowView(
             accentColor: taskColor(
                 forIndex: 0, total: max(1, displayActiveTasks.count + 1), theme: colorTheme
@@ -373,9 +365,6 @@ struct TaskListView: View, TaskListViewProtocol {
                 proxy.frame(in: .global)
             } action: { frame in
                 layoutStorage.rowFrames[taskID] = frame
-                if index == 0 {
-                    print("[PullToCreate][FirstTask][Geo] frame=\(frame)")
-                }
             }
             .padding(.bottom, rowGap)
             .id(taskID)
@@ -485,19 +474,8 @@ struct TaskListView: View, TaskListViewProtocol {
                     if isPrependDraftVisible {
                         draftPrependRow
                             .padding(.bottom, rowGap)
-                            .onGeometryChange(for: CGRect.self) {
-                                $0.frame(in: .global)
-                            } action: { frame in
-                                print("[PullToCreate][DraftRow][Geo] frame=\(frame)")
-                            }
                     }
                     taskRows
-                }
-                .offset(y: 0)
-                .onGeometryChange(for: CGRect.self) {
-                    $0.frame(in: .global)
-                } action: { frame in
-                    print("[PullToCreate][VStack][Geo] frame=\(frame)")
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .onGeometryChange(for: CGFloat.self) {

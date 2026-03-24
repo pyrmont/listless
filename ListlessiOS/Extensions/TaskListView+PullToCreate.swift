@@ -12,7 +12,6 @@ extension TaskListView {
         }
         clearDragState()
         draftTitle = ""
-        print("[PullToCreate][revealPhantomRow] pullOffset=\(pState.pullToCreate.pullOffset)")
         draftPlacement = .prepend
         fState.selectedTaskID = taskID
         fState.pendingFocus = .task(taskID)

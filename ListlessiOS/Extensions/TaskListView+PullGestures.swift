@@ -51,15 +51,12 @@ extension TaskListView {
             let isFlick = pullOffset > 0 && elapsed > 0
                 && (pullOffset / elapsed) >= flickThreshold
 
-            print("[PullToCreate][handlePhaseChange] pullOffset=\(pullOffset) elapsed=\(elapsed) isFlick=\(isFlick) threshold=\(pullThreshold)")
             if pullOffset >= pullThreshold || isFlick {
                 isInsertionPending = true
-                print("[PullToCreate][handlePhaseChange] -> createTask")
                 return .createTask
             }
 
             isInsertionPending = false
-            print("[PullToCreate][handlePhaseChange] -> collapseIndicator")
             return .collapseIndicator
         }
     }
@@ -132,7 +129,6 @@ private struct PullGesturesModifier: ViewModifier {
 
         guard oldPhase == .interacting, newPhase != .interacting else { return }
 
-        print("[PullToCreate][scrollPhaseAction] action=\(action) pullOffset=\(pullToCreate.pullOffset) indicatorOffset=\(pullToCreate.indicatorOffset)")
         switch action {
         case .createTask:
             var transaction = Transaction(animation: nil)
