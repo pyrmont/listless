@@ -123,10 +123,7 @@ struct TaskRowView: View {
                 return
             }
             if task.isCompleted {
-                withAnimation {
-                    onSelect(taskID)
-                    onToggle(task)
-                }
+                withAnimation { onToggle(task) }
             } else {
                 onSelect(taskID)
                 focusedField = .task(taskID)
