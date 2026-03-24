@@ -47,6 +47,7 @@ targets:
         CFBundleDisplayName: Listless
         CFBundleShortVersionString: "1.0"
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CADisableMinimumFrameDuration: true
         ITSAppUsesNonExemptEncryption: false
         LSRequiresIPhoneOS: true
         UILaunchScreen: {}
