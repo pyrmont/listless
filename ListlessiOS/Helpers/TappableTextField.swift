@@ -60,6 +60,7 @@ struct TappableTextField: UIViewRepresentable {
         textView.accessibilityIdentifier = uiAccessibilityIdentifier
         textView.isEditable = !isCompleted
         textView.isSelectable = !isCompleted
+        textView.isUserInteractionEnabled = !isCompleted
         // Defer isDragging updates to break an AttributeGraph cycle: setting
         // isEditable/isSelectable during updateUIView causes UITextView to
         // invalidate its intrinsic content size, creating a layout-to-state
