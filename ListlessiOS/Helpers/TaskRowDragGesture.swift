@@ -4,7 +4,7 @@ extension View {
     func taskDragGesture(
         isActive: Bool,
         taskID: UUID,
-        onDragStart: @escaping () -> Void,
+        onDragStart: @escaping (CGFloat) -> Void,
         onDragChanged: @escaping (CGPoint) -> Void,
         onDragEnded: @escaping () -> Void
     ) -> some View {
@@ -22,43 +22,20 @@ extension View {
 struct TaskRowDragGesture: ViewModifier {
     let isActive: Bool
     let taskID: UUID
-    let onDragStart: () -> Void
+    let onDragStart: (CGFloat) -> Void
     let onDragChanged: (CGPoint) -> Void
     let onDragEnded: () -> Void
 
     func body(content: Content) -> some View {
-        if #available(iOS 18, *) {
-            content
-                .gesture(
-                    SimultaneousDragGesture(
-                        isActive: isActive,
-                        onDragStart: onDragStart,
-                        onDragChanged: onDragChanged,
-                        onDragEnded: onDragEnded
-                    )
+        content
+            .gesture(
+                SimultaneousDragGesture(
+                    isActive: isActive,
+                    onDragStart: onDragStart,
+                    onDragChanged: onDragChanged,
+                    onDragEnded: onDragEnded
                 )
-        } else {
-            content
-                .simultaneousGesture(
-                    LongPressGesture(minimumDuration: 0.4)
-                        .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                        .onChanged { value in
-                            switch value {
-                            case .second(true, let drag):
-                                onDragStart()
-                                if let drag {
-                                    onDragChanged(drag.location)
-                                }
-                            default:
-                                break
-                            }
-                        }
-                        .onEnded { _ in
-                            onDragEnded()
-                        },
-                    including: isActive ? .all : .none
-                )
-        }
+            )
     }
 }
 
@@ -68,10 +45,9 @@ struct TaskRowDragGesture: ViewModifier {
 /// UIGestureRecognizerRepresentable to avoid iOS 26's child-gesture-blocks-
 /// ancestor issue. The delegate returns shouldRecognizeSimultaneouslyWith:true
 /// so the ScrollView's pan gesture is preserved.
-@available(iOS 18.0, *)
 private struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
     let isActive: Bool
-    let onDragStart: () -> Void
+    let onDragStart: (CGFloat) -> Void
     let onDragChanged: (CGPoint) -> Void
     let onDragEnded: () -> Void
 
@@ -92,9 +68,8 @@ private struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
     ) {
         switch recognizer.state {
         case .began:
-            // Long press completed — fire drag start immediately so the row
-            // lifts visually before any finger movement.
-            onDragStart()
+            let width = recognizer.view?.bounds.width ?? 0
+            onDragStart(width)
 
         case .changed:
             let location = recognizer.location(in: recognizer.view?.window)
@@ -124,10 +99,6 @@ private struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
             _ gestureRecognizer: UIGestureRecognizer,
             shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer
         ) -> Bool {
-            // Make text view gestures (loupe, selection) wait for the drag
-            // gesture to fail before they can fire. If the drag succeeds,
-            // the text view gesture is cancelled — preventing the loupe
-            // from appearing during drag.
             otherGestureRecognizer.view is UITextView
         }
     }

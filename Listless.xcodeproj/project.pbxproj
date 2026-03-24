@@ -90,6 +90,7 @@
 		DEE187A790A4058FE4AFDB2E /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8448C5778F75F52719114AF /* PlatformTextFieldWidthModifier.swift */; };
 		E12C1304464FC7799856B2BA /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
 		E14F8177232BBC75FEEE1E2C /* TaskStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 967F7ECEB3915CEDCE584872 /* TaskStoreTests.swift */; };
+		E2FC6CF95A2C59CA147172EE /* FPSOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6BD768FB1788D0BC58589F /* FPSOverlay.swift */; };
 		E429067963379F99DD184FED /* CloudKitSyncMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */; };
 		E47136CA7428927395D8C7C7 /* PullToCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */; };
 		E4BD761E34CBB84CE80F7F49 /* CloudKitErrorClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A677CC11ACE0BF743AFCE5 /* CloudKitErrorClassifier.swift */; };
@@ -231,6 +232,7 @@
 		D43D37CE25806380C0B13466 /* BuildNumber.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildNumber.xcconfig; sourceTree = "<group>"; };
 		D57C3CC81C4380EFAE4DB910 /* TaskRowDragGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowDragGesture.swift; sourceTree = "<group>"; };
 		D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickableTextField.swift; sourceTree = "<group>"; };
+		DA6BD768FB1788D0BC58589F /* FPSOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FPSOverlay.swift; sourceTree = "<group>"; };
 		DC3DEE364304587D280C5672 /* TaskStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskStore.swift; sourceTree = "<group>"; };
 		E06485DBE35B60868E14202A /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 			children = (
 				F1E998119283F784B9ADEE28 /* AppColors.swift */,
 				46C46FC97E6DB6FF81AC5C22 /* AppCommands.swift */,
+				DA6BD768FB1788D0BC58589F /* FPSOverlay.swift */,
 				B7588879D0FA1C2A8BCEF14F /* HoverCursorModifier.swift */,
 				E8B5E429B253183F887C5FD6 /* KeyCommandBridge.swift */,
 				FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */,
@@ -810,6 +813,7 @@
 				CAB42FAA253E2B347AB0594B /* CloudKitErrorClassifier.swift in Sources */,
 				889DCB2BB3C01DDA281EA81A /* CloudKitSyncMonitor.swift in Sources */,
 				0F2E6817C315B947033DA2BE /* DraftRowView.swift in Sources */,
+				E2FC6CF95A2C59CA147172EE /* FPSOverlay.swift in Sources */,
 				E60F81C7B930AACE67746759 /* HoverCursorModifier.swift in Sources */,
 				12E43D0CD9124037022E3C38 /* KeyCommandBridge.swift in Sources */,
 				19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */,

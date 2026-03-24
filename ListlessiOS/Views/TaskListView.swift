@@ -3,7 +3,8 @@ import UIKit
 
 struct TaskListView: View, TaskListViewProtocol {
     class LayoutStorage {
-        var rowFrames: [UUID: CGRect] = [:]
+        var draggedRowWidth: CGFloat = 0
+        var draggedRowFrame: CGRect = .zero
         var contentBottomY: CGFloat = 0
     }
 
@@ -24,7 +25,6 @@ struct TaskListView: View, TaskListViewProtocol {
         var pullToCreate = PullToCreateState()
         var pullUpOffset: CGFloat = 0
 
-        var scrollUpAmount: CGFloat = 0
         var headerHeight: CGFloat = 60
     }
 
@@ -232,9 +232,10 @@ struct TaskListView: View, TaskListViewProtocol {
         iState.isShowingSettings = true
     }
 
-    private func dragScaleEffect(for taskID: UUID) -> CGFloat {
+    private func dragScaleEffect() -> CGFloat {
         let liftPoints: CGFloat = 20
-        guard let width = layoutStorage.rowFrames[taskID]?.width, width > 0 else { return 1.05 }
+        let width = layoutStorage.draggedRowWidth
+        guard width > 0 else { return 1.05 }
         return (width + liftPoints) / width
     }
 
@@ -348,7 +349,7 @@ struct TaskListView: View, TaskListViewProtocol {
                     endEditing($0, shouldCreateNewTask: $1)
                 }
             )
-            .scaleEffect(draggedTaskID == taskID ? dragScaleEffect(for: taskID) : 1.0)
+            .scaleEffect(draggedTaskID == taskID ? dragScaleEffect() : 1.0)
             .shadow(
                 color: draggedTaskID == taskID ? .black.opacity(0.3) : .clear,
                 radius: 12, y: 4
@@ -356,14 +357,24 @@ struct TaskListView: View, TaskListViewProtocol {
             .taskDragGesture(
                 isActive: !task.isCompleted && focusedFieldBinding != .task(taskID),
                 taskID: taskID,
-                onDragStart: { startDrag(taskID: taskID) },
-                onDragChanged: { point in handleIOSDragChanged(taskID: taskID, point: point) },
+                onDragStart: { width in
+                    layoutStorage.draggedRowWidth = width
+                    startDrag(taskID: taskID)
+                },
+                onDragChanged: { point in
+                    handleIOSDragChanged(taskID: taskID, point: point)
+                },
                 onDragEnded: { commitIOSDrag() }
             )
-            .onGeometryChange(for: CGRect.self) { proxy in
-                proxy.frame(in: .global)
-            } action: { frame in
-                layoutStorage.rowFrames[taskID] = frame
+            .background {
+                if draggedTaskID == taskID {
+                    Color.clear
+                        .onGeometryChange(for: CGRect.self) { proxy in
+                            proxy.frame(in: .global)
+                        } action: { frame in
+                            layoutStorage.draggedRowFrame = frame
+                        }
+                }
             }
             .padding(.bottom, rowGap)
             .zIndex(draggedTaskID == taskID ? 2 : 1)
@@ -395,6 +406,12 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var body: some View {
         taskScrollView
+            .overlay(alignment: .topTrailing) {
+                FPSOverlay()
+                    .padding(.top, 4)
+                    .padding(.trailing, 8)
+                    .allowsHitTesting(false)
+            }
             .simultaneousGesture(
                 SpatialTapGesture(coordinateSpace: .global).onEnded { value in
                     guard value.location.y > layoutStorage.contentBottomY else { return }
@@ -525,11 +542,6 @@ struct TaskListView: View, TaskListViewProtocol {
             .scrollDisabled(draggedTaskID != nil || iState.isSwiping)
             .scrollBounceBehavior(.always)
             .contentMargins(.bottom, 20)
-            .onScrollGeometryChange(for: CGFloat.self) { geo in
-                max(0, geo.contentOffset.y + geo.contentInsets.top)
-            } action: { _, scrollUp in
-                pState.scrollUpAmount = scrollUp
-            }
             .background {
                 Color.outerBackground.ignoresSafeArea()
             }

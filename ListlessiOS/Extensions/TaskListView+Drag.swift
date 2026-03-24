@@ -4,8 +4,10 @@ extension TaskListView {
     func handleIOSDragChanged(taskID: UUID, point: CGPoint) {
         guard let draggedID = draggedTaskID,
               var order = visualOrder,
-              let currentIndex = order.firstIndex(of: draggedID),
-              let draggedFrame = layoutStorage.rowFrames[draggedID] else { return }
+              let currentIndex = order.firstIndex(of: draggedID) else { return }
+
+        let draggedFrame = layoutStorage.draggedRowFrame
+        guard draggedFrame != .zero else { return }
 
         let threshold = draggedFrame.height * 0.2
 
