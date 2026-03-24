@@ -1,6 +1,17 @@
 import SwiftUI
 
 extension TaskListView {
+    @ViewBuilder
+    private var settingsButton: some View {
+        Button {
+            showSettings()
+        } label: {
+            Image(systemName: "gearshape")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
     var navigationHeader: some View {
         HStack {
             Text(headingText)
@@ -20,14 +31,11 @@ extension TaskListView {
                 }
                 .buttonStyle(.plain)
             }
-            Button {
-                showSettings()
-            } label: {
-                Image(systemName: "gearshape")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
+            if #available(iOS 26.0, *) {
+                settingsButton.buttonStyle(.glass)
+            } else {
+                settingsButton.buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
