@@ -407,11 +407,11 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var body: some View {
         taskScrollView
-            .overlay(alignment: .topTrailing) {
+            .overlay(alignment: .topLeading) {
                 if showFPSOverlay {
                     FPSOverlay()
-                        .padding(.top, 4)
-                        .padding(.trailing, 8)
+                        .padding(.top, -16)
+                        .padding(.leading, 8)
                         .allowsHitTesting(false)
                 }
             }
