@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-MAJOR="${1:-18}"
+MAJOR="${1:-26}"
 RUNTIME=$(xcrun simctl list runtimes available \
   | grep "iOS ${MAJOR}\." \
   | sed 's/.*iOS \([0-9.]*\).*/\1/' \
