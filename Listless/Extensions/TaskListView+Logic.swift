@@ -295,6 +295,7 @@ extension TaskListViewProtocol {
     }
 
     func deleteTask(_ task: TaskItem) {
+        guard !task.isDeleted else { return }
         let taskID = task.id
         do {
             try store.delete(taskID: taskID)
