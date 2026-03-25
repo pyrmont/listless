@@ -2,13 +2,48 @@ import SwiftUI
 
 extension ItemListView {
     @ViewBuilder
-    private var settingsButton: some View {
+    private var overflowMenu: some View {
+        if #available(iOS 26.0, *) {
+            Menu {
+                overflowMenuItems
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.glass)
+        } else {
+            Menu {
+                overflowMenuItems
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private var overflowMenuItems: some View {
+        Button {
+            showRenameAlert()
+        } label: {
+            Label("Rename List", systemImage: "pencil")
+        }
+        Button(role: .destructive) {
+            iState.isShowingDeleteAllAlert = true
+        } label: {
+            Label("Delete All", systemImage: "trash")
+        }
+        .disabled(items.isEmpty)
+        Divider()
         Button {
             showSettings()
         } label: {
-            Image(systemName: "gearshape")
-                .font(.title2)
-                .foregroundStyle(.secondary)
+            Label("Settings", systemImage: "gearshape")
         }
     }
 
@@ -17,9 +52,6 @@ extension ItemListView {
             Text(headingText)
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .onTapGesture(count: 4) {
-                    showSyncDiagnostics()
-                }
             Spacer()
             if syncMonitor.hasDiagnosticsIssue {
                 Button {
@@ -29,13 +61,8 @@ extension ItemListView {
                         .font(.title2)
                         .foregroundStyle(.red)
                 }
-                .buttonStyle(.plain)
             }
-            if #available(iOS 26.0, *) {
-                settingsButton.buttonStyle(.glass)
-            } else {
-                settingsButton.buttonStyle(.plain)
-            }
+            overflowMenu
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)

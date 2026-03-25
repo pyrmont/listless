@@ -21,6 +21,23 @@ extension ItemListView {
         return .handled
     }
 
+    func deleteAllItemsWithUndo() {
+        let ids = items.map(\.id)
+        guard !ids.isEmpty else { return }
+        let count = ids.count
+        managedObjectContext.undoManager?.beginUndoGrouping()
+        do {
+            try store.deleteMultiple(itemIDs: ids)
+        } catch {
+            presentStoreError(error)
+            managedObjectContext.undoManager?.endUndoGrouping()
+            return
+        }
+        managedObjectContext.undoManager?.endUndoGrouping()
+        let noun = count == 1 ? "item" : "items"
+        showUndoToast(message: "\(count) \(noun) deleted")
+    }
+
     func clearCompletedItemsWithUndo() {
         let ids = completedItems.map(\.id)
         guard !ids.isEmpty else { return }

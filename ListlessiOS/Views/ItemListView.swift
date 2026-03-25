@@ -16,6 +16,9 @@ struct ItemListView: View, ItemListViewProtocol {
         var clearingItemIDs: Set<UUID> = []
         var undoToast: UndoToastData? = nil
         var isSwiping: Bool = false
+        var isShowingRenameAlert = false
+        var isShowingDeleteAllAlert = false
+        var renameText: String = ""
         var draftPlacement: DraftItemPlacement?
         var draftTitle: String = ""
         var fetchWorkaround: Int = 0
@@ -86,37 +89,6 @@ struct ItemListView: View, ItemListViewProtocol {
         draftPlacement == .append
     }
 
-    var draftTitleBinding: Binding<String> {
-        Binding(
-            get: { iState.draftTitle },
-            set: { iState.draftTitle = $0 }
-        )
-    }
-
-    private var isDraggingStateBinding: Binding<Bool> {
-        $isDragging
-    }
-
-    private var pullToCreateStateBinding: Binding<PullToCreateState> {
-        Binding(
-            get: { pState.pullToCreate },
-            set: { pState.pullToCreate = $0 }
-        )
-    }
-
-    private var pullUpOffsetStateBinding: Binding<CGFloat> {
-        Binding(
-            get: { pState.pullUpOffset },
-            set: { pState.pullUpOffset = $0 }
-        )
-    }
-
-    private var isShowingSyncDiagnosticsStateBinding: Binding<Bool> {
-        Binding(
-            get: { iState.isShowingSyncDiagnostics },
-            set: { iState.isShowingSyncDiagnostics = $0 }
-        )
-    }
 
     private var selectedIndex: Int? {
         guard let currentID = fState.selectedItemID else { return nil }
@@ -233,6 +205,11 @@ struct ItemListView: View, ItemListViewProtocol {
         iState.isShowingSettings = true
     }
 
+    func showRenameAlert() {
+        iState.renameText = headingText
+        iState.isShowingRenameAlert = true
+    }
+
     private func dragScaleEffect() -> CGFloat {
         let liftPoints: CGFloat = 20
         let width = layoutStorage.draggedRowWidth
@@ -273,7 +250,7 @@ struct ItemListView: View, ItemListViewProtocol {
             ),
             isSelected: fState.selectedItemID == draftPrependRowID,
             draftID: draftPrependRowID,
-            title: draftTitleBinding,
+            title: $iState.draftTitle,
             onEditingChanged: { editing, _ in
                 DispatchQueue.main.async {
                     if editing {
@@ -299,7 +276,7 @@ struct ItemListView: View, ItemListViewProtocol {
                 ),
                 isSelected: fState.selectedItemID == draftAppendRowID,
                 draftID: draftAppendRowID,
-                title: draftTitleBinding,
+                title: $iState.draftTitle,
                 onEditingChanged: { editing, shouldCreateNewItem in
                     DispatchQueue.main.async {
                         if editing {
@@ -334,7 +311,7 @@ struct ItemListView: View, ItemListViewProtocol {
                 index: index + draftOffset,
                 totalItems: displayActiveItems.count + draftTotal,
                 isSelected: fState.selectedItemID == itemID,
-                isDragging: isDraggingStateBinding,
+                isDragging: $isDragging,
                 isSwiping: $iState.isSwiping,
                 isLastActiveItem: index == displayActiveItems.count - 1,
                 focusedField: $focusedFieldBinding,
@@ -463,7 +440,7 @@ struct ItemListView: View, ItemListViewProtocol {
                 guard !Task.isCancelled else { return }
                 dismissUndoToast()
             }
-            .sheet(isPresented: isShowingSyncDiagnosticsStateBinding) {
+            .sheet(isPresented: $iState.isShowingSyncDiagnostics) {
                 NavigationStack {
                     SyncDiagnosticsView(syncMonitor: syncMonitor)
                         .toolbar {
@@ -473,13 +450,28 @@ struct ItemListView: View, ItemListViewProtocol {
                         }
                 }
             }
-            .sheet(
-                isPresented: Binding(
-                    get: { iState.isShowingSettings },
-                    set: { iState.isShowingSettings = $0 }
-                )
-            ) {
+            .sheet(isPresented: $iState.isShowingSettings) {
                 SettingsView(syncMonitor: syncMonitor)
+            }
+            .alert("Rename List", isPresented: $iState.isShowingRenameAlert) {
+                TextField("List name", text: $iState.renameText)
+                Button("Cancel", role: .cancel) {}
+                Button("Rename") {
+                    let trimmed = iState.renameText
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmed.isEmpty {
+                        headingText = trimmed
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+            .alert("Delete All", isPresented: $iState.isShowingDeleteAllAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete All", role: .destructive) {
+                    deleteAllItemsWithUndo()
+                }
+            } message: {
+                Text("Are you sure you want to delete all items? You can undo this action.")
             }
     }
 
@@ -561,8 +553,8 @@ struct ItemListView: View, ItemListViewProtocol {
                 pullToClearIndicatorRow
             }
             .pullGestures(
-                pullToCreate: pullToCreateStateBinding,
-                pullUpOffset: pullUpOffsetStateBinding,
+                pullToCreate: $pState.pullToCreate,
+                pullUpOffset: $pState.pullUpOffset,
                 isDraftOpen: draftPlacement != nil,
                 hasCompletedItems: !completedItems.isEmpty,
                 pullCreateThreshold: pullCreateThreshold,

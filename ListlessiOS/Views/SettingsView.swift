@@ -3,7 +3,6 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("headingText") private var headingText = "Items"
     @AppStorage("appearanceMode") private var appearanceMode = 0
     @AppStorage("colorTheme") private var colorThemeRaw = 0
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
@@ -14,10 +13,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("List Title") {
-                    TextField("List Title", text: $headingText)
-                }
-
                 Section("Theme") {
                     ForEach(ColorTheme.displayOrder) { theme in
                         Button {
@@ -66,6 +61,9 @@ struct SettingsView: View {
                 if debugMode {
                     Section("Debugging") {
                         Toggle("FPS Overlay", isOn: $showFPSOverlay)
+                        NavigationLink("iCloud Diagnostics") {
+                            SyncDiagnosticsView(syncMonitor: syncMonitor)
+                        }
                     }
                 }
 
