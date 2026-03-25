@@ -12,7 +12,8 @@ extension ItemListView {
                     .foregroundStyle(.secondary)
                     .frame(width: 44, height: 44)
             }
-            .buttonStyle(.glass)
+            .buttonStyle(.plain)
+            .glassEffect(.clear.interactive(), in: .circle)
         } else {
             Menu {
                 overflowMenuItems
