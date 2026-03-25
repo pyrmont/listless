@@ -32,9 +32,9 @@ struct SettingsView: View {
                                 Spacer()
                                 LinearGradient(
                                     colors: [
-                                        taskColor(forIndex: 0, total: 5, theme: theme),
-                                        taskColor(forIndex: 2, total: 5, theme: theme),
-                                        taskColor(forIndex: 4, total: 5, theme: theme),
+                                        itemColor(forIndex: 0, total: 5, theme: theme),
+                                        itemColor(forIndex: 2, total: 5, theme: theme),
+                                        itemColor(forIndex: 4, total: 5, theme: theme),
                                     ],
                                     startPoint: .leading,
                                     endPoint: .trailing

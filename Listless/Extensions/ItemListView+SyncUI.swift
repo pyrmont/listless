@@ -5,7 +5,7 @@ import UIKit
 import AppKit
 #endif
 
-extension TaskListViewProtocol {
+extension ItemListViewProtocol {
     @ViewBuilder
     var syncErrorBanner: some View {
         if let message = syncMonitor.transientErrorMessage {

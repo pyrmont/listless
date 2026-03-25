@@ -76,52 +76,52 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         }
         guard let coord = keyWindowCoordinator else { return false }
         switch menuItem.action {
-        case #selector(selectAll(_:)):         return coord.canSelectAllTasks
-        case #selector(cut(_:)):              return coord.canCutSelectedTask
-        case #selector(copy(_:)):             return coord.canCopySelectedTask
-        case #selector(paste(_:)):            return coord.canPasteAfterSelectedTask
-        case #selector(handleDeleteTask):     return coord.canDeleteSelectedTask
-        case #selector(handleMoveUp):         return coord.canMoveSelectedTaskUp
-        case #selector(handleMoveDown):       return coord.canMoveSelectedTaskDown
+        case #selector(selectAll(_:)):         return coord.canSelectAllItems
+        case #selector(cut(_:)):              return coord.canCutSelectedItem
+        case #selector(copy(_:)):             return coord.canCopySelectedItem
+        case #selector(paste(_:)):            return coord.canPasteAfterSelectedItem
+        case #selector(handleDeleteItem):     return coord.canDeleteSelectedItem
+        case #selector(handleMoveUp):         return coord.canMoveSelectedItemUp
+        case #selector(handleMoveDown):       return coord.canMoveSelectedItemDown
         case #selector(handleMarkCompleted):
             menuItem.title = coord.markCompletedTitle
-            return coord.canMarkSelectedTaskCompleted
-        case #selector(handleClearCompleted): return coord.canClearCompletedTasks
+            return coord.canMarkSelectedItemCompleted
+        case #selector(handleClearCompleted): return coord.canClearCompletedItems
         default: return true
         }
     }
 
     // MARK: - Actions
 
-    @objc private func handleNewTask() {
+    @objc private func handleNewItem() {
         if NSApp.windows.filter({ $0.isVisible }).isEmpty {
             openNewWindow()
             Task { @MainActor in
-                keyWindowCoordinator?.newTask?()
+                keyWindowCoordinator?.newItem?()
             }
         } else {
-            keyWindowCoordinator?.newTask?()
+            keyWindowCoordinator?.newItem?()
         }
     }
 
     @objc func selectAll(_ sender: Any?) {
-        keyWindowCoordinator?.selectAllTasks?()
+        keyWindowCoordinator?.selectAllItems?()
     }
 
     @objc func cut(_ sender: Any?) {
-        keyWindowCoordinator?.cutSelectedTask?()
+        keyWindowCoordinator?.cutSelectedItem?()
     }
 
     @objc func copy(_ sender: Any?) {
-        keyWindowCoordinator?.copySelectedTask?()
+        keyWindowCoordinator?.copySelectedItem?()
     }
 
     @objc func paste(_ sender: Any?) {
-        keyWindowCoordinator?.pasteAfterSelectedTask?()
+        keyWindowCoordinator?.pasteAfterSelectedItem?()
     }
 
-    @objc private func handleDeleteTask() {
-        keyWindowCoordinator?.deleteSelectedTask?()
+    @objc private func handleDeleteItem() {
+        keyWindowCoordinator?.deleteSelectedItem?()
     }
 
     @objc private func handleNewWindow() {
@@ -129,19 +129,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     @objc private func handleMoveUp() {
-        keyWindowCoordinator?.moveSelectedTaskUp?()
+        keyWindowCoordinator?.moveSelectedItemUp?()
     }
 
     @objc private func handleMoveDown() {
-        keyWindowCoordinator?.moveSelectedTaskDown?()
+        keyWindowCoordinator?.moveSelectedItemDown?()
     }
 
     @objc private func handleMarkCompleted() {
-        keyWindowCoordinator?.markSelectedTaskCompleted?()
+        keyWindowCoordinator?.markSelectedItemCompleted?()
     }
 
     @objc private func handleClearCompleted() {
-        keyWindowCoordinator?.clearCompletedTasks?()
+        keyWindowCoordinator?.clearCompletedItems?()
     }
 
     @objc func handleShowSyncDiagnostics() {
@@ -172,8 +172,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private func openNewWindow() {
         let defaultContentSize = NSSize(width: 400, height: 350)
         let windowCoordinator = WindowCoordinator()
-        let rootView = TaskListView(
-            store: TaskStore(persistenceController: persistenceController),
+        let rootView = ItemListView(
+            store: ItemStore(persistenceController: persistenceController),
             syncMonitor: persistenceController.syncMonitor,
             windowCoordinator: windowCoordinator
         )
@@ -294,10 +294,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         mainMenu.addItem(appMenuItem)
 
         let fileMenu = NSMenu(title: "File")
-        let newTaskItem = NSMenuItem(title: "New Item", action: #selector(handleNewTask), keyEquivalent: "n")
-        newTaskItem.keyEquivalentModifierMask = [.command]
-        newTaskItem.target = self
-        fileMenu.addItem(newTaskItem)
+        let newItemEntity = NSMenuItem(title: "New Item", action: #selector(handleNewItem), keyEquivalent: "n")
+        newItemEntity.keyEquivalentModifierMask = [.command]
+        newItemEntity.target = self
+        fileMenu.addItem(newItemEntity)
         fileMenu.addItem(NSMenuItem.separator())
 
         let newWindowItem = NSMenuItem(title: "New Window", action: #selector(handleNewWindow), keyEquivalent: "n")
@@ -326,7 +326,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
         editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
-        let deleteItem = NSMenuItem(title: "Delete", action: #selector(handleDeleteTask), keyEquivalent: "\u{08}")
+        let deleteItem = NSMenuItem(title: "Delete", action: #selector(handleDeleteItem), keyEquivalent: "\u{08}")
         deleteItem.keyEquivalentModifierMask = []
         deleteItem.target = self
         editMenu.addItem(deleteItem)

@@ -1,10 +1,10 @@
 import SwiftUI
 
-extension TaskListView {
+extension ItemListView {
     struct PullToCreateState {
         enum Action {
             case none
-            case createTask
+            case createItem
             case collapseIndicator
         }
 
@@ -53,7 +53,7 @@ extension TaskListView {
 
             if pullOffset >= pullThreshold || isFlick {
                 isInsertionPending = true
-                return .createTask
+                return .createItem
             }
 
             isInsertionPending = false
@@ -63,18 +63,18 @@ extension TaskListView {
 }
 
 private struct PullGesturesModifier: ViewModifier {
-    @Binding var pullToCreate: TaskListView.PullToCreateState
+    @Binding var pullToCreate: ItemListView.PullToCreateState
     @Binding var pullUpOffset: CGFloat
 
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @State private var isScrollInteracting = false
 
     let isDraftOpen: Bool
-    let hasCompletedTasks: Bool
+    let hasCompletedItems: Bool
     let pullCreateThreshold: CGFloat
     let flickThreshold: CGFloat
     let pullClearThreshold: CGFloat
-    let onCreateTaskAtTop: () -> UUID
+    let onCreateItemAtTop: () -> UUID
     let onClearCompleted: () -> Void
 
     func body(content: Content) -> some View {
@@ -92,7 +92,7 @@ private struct PullGesturesModifier: ViewModifier {
                 )
                 return max(0, geo.contentOffset.y - maxOffset)
             } action: { _, bottomOverscroll in
-                guard hasCompletedTasks, isScrollInteracting else { return }
+                guard hasCompletedItems, isScrollInteracting else { return }
                 pullUpOffset = bottomOverscroll
             }
             .onScrollPhaseChange { oldPhase, newPhase in
@@ -130,11 +130,11 @@ private struct PullGesturesModifier: ViewModifier {
         guard oldPhase == .interacting, newPhase != .interacting else { return }
 
         switch action {
-        case .createTask:
+        case .createItem:
             var transaction = Transaction(animation: nil)
             transaction.disablesAnimations = true
             withTransaction(transaction) {
-                _ = onCreateTaskAtTop()
+                _ = onCreateItemAtTop()
             }
         case .collapseIndicator:
             withAnimation(.spring(response: 0.22, dampingFraction: 1.0)) {
@@ -146,7 +146,7 @@ private struct PullGesturesModifier: ViewModifier {
     }
 
     private func handlePullToClearRelease() {
-        guard hasCompletedTasks, pullUpOffset >= pullClearThreshold else {
+        guard hasCompletedItems, pullUpOffset >= pullClearThreshold else {
             pullUpOffset = 0
             return
         }
@@ -157,14 +157,14 @@ private struct PullGesturesModifier: ViewModifier {
 
 extension View {
     func pullGestures(
-        pullToCreate: Binding<TaskListView.PullToCreateState>,
+        pullToCreate: Binding<ItemListView.PullToCreateState>,
         pullUpOffset: Binding<CGFloat>,
         isDraftOpen: Bool,
-        hasCompletedTasks: Bool,
+        hasCompletedItems: Bool,
         pullCreateThreshold: CGFloat,
         flickThreshold: CGFloat,
         pullClearThreshold: CGFloat,
-        onCreateTaskAtTop: @escaping () -> UUID,
+        onCreateItemAtTop: @escaping () -> UUID,
         onClearCompleted: @escaping () -> Void
     ) -> some View {
         modifier(
@@ -172,11 +172,11 @@ extension View {
                 pullToCreate: pullToCreate,
                 pullUpOffset: pullUpOffset,
                 isDraftOpen: isDraftOpen,
-                hasCompletedTasks: hasCompletedTasks,
+                hasCompletedItems: hasCompletedItems,
                 pullCreateThreshold: pullCreateThreshold,
                 flickThreshold: flickThreshold,
                 pullClearThreshold: pullClearThreshold,
-                onCreateTaskAtTop: onCreateTaskAtTop,
+                onCreateItemAtTop: onCreateItemAtTop,
                 onClearCompleted: onClearCompleted
             )
         )

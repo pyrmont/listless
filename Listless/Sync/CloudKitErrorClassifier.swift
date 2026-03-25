@@ -44,7 +44,7 @@ enum CloudKitErrorClassifier {
     }
 
     private static func unwrap(_ error: Error) -> Error {
-        if let storeError = error as? TaskStoreError {
+        if let storeError = error as? ItemStoreError {
             switch storeError {
             case .fetchFailed(let wrappedError), .saveFailed(let wrappedError):
                 return wrappedError

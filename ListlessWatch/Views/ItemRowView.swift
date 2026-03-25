@@ -1,39 +1,39 @@
 import SwiftUI
 
-struct TaskRowView: View {
-    let task: TaskItem
+struct ItemRowView: View {
+    let item: ItemEntity
     let index: Int
     let totalActive: Int
-    let onToggle: (TaskItem) -> Void
+    let onToggle: (ItemEntity) -> Void
 
     var body: some View {
         Button {
-            onToggle(task)
+            onToggle(item)
         } label: {
             HStack(spacing: 8) {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(
-                        task.isCompleted
+                        item.isCompleted
                             ? .secondary
-                            : cachedTaskColor(forIndex: index, total: totalActive)
+                            : cachedItemColor(forIndex: index, total: totalActive)
                     )
                     .font(.system(size: 17))
 
-                Text(task.title)
-                    .strikethrough(task.isCompleted)
-                    .foregroundStyle(task.isCompleted ? .secondary : .primary)
+                Text(item.title)
+                    .strikethrough(item.isCompleted)
+                    .foregroundStyle(item.isCompleted ? .secondary : .primary)
                     .lineLimit(3)
             }
             .padding(.vertical, 4)
         }
         .listRowBackground(
-            task.isCompleted
+            item.isCompleted
                 ? AnyView(Color(white: 0.15)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous)))
                 : AnyView(
                     ZStack(alignment: .top) {
                         Color(white: 0.15)
-                        cachedTaskColor(forIndex: index, total: totalActive)
+                        cachedItemColor(forIndex: index, total: totalActive)
                             .frame(height: 3)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

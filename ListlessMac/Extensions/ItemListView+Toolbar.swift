@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension TaskListView {
+extension ItemListView {
     @ToolbarContentBuilder
     var platformToolbar: some ToolbarContent {
         ToolbarItem(placement: .automatic) {
@@ -24,14 +24,14 @@ extension TaskListView {
                 }
 
                 Button {
-                    createNewTask()
+                    createNewItem()
                 } label: {
                     Label("New Item", systemImage: "plus")
                 }
                 .help("Create a new item")
 
                 Button {
-                    _ = deleteSelectedTask()
+                    _ = deleteSelectedItem()
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
@@ -41,12 +41,12 @@ extension TaskListView {
                 Divider()
 
                 Button {
-                    clearCompletedTasks()
+                    clearCompletedItems()
                 } label: {
                     Label("Clear Completed", systemImage: "tray")
                 }
-                .disabled(completedTasks.isEmpty)
-                .help("Clear all completed tasks")
+                .disabled(completedItems.isEmpty)
+                .help("Clear all completed items")
             }
         }
     }

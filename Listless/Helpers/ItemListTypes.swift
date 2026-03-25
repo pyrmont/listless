@@ -1,7 +1,7 @@
 import Foundation
 
 enum FocusField: Hashable {
-    case task(UUID)
+    case item(UUID)
     case scrollView
 }
 
@@ -10,7 +10,7 @@ enum DragState: Equatable {
     case dragging(id: UUID, order: [UUID])
 }
 
-enum DraftTaskPlacement: Equatable {
+enum DraftItemPlacement: Equatable {
     case prepend
     case append
 }
@@ -21,16 +21,16 @@ struct FocusStateData {
 
     // MARK: - Selection
 
-    /// The full set of selected task IDs (supports multi-select on macOS).
-    private(set) var selectedTaskIDs: Set<UUID> = []
+    /// The full set of selected item IDs (supports multi-select on macOS).
+    private(set) var selectedItemIDs: Set<UUID> = []
 
     /// The start of a Shift+Arrow range selection. Stays fixed while the
     /// cursor moves via repeated Shift+Arrow presses.
-    var anchorTaskID: UUID?
+    var anchorItemID: UUID?
 
     /// The current cursor position. During single-select this equals the
     /// anchor. During Shift+Arrow it tracks the moving end of the range.
-    private(set) var cursorTaskID: UUID?
+    private(set) var cursorItemID: UUID?
 
     /// Selected items outside the active anchor–cursor range, preserved
     /// across Shift+Arrow operations after a Cmd+Click toggle.
@@ -40,31 +40,31 @@ struct FocusStateData {
     /// position plain Arrow keys navigate from); setting resets to a
     /// single-element (or empty) selection, keeping all existing call
     /// sites working without modification.
-    var selectedTaskID: UUID? {
-        get { cursorTaskID }
+    var selectedItemID: UUID? {
+        get { cursorItemID }
         set {
-            anchorTaskID = newValue
-            cursorTaskID = newValue
-            selectedTaskIDs = newValue.map { Set([$0]) } ?? []
+            anchorItemID = newValue
+            cursorItemID = newValue
+            selectedItemIDs = newValue.map { Set([$0]) } ?? []
             inactiveSelections = []
         }
     }
 
-    func isTaskSelected(_ id: UUID) -> Bool {
-        selectedTaskIDs.contains(id)
+    func isItemSelected(_ id: UUID) -> Bool {
+        selectedItemIDs.contains(id)
     }
 
     var hasMultipleSelection: Bool {
-        selectedTaskIDs.count > 1
+        selectedItemIDs.count > 1
     }
 
-    /// Select all tasks in display order, anchoring at the first and
+    /// Select all items in display order, anchoring at the first and
     /// placing the cursor at the last.
     mutating func selectAll(displayOrder: [UUID]) {
         guard !displayOrder.isEmpty else { return }
-        anchorTaskID = displayOrder.first
-        cursorTaskID = displayOrder.last
-        selectedTaskIDs = Set(displayOrder)
+        anchorItemID = displayOrder.first
+        cursorItemID = displayOrder.last
+        selectedItemIDs = Set(displayOrder)
         inactiveSelections = []
     }
 
@@ -74,25 +74,25 @@ struct FocusStateData {
     /// Shift+Arrow contracts from the far end. When adding, cursor
     /// resets to anchor so the active range stays small and other
     /// selections are preserved as inactive.
-    mutating func toggleSelection(taskID: UUID, displayOrder: [UUID]) {
-        guard let toggledIndex = displayOrder.firstIndex(of: taskID) else { return }
+    mutating func toggleSelection(itemID: UUID, displayOrder: [UUID]) {
+        guard let toggledIndex = displayOrder.firstIndex(of: itemID) else { return }
 
-        let wasSelected = selectedTaskIDs.contains(taskID)
+        let wasSelected = selectedItemIDs.contains(itemID)
         if wasSelected {
-            selectedTaskIDs.remove(taskID)
+            selectedItemIDs.remove(itemID)
         } else {
-            selectedTaskIDs.insert(taskID)
+            selectedItemIDs.insert(itemID)
         }
 
-        guard !selectedTaskIDs.isEmpty else {
-            anchorTaskID = nil
-            cursorTaskID = nil
+        guard !selectedItemIDs.isEmpty else {
+            anchorItemID = nil
+            cursorItemID = nil
             inactiveSelections = []
             return
         }
 
         // Anchor = item below the toggled item (or self if at bottom).
-        anchorTaskID =
+        anchorItemID =
             toggledIndex + 1 < displayOrder.count
             ? displayOrder[toggledIndex + 1]
             : displayOrder[toggledIndex]
@@ -100,24 +100,24 @@ struct FocusStateData {
         if wasSelected {
             // Deselecting: cursor stays so Shift+Arrow contracts from
             // the far end of the remaining selection.
-            if cursorTaskID == nil {
-                cursorTaskID = anchorTaskID
+            if cursorItemID == nil {
+                cursorItemID = anchorItemID
             }
         } else {
             // Adding: cursor resets to anchor so the active range is
             // small, preserving other selections as inactive.
-            cursorTaskID = anchorTaskID
+            cursorItemID = anchorItemID
         }
 
         recomputeInactiveSelections(displayOrder: displayOrder)
     }
 
     /// Extend or contract the selection from the anchor to `targetID`,
-    /// selecting all tasks between them in `displayOrder`. Inactive
+    /// selecting all items between them in `displayOrder`. Inactive
     /// selections are preserved and merged when they become adjacent
     /// to the active range.
     mutating func extendSelection(to targetID: UUID, displayOrder: [UUID]) {
-        guard let anchorID = anchorTaskID,
+        guard let anchorID = anchorItemID,
             let anchorIndex = displayOrder.firstIndex(of: anchorID),
             let targetIndex = displayOrder.firstIndex(of: targetID)
         else {
@@ -126,17 +126,17 @@ struct FocusStateData {
         let lo = min(anchorIndex, targetIndex)
         let hi = max(anchorIndex, targetIndex)
         let activeRange = Set(displayOrder[lo...hi])
-        selectedTaskIDs = inactiveSelections.union(activeRange)
-        cursorTaskID = targetID
+        selectedItemIDs = inactiveSelections.union(activeRange)
+        cursorItemID = targetID
         mergeAdjacentInactiveSelections(displayOrder: displayOrder)
     }
 
     // MARK: - Private Helpers
 
-    /// Partition `selectedTaskIDs` into those inside vs outside the
+    /// Partition `selectedItemIDs` into those inside vs outside the
     /// anchor–cursor range.
     private mutating func recomputeInactiveSelections(displayOrder: [UUID]) {
-        guard let anchorID = anchorTaskID, let cursorID = cursorTaskID,
+        guard let anchorID = anchorItemID, let cursorID = cursorItemID,
             let anchorIndex = displayOrder.firstIndex(of: anchorID),
             let cursorIndex = displayOrder.firstIndex(of: cursorID)
         else {
@@ -146,7 +146,7 @@ struct FocusStateData {
         let lo = min(anchorIndex, cursorIndex)
         let hi = max(anchorIndex, cursorIndex)
         let activeRange = Set(displayOrder[lo...hi])
-        inactiveSelections = selectedTaskIDs.subtracting(activeRange)
+        inactiveSelections = selectedItemIDs.subtracting(activeRange)
     }
 
     /// When the active range becomes adjacent to inactive selections,
@@ -155,9 +155,9 @@ struct FocusStateData {
     /// from the anchor).
     private mutating func mergeAdjacentInactiveSelections(displayOrder: [UUID]) {
         guard !inactiveSelections.isEmpty,
-            let anchorID = anchorTaskID,
+            let anchorID = anchorItemID,
             let anchorIndex = displayOrder.firstIndex(of: anchorID),
-            let cursorID = cursorTaskID,
+            let cursorID = cursorItemID,
             let cursorIndex = displayOrder.firstIndex(of: cursorID)
         else {
             return
@@ -186,12 +186,12 @@ struct FocusStateData {
         inactiveSelections.subtract(mergedIDs)
 
         if cursorIndex <= anchorIndex {
-            cursorTaskID = displayOrder[lo]
+            cursorItemID = displayOrder[lo]
         } else {
-            cursorTaskID = displayOrder[hi]
+            cursorItemID = displayOrder[hi]
         }
 
-        selectedTaskIDs = inactiveSelections.union(Set(displayOrder[lo...hi]))
+        selectedItemIDs = inactiveSelections.union(Set(displayOrder[lo...hi]))
     }
 }
 

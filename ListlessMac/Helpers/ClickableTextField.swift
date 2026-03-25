@@ -5,9 +5,9 @@ import SwiftUI
 class ClickableNSTextField: NSTextField {
     var onBecomeFirstResponder: (() -> Void)?
 
-    /// The task ID this text field represents, used by the per-window
+    /// The item ID this text field represents, used by the per-window
     /// `WindowCoordinator.allowedFocusTarget` check.
-    var taskID: UUID?
+    var itemID: UUID?
 
     override var acceptsFirstResponder: Bool {
         // Always allow if this field is already editing.
@@ -25,7 +25,7 @@ class ClickableNSTextField: NSTextField {
         {
             if let allowed = coordinator.allowedFocusTarget {
                 // A specific target is set — only that field may accept.
-                guard let taskID, case .task(let allowedID) = allowed, allowedID == taskID else {
+                guard let itemID, case .item(let allowedID) = allowed, allowedID == itemID else {
                     return false
                 }
             }
@@ -37,11 +37,11 @@ class ClickableNSTextField: NSTextField {
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         guard let window,
-            let taskID,
+            let itemID,
             let delegate = NSApp.delegate as? AppDelegate,
             let coordinator = delegate.coordinator(for: window)
         else { return }
-        if case .task(let allowedID) = coordinator.allowedFocusTarget, allowedID == taskID {
+        if case .item(let allowedID) = coordinator.allowedFocusTarget, allowedID == itemID {
             coordinator.allowedFocusTarget = nil
             window.makeFirstResponder(self)
         }
@@ -63,13 +63,13 @@ class ClickableNSTextField: NSTextField {
 struct ClickableTextField: NSViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
-    let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
-    var taskID: UUID? = nil
+    let onEditingChanged: (Bool, _ shouldCreateNewItem: Bool) -> Void
+    var itemID: UUID? = nil
     var onContentChange: ((String) -> Void)? = nil
 
     func makeNSView(context: Context) -> ClickableNSTextField {
         let textField = ClickableNSTextField()
-        textField.taskID = taskID
+        textField.itemID = itemID
         textField.delegate = context.coordinator
         textField.isBordered = false
         textField.drawsBackground = false
@@ -171,13 +171,13 @@ struct ClickableTextField: NSViewRepresentable {
     @MainActor
     final class Coordinator: NSObject, NSTextFieldDelegate {
         @Binding var text: String
-        let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+        let onEditingChanged: (Bool, _ shouldCreateNewItem: Bool) -> Void
         let onContentChange: ((String) -> Void)?
         var editEndReason: EditEndReason = .focusLost
 
         init(
             text: Binding<String>,
-            onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void,
+            onEditingChanged: @escaping (Bool, _ shouldCreateNewItem: Bool) -> Void,
             onContentChange: ((String) -> Void)? = nil
         ) {
             _text = text
@@ -215,9 +215,9 @@ struct ClickableTextField: NSViewRepresentable {
 
         func controlTextDidEndEditing(_ obj: Notification) {
             hasNotifiedEditingStarted = false
-            let shouldCreateNewTask = editEndReason == .returnKey
+            let shouldCreateNewItem = editEndReason == .returnKey
             editEndReason = .focusLost  // Reset for next time
-            onEditingChanged(false, shouldCreateNewTask)
+            onEditingChanged(false, shouldCreateNewItem)
         }
 
         func controlTextDidChange(_ obj: Notification) {
@@ -237,7 +237,7 @@ struct ClickableTextField: NSViewRepresentable {
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
                 // Return key pressed — set the per-window allowed focus
                 // target to .scrollView so no text field can steal focus
-                // during reconciliation. Cleared in TaskListView's outer
+                // during reconciliation. Cleared in ItemListView's outer
                 // onChange(of: focusedFieldBinding).
                 editEndReason = .returnKey
                 setAllowedFocusTarget(for: control.window, target: .scrollView)

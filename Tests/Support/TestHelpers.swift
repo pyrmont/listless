@@ -7,31 +7,31 @@ import Testing
 @testable import Listless_iOS
 #endif
 
-/// Creates a fresh TaskStore with in-memory persistence for isolated testing.
+/// Creates a fresh ItemStore with in-memory persistence for isolated testing.
 @MainActor
-func makeTestStore() -> TaskStore {
+func makeTestStore() -> ItemStore {
     let controller = PersistenceController(inMemory: true)
-    return TaskStore(persistenceController: controller)
+    return ItemStore(persistenceController: controller)
 }
 
-/// Creates a TaskStore pre-populated with test tasks.
+/// Creates a ItemStore pre-populated with test items.
 /// - Parameters:
-///   - count: Number of tasks to create (default: 3)
-///   - titles: Optional array of titles; if nil, generates "Task 1", "Task 2", etc.
-/// - Returns: Tuple of (store, array of created task IDs)
+///   - count: Number of items to create (default: 3)
+///   - titles: Optional array of titles; if nil, generates "Item 1", "Item 2", etc.
+/// - Returns: Tuple of (store, array of created item IDs)
 @MainActor
-func makeTestStoreWithTasks(count: Int = 3, titles: [String]? = nil) throws -> (TaskStore, [UUID]) {
+func makeTestStoreWithItems(count: Int = 3, titles: [String]? = nil) throws -> (ItemStore, [UUID]) {
     let store = makeTestStore()
-    var taskIDs: [UUID] = []
+    var itemIDs: [UUID] = []
 
     for i in 0..<count {
         let title = titles?[safe: i] ?? "Task \(i + 1)"
-        let task = try store.createTask(title: title)
+        let item = try store.createItem(title: title)
         try store.save()
-        taskIDs.append(task.id)
+        itemIDs.append(item.id)
     }
 
-    return (store, taskIDs)
+    return (store, itemIDs)
 }
 
 /// Safe array subscript that returns nil instead of crashing on out-of-bounds access.

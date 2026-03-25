@@ -1,41 +1,41 @@
 import SwiftUI
 
-extension TaskListViewProtocol {
+extension ItemListViewProtocol {
 
     // MARK: - Computed Properties
 
-    var activeTasks: [TaskItem] {
-        Array(tasks.filter { !$0.isDeleted && !$0.isCompleted })
+    var activeItems: [ItemEntity] {
+        Array(items.filter { !$0.isDeleted && !$0.isCompleted })
             .sorted { $0.sortOrder < $1.sortOrder }
     }
 
-    var displayActiveTasks: [TaskItem] {
+    var displayActiveItems: [ItemEntity] {
         guard let visualOrder else {
-            return activeTasks
+            return activeItems
         }
 
         return visualOrder.compactMap { id in
-            activeTasks.first(where: { $0.id == id })
+            activeItems.first(where: { $0.id == id })
         }
     }
 
-    var completedTasks: [TaskItem] {
-        Array(tasks.filter { !$0.isDeleted && $0.isCompleted })
+    var completedItems: [ItemEntity] {
+        Array(items.filter { !$0.isDeleted && $0.isCompleted })
             .sorted { $0.completedOrder > $1.completedOrder }
     }
 
-    var allTasksInDisplayOrder: [TaskItem] {
-        displayActiveTasks + completedTasks
+    var allItemsInDisplayOrder: [ItemEntity] {
+        displayActiveItems + completedItems
     }
 
-    var editingTaskID: UUID? {
-        if case .task(let id) = focusedField {
+    var editingItemID: UUID? {
+        if case .item(let id) = focusedField {
             return id
         }
         return nil
     }
 
-    var draggedTaskID: UUID? {
+    var draggedItemID: UUID? {
         if case .dragging(let id, _) = dragState {
             return id
         }
@@ -53,12 +53,12 @@ extension TaskListViewProtocol {
         syncMonitor.ingest(error: error)
     }
 
-    private func isLastActiveTask(_ taskID: UUID) -> Bool {
-        guard let lastTask = activeTasks.last else { return false }
-        return lastTask.id == taskID
+    private func isLastActiveItem(_ itemID: UUID) -> Bool {
+        guard let lastItem = activeItems.last else { return false }
+        return lastItem.id == itemID
     }
 
-    func draftID(for placement: DraftTaskPlacement) -> UUID {
+    func draftID(for placement: DraftItemPlacement) -> UUID {
         switch placement {
         case .prepend:
             draftPrependRowID
@@ -67,8 +67,8 @@ extension TaskListViewProtocol {
         }
     }
 
-    func draftPlacement(for taskID: UUID) -> DraftTaskPlacement? {
-        switch taskID {
+    func draftPlacement(for itemID: UUID) -> DraftItemPlacement? {
+        switch itemID {
         case draftPrependRowID:
             .prepend
         case draftAppendRowID:
@@ -78,134 +78,134 @@ extension TaskListViewProtocol {
         }
     }
 
-    // MARK: - Task Creation
+    // MARK: - Item Creation
 
-    func createNewTaskAtTop() -> UUID {
-        revealDraftTask(at: .prepend)
+    func createNewItemAtTop() -> UUID {
+        revealDraftItem(at: .prepend)
         return draftPrependRowID
     }
 
-    func createNewTask() {
-        revealDraftTask(at: .append)
+    func createNewItem() {
+        revealDraftItem(at: .append)
     }
 
-    func revealDraftTask(at placement: DraftTaskPlacement) {
+    func revealDraftItem(at placement: DraftItemPlacement) {
         if draftPlacement != placement, draftPlacement != nil {
-            commitDraftTask()
+            commitDraftItem()
         }
 
         clearDragState()
-        let taskID = draftID(for: placement)
+        let itemID = draftID(for: placement)
         draftTitle = ""
         draftPlacement = placement
-        fState.pendingFocus = .task(taskID)
-        focusedField = .task(taskID)
-        fState.selectedTaskID = taskID
+        fState.pendingFocus = .item(itemID)
+        focusedField = .item(itemID)
+        fState.selectedItemID = itemID
     }
 
-    func beginDraftTaskEditing(_ placement: DraftTaskPlacement) {
+    func beginDraftItemEditing(_ placement: DraftItemPlacement) {
         guard draftPlacement == placement else { return }
-        let taskID = draftID(for: placement)
-        fState.selectedTaskID = taskID
-        if case .task(let id) = fState.pendingFocus, id == taskID {
+        let itemID = draftID(for: placement)
+        fState.selectedItemID = itemID
+        if case .item(let id) = fState.pendingFocus, id == itemID {
             fState.pendingFocus = nil
         }
     }
 
-    func commitDraftTask(shouldCreateNewTask: Bool = false) {
+    func commitDraftItem(shouldCreateNewItem: Bool = false) {
         guard let placement = draftPlacement else { return }
-        let taskID = draftID(for: placement)
+        let itemID = draftID(for: placement)
         let title = draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Clear fState.pendingFocus before clearDraftTaskUI so that the iOS
+        // Clear fState.pendingFocus before clearDraftItemUI so that the iOS
         // onChange(of: focusedFieldBinding) nil-redirect doesn't re-focus
         // the draft row via a stale fState.pendingFocus value.
-        if case .task(let id) = fState.pendingFocus, id == taskID {
+        if case .item(let id) = fState.pendingFocus, id == itemID {
             fState.pendingFocus = nil
         }
 
-        clearDraftTaskUI(at: placement, hasTitle: !title.isEmpty)
+        clearDraftItemUI(at: placement, hasTitle: !title.isEmpty)
 
-        if fState.selectedTaskID == taskID {
-            fState.selectedTaskID = nil
+        if fState.selectedItemID == itemID {
+            fState.selectedItemID = nil
         }
 
         guard !title.isEmpty else { return }
 
         do {
-            let task = switch placement {
+            let item = switch placement {
             case .prepend:
-                try store.createTask(title: title, atBeginning: true)
+                try store.createItem(title: title, atBeginning: true)
             case .append:
-                try store.createTask(title: title)
+                try store.createItem(title: title)
             }
             try store.save()
             if placement == .append {
-                fState.selectedTaskID = task.id
+                fState.selectedItemID = item.id
             }
         } catch {
             presentStoreError(error)
         }
 
-        if shouldCreateNewTask, placement == .append {
-            revealDraftTask(at: .append)
+        if shouldCreateNewItem, placement == .append {
+            revealDraftItem(at: .append)
         }
     }
 
-    func createTask(title: String, afterTaskID: UUID) {
+    func createItem(title: String, afterItemID: UUID) {
         clearDragState()
         do {
-            let sortOrder = try sortOrderAfter(taskID: afterTaskID)
-            let newTask = try store.createTask(title: title, sortOrder: sortOrder)
+            let sortOrder = try sortOrderAfter(itemID: afterItemID)
+            let newItem = try store.createItem(title: title, sortOrder: sortOrder)
             try store.save()
-            fState.selectedTaskID = newTask.id
+            fState.selectedItemID = newItem.id
             focusedField = .scrollView
         } catch {
             presentStoreError(error)
         }
     }
 
-    private func sortOrderAfter(taskID: UUID) throws -> Int64? {
-        guard let afterIndex = activeTasks.firstIndex(where: { $0.id == taskID }) else {
+    private func sortOrderAfter(itemID: UUID) throws -> Int64? {
+        guard let afterIndex = activeItems.firstIndex(where: { $0.id == itemID }) else {
             return nil
         }
-        let afterTask = activeTasks[afterIndex]
-        if afterIndex + 1 < activeTasks.count {
-            let nextTask = activeTasks[afterIndex + 1]
-            let midpoint = (afterTask.sortOrder + nextTask.sortOrder) / 2
-            if midpoint == afterTask.sortOrder {
+        let afterItem = activeItems[afterIndex]
+        if afterIndex + 1 < activeItems.count {
+            let nextItem = activeItems[afterIndex + 1]
+            let midpoint = (afterItem.sortOrder + nextItem.sortOrder) / 2
+            if midpoint == afterItem.sortOrder {
                 // Consecutive sort orders leave no room; re-normalise with 1000-unit gaps
-                // then recompute. Core Data's identity map ensures afterTask/nextTask reflect
+                // then recompute. Core Data's identity map ensures afterItem/nextItem reflect
                 // the updated values immediately after normalisation.
                 try store.normalizeSortOrders()
-                return (afterTask.sortOrder + nextTask.sortOrder) / 2
+                return (afterItem.sortOrder + nextItem.sortOrder) / 2
             }
             return midpoint
         } else {
-            return afterTask.sortOrder + 1000
+            return afterItem.sortOrder + 1000
         }
     }
 
     // MARK: - Interaction Handlers
 
     func handleBackgroundTap() {
-        let isTaskFocused = if case .task = focusedField { true } else { false }
+        let isItemFocused = if case .item = focusedField { true } else { false }
 
-        if isTaskFocused || fState.selectedTaskID != nil {
+        if isItemFocused || fState.selectedItemID != nil {
             fState.pendingFocus = nil
             if draftPlacement != nil {
-                commitDraftTask()
+                commitDraftItem()
             }
-            fState.selectedTaskID = nil
+            fState.selectedItemID = nil
             focusedField = nil
         } else {
-            revealDraftTask(at: .append)
+            revealDraftItem(at: .append)
         }
     }
 
     func handleFocusChange(from oldValue: FocusField?, to newValue: FocusField?) {
-        let oldID = taskID(from: oldValue)
-        let newID = taskID(from: newValue)
+        let oldID = itemID(from: oldValue)
+        let newID = itemID(from: newValue)
 
         guard oldID != newID, let oldID else {
             return
@@ -215,102 +215,102 @@ extension TaskListViewProtocol {
             return
         }
 
-        deleteIfEmpty(taskID: oldID)
+        deleteIfEmpty(itemID: oldID)
     }
 
-    private func taskID(from field: FocusField?) -> UUID? {
-        guard case .task(let id) = field else { return nil }
+    private func itemID(from field: FocusField?) -> UUID? {
+        guard case .item(let id) = field else { return nil }
         return id
     }
 
-    private func deleteIfEmpty(taskID: UUID) {
-        if case .task(let pendingTaskID) = fState.pendingFocus, pendingTaskID == taskID {
+    private func deleteIfEmpty(itemID: UUID) {
+        if case .item(let pendingItemID) = fState.pendingFocus, pendingItemID == itemID {
             return
         }
 
-        guard let task = tasks.first(where: { $0.id == taskID }) else {
+        guard let item = items.first(where: { $0.id == itemID }) else {
             return
         }
-        let trimmedTitle = task.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedTitle = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedTitle.isEmpty else { return }
 
-        managedObjectContext.undoManager?.removeAllActions(withTarget: task)
+        managedObjectContext.undoManager?.removeAllActions(withTarget: item)
         managedObjectContext.undoManager?.disableUndoRegistration()
-        deleteTask(task)
+        deleteItem(item)
         managedObjectContext.undoManager?.enableUndoRegistration()
     }
 
-    func updateTitle(_ task: TaskItem, _ title: String) {
-        guard task.title != title else { return }
+    func updateTitle(_ item: ItemEntity, _ title: String) {
+        guard item.title != title else { return }
         do {
-            try store.updateWithoutSaving(taskID: task.id, title: title)
+            try store.updateWithoutSaving(itemID: item.id, title: title)
         } catch {
             presentStoreError(error)
         }
     }
 
-    func toggleCompletion(_ task: TaskItem) {
+    func toggleCompletion(_ item: ItemEntity) {
         do {
-            if task.isCompleted {
-                try store.uncomplete(taskID: task.id)
+            if item.isCompleted {
+                try store.uncomplete(itemID: item.id)
             } else {
-                try store.complete(taskID: task.id)
+                try store.complete(itemID: item.id)
             }
         } catch {
             presentStoreError(error)
         }
     }
 
-    func handleSwipeComplete(_ taskID: UUID) {
-        guard let task = tasks.first(where: { $0.id == taskID }) else { return }
-        toggleCompletion(task)
+    func handleSwipeComplete(_ itemID: UUID) {
+        guard let item = items.first(where: { $0.id == itemID }) else { return }
+        toggleCompletion(item)
     }
 
-    func handleSwipeDelete(_ taskID: UUID) {
-        guard let task = tasks.first(where: { $0.id == taskID }) else { return }
-        deleteTask(task)
+    func handleSwipeDelete(_ itemID: UUID) {
+        guard let item = items.first(where: { $0.id == itemID }) else { return }
+        deleteItem(item)
     }
 
-    func selectTask(
-        _ taskID: UUID,
+    func selectItem(
+        _ itemID: UUID,
         extendSelection: Bool = false,
         toggleSelection: Bool = false
     ) {
         if toggleSelection {
             fState.toggleSelection(
-                taskID: taskID,
-                displayOrder: allTasksInDisplayOrder.map(\.id)
+                itemID: itemID,
+                displayOrder: allItemsInDisplayOrder.map(\.id)
             )
-        } else if extendSelection && fState.selectedTaskID != nil {
-            if fState.anchorTaskID == nil {
-                fState.anchorTaskID = fState.cursorTaskID
+        } else if extendSelection && fState.selectedItemID != nil {
+            if fState.anchorItemID == nil {
+                fState.anchorItemID = fState.cursorItemID
             }
             fState.extendSelection(
-                to: taskID,
-                displayOrder: allTasksInDisplayOrder.map(\.id)
+                to: itemID,
+                displayOrder: allItemsInDisplayOrder.map(\.id)
             )
         } else {
-            fState.selectedTaskID = taskID
+            fState.selectedItemID = itemID
         }
     }
 
-    func deleteTask(_ task: TaskItem) {
-        guard !task.isDeleted else { return }
-        let taskID = task.id
+    func deleteItem(_ item: ItemEntity) {
+        guard !item.isDeleted else { return }
+        let itemID = item.id
         do {
-            try store.delete(taskID: taskID)
-            if fState.selectedTaskID == taskID {
-                fState.selectedTaskID = nil
+            try store.delete(itemID: itemID)
+            if fState.selectedItemID == itemID {
+                fState.selectedItemID = nil
             }
         } catch {
             presentStoreError(error)
         }
     }
 
-    func clearCompletedTasks() {
-        for task in completedTasks.reversed() {
+    func clearCompletedItems() {
+        for item in completedItems.reversed() {
             do {
-                try store.delete(taskID: task.id)
+                try store.delete(itemID: item.id)
             } catch {
                 presentStoreError(error)
             }
@@ -324,18 +324,18 @@ extension TaskListViewProtocol {
             return .ignored
         }
 
-        guard let currentID = fState.selectedTaskID else {
-            fState.selectedTaskID = activeTasks.last?.id
+        guard let currentID = fState.selectedItemID else {
+            fState.selectedItemID = activeItems.last?.id
             return .handled
         }
 
-        let displayOrder = allTasksInDisplayOrder
+        let displayOrder = allItemsInDisplayOrder
         guard let currentIndex = displayOrder.firstIndex(where: { $0.id == currentID }) else {
             return .handled
         }
 
         if currentIndex > 0 {
-            fState.selectedTaskID = displayOrder[currentIndex - 1].id
+            fState.selectedItemID = displayOrder[currentIndex - 1].id
         }
         return .handled
     }
@@ -345,18 +345,18 @@ extension TaskListViewProtocol {
             return .ignored
         }
 
-        guard let currentID = fState.selectedTaskID else {
-            fState.selectedTaskID = activeTasks.first?.id ?? completedTasks.first?.id
+        guard let currentID = fState.selectedItemID else {
+            fState.selectedItemID = activeItems.first?.id ?? completedItems.first?.id
             return .handled
         }
 
-        let displayOrder = allTasksInDisplayOrder
+        let displayOrder = allItemsInDisplayOrder
         guard let currentIndex = displayOrder.firstIndex(where: { $0.id == currentID }) else {
             return .handled
         }
 
         if currentIndex < displayOrder.count - 1 {
-            fState.selectedTaskID = displayOrder[currentIndex + 1].id
+            fState.selectedItemID = displayOrder[currentIndex + 1].id
         }
         return .handled
     }
@@ -366,11 +366,11 @@ extension TaskListViewProtocol {
             return .ignored
         }
 
-        let displayOrder = allTasksInDisplayOrder.map(\.id)
+        let displayOrder = allItemsInDisplayOrder.map(\.id)
 
         // If nothing is selected yet, start single-select at the bottom.
-        guard let cursorID = fState.cursorTaskID else {
-            fState.selectedTaskID = activeTasks.last?.id
+        guard let cursorID = fState.cursorItemID else {
+            fState.selectedItemID = activeItems.last?.id
             return .handled
         }
 
@@ -383,7 +383,7 @@ extension TaskListViewProtocol {
         let targetID = displayOrder[cursorIndex - 1]
         // On the first extend, the anchor is wherever the cursor is.
         if !fState.hasMultipleSelection {
-            fState.anchorTaskID = cursorID
+            fState.anchorItemID = cursorID
         }
         fState.extendSelection(to: targetID, displayOrder: displayOrder)
         return .handled
@@ -394,10 +394,10 @@ extension TaskListViewProtocol {
             return .ignored
         }
 
-        let displayOrder = allTasksInDisplayOrder.map(\.id)
+        let displayOrder = allItemsInDisplayOrder.map(\.id)
 
-        guard let cursorID = fState.cursorTaskID else {
-            fState.selectedTaskID = activeTasks.first?.id ?? completedTasks.first?.id
+        guard let cursorID = fState.cursorItemID else {
+            fState.selectedItemID = activeItems.first?.id ?? completedItems.first?.id
             return .handled
         }
 
@@ -409,116 +409,116 @@ extension TaskListViewProtocol {
 
         let targetID = displayOrder[cursorIndex + 1]
         if !fState.hasMultipleSelection {
-            fState.anchorTaskID = cursorID
+            fState.anchorItemID = cursorID
         }
         fState.extendSelection(to: targetID, displayOrder: displayOrder)
         return .handled
     }
 
-    func toggleSelectedTask() -> KeyPress.Result {
+    func toggleSelectedItem() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
-        let ids = fState.selectedTaskIDs
+        let ids = fState.selectedItemIDs
         guard !ids.isEmpty else { return .handled }
-        let tasksToToggle = allTasksInDisplayOrder.filter { ids.contains($0.id) }
-        guard !tasksToToggle.isEmpty else { return .handled }
-        let hasActive = tasksToToggle.contains { !$0.isCompleted }
-        let hasCompleted = tasksToToggle.contains { $0.isCompleted }
+        let itemsToToggle = allItemsInDisplayOrder.filter { ids.contains($0.id) }
+        guard !itemsToToggle.isEmpty else { return .handled }
+        let hasActive = itemsToToggle.contains { !$0.isCompleted }
+        let hasCompleted = itemsToToggle.contains { $0.isCompleted }
         guard !(hasActive && hasCompleted) else { return .handled }
-        for task in tasksToToggle {
-            toggleCompletion(task)
+        for item in itemsToToggle {
+            toggleCompletion(item)
         }
         return .handled
     }
 
-    func focusSelectedTask() -> KeyPress.Result {
+    func focusSelectedItem() -> KeyPress.Result {
         guard focusedField == .scrollView else { return .ignored }
         guard !fState.hasMultipleSelection else { return .handled }
-        guard let currentID = fState.selectedTaskID else { return .handled }
-        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
+        guard let currentID = fState.selectedItemID else { return .handled }
+        guard let item = allItemsInDisplayOrder.first(where: { $0.id == currentID }) else {
             return .handled
         }
-        guard !task.isCompleted else { return .handled }
+        guard !item.isCompleted else { return .handled }
         startEditing(currentID)
         return .handled
     }
 
-    func deleteSelectedTask() -> KeyPress.Result {
+    func deleteSelectedItem() -> KeyPress.Result {
         guard focusedField == .scrollView else {
             return .ignored
         }
-        let ids = fState.selectedTaskIDs
+        let ids = fState.selectedItemIDs
         guard !ids.isEmpty else { return .handled }
-        let displayOrder = allTasksInDisplayOrder
-        let tasksToDelete = displayOrder.filter { ids.contains($0.id) }
-        guard !tasksToDelete.isEmpty else { return .handled }
+        let displayOrder = allItemsInDisplayOrder
+        let itemsToDelete = displayOrder.filter { ids.contains($0.id) }
+        guard !itemsToDelete.isEmpty else { return .handled }
 
-        // Find the next task after the last selected one to move selection to.
+        // Find the next item after the last selected one to move selection to.
         let lastSelectedIndex = displayOrder.lastIndex(where: { ids.contains($0.id) })
-        let nextTask = lastSelectedIndex.flatMap { idx in
+        let nextItem = lastSelectedIndex.flatMap { idx in
             displayOrder.dropFirst(idx + 1).first(where: { !ids.contains($0.id) })
         }
 
-        fState.selectedTaskID = nil
-        for task in tasksToDelete {
-            deleteTask(task)
+        fState.selectedItemID = nil
+        for item in itemsToDelete {
+            deleteItem(item)
         }
-        if let nextTask {
-            fState.selectedTaskID = nextTask.id
+        if let nextItem {
+            fState.selectedItemID = nextItem.id
         }
         return .handled
     }
 
-    func moveSelectedTaskUp() {
+    func moveSelectedItemUp() {
         guard focusedField == .scrollView else { return }
-        guard let currentID = fState.selectedTaskID else { return }
-        guard let currentIndex = activeTasks.firstIndex(where: { $0.id == currentID }) else { return }
+        guard let currentID = fState.selectedItemID else { return }
+        guard let currentIndex = activeItems.firstIndex(where: { $0.id == currentID }) else { return }
         guard currentIndex > 0 else { return }
 
         do {
-            try store.moveTask(taskID: currentID, toIndex: currentIndex - 1)
+            try store.moveItem(itemID: currentID, toIndex: currentIndex - 1)
         } catch {
             presentStoreError(error)
         }
     }
 
-    func moveSelectedTaskDown() {
+    func moveSelectedItemDown() {
         guard focusedField == .scrollView else { return }
-        guard let currentID = fState.selectedTaskID else { return }
-        guard let currentIndex = activeTasks.firstIndex(where: { $0.id == currentID }) else { return }
-        guard currentIndex < activeTasks.count - 1 else { return }
+        guard let currentID = fState.selectedItemID else { return }
+        guard let currentIndex = activeItems.firstIndex(where: { $0.id == currentID }) else { return }
+        guard currentIndex < activeItems.count - 1 else { return }
 
         do {
-            try store.moveTask(taskID: currentID, toIndex: currentIndex + 1)
+            try store.moveItem(itemID: currentID, toIndex: currentIndex + 1)
         } catch {
             presentStoreError(error)
         }
     }
 
-    func markSelectedTaskCompleted() {
+    func markSelectedItemCompleted() {
         guard focusedField == .scrollView else { return }
-        let ids = fState.selectedTaskIDs
+        let ids = fState.selectedItemIDs
         guard !ids.isEmpty else { return }
-        let tasksToToggle = allTasksInDisplayOrder.filter { ids.contains($0.id) }
-        for task in tasksToToggle {
-            toggleCompletion(task)
+        let itemsToToggle = allItemsInDisplayOrder.filter { ids.contains($0.id) }
+        for item in itemsToToggle {
+            toggleCompletion(item)
         }
     }
 
     // MARK: - Focus Management
 
-    func focusTextField(_ taskID: UUID) {
-        focusedField = .task(taskID)
+    func focusTextField(_ itemID: UUID) {
+        focusedField = .item(itemID)
     }
 
-    func startEditing(_ taskID: UUID) {
-        fState.selectedTaskID = taskID
-        focusedField = .task(taskID)
+    func startEditing(_ itemID: UUID) {
+        fState.selectedItemID = itemID
+        focusedField = .item(itemID)
         fState.pendingFocus = nil
     }
 
-    func endEditing(_ taskID: UUID, shouldCreateNewTask: Bool) {
-        if draftPlacement(for: taskID) != nil {
-            commitDraftTask(shouldCreateNewTask: shouldCreateNewTask)
+    func endEditing(_ itemID: UUID, shouldCreateNewItem: Bool) {
+        if draftPlacement(for: itemID) != nil {
+            commitDraftItem(shouldCreateNewItem: shouldCreateNewItem)
             return
         }
 
@@ -528,39 +528,39 @@ extension TaskListViewProtocol {
             presentStoreError(error)
         }
 
-        let wasLastActiveTask = isLastActiveTask(taskID)
-        let willBeDeleted = shouldDeleteIfEmpty(taskID: taskID)
+        let wasLastActiveItem = isLastActiveItem(itemID)
+        let willBeDeleted = shouldDeleteIfEmpty(itemID: itemID)
 
         if willBeDeleted {
-            fState.selectedTaskID = nil
-            deleteIfEmpty(taskID: taskID)
-        } else if wasLastActiveTask && shouldCreateNewTask {
-            revealDraftTask(at: .append)
-        } else if shouldCreateNewTask {
+            fState.selectedItemID = nil
+            deleteIfEmpty(itemID: itemID)
+        } else if wasLastActiveItem && shouldCreateNewItem {
+            revealDraftItem(at: .append)
+        } else if shouldCreateNewItem {
             focusedField = .scrollView
         }
     }
 
-    private func shouldDeleteIfEmpty(taskID: UUID) -> Bool {
-        guard let task = tasks.first(where: { $0.id == taskID }) else {
+    private func shouldDeleteIfEmpty(itemID: UUID) -> Bool {
+        guard let item = items.first(where: { $0.id == itemID }) else {
             return false
         }
-        let trimmedTitle = task.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedTitle = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedTitle.isEmpty
     }
 
     // MARK: - Drag and Drop
 
-    func startDrag(taskID: UUID) {
+    func startDrag(itemID: UUID) {
         guard case .idle = dragState else { return }
         withAnimation(.easeOut(duration: 0.15)) {
-            dragState = .dragging(id: taskID, order: activeTasks.map(\.id))
+            dragState = .dragging(id: itemID, order: activeItems.map(\.id))
         }
         didStartDrag()
     }
 
     func updateVisualOrder(insertBefore targetID: UUID) {
-        guard let draggedID = draggedTaskID,
+        guard let draggedID = draggedItemID,
             let order = visualOrder
         else { return }
 
@@ -577,7 +577,7 @@ extension TaskListViewProtocol {
     }
 
     func updateVisualOrder(insertAfter targetID: UUID) {
-        guard let draggedID = draggedTaskID,
+        guard let draggedID = draggedItemID,
             let order = visualOrder
         else { return }
 
@@ -594,7 +594,7 @@ extension TaskListViewProtocol {
     }
 
     func updateVisualOrderSmart(relativeTo targetID: UUID) {
-        guard let draggedID = draggedTaskID,
+        guard let draggedID = draggedItemID,
             let order = visualOrder
         else { return }
 
@@ -610,7 +610,7 @@ extension TaskListViewProtocol {
     }
 
     func updateVisualOrder(insertAtEnd: Bool) {
-        guard let draggedID = draggedTaskID,
+        guard let draggedID = draggedItemID,
             let order = visualOrder
         else { return }
 
@@ -625,7 +625,7 @@ extension TaskListViewProtocol {
     }
 
     func commitCurrentDrag() -> Bool {
-        guard let droppedUUID = draggedTaskID,
+        guard let droppedUUID = draggedItemID,
             let order = visualOrder,
             let finalIndex = order.firstIndex(of: droppedUUID)
         else {
@@ -634,7 +634,7 @@ extension TaskListViewProtocol {
         }
 
         do {
-            try store.moveTask(taskID: droppedUUID, toIndex: finalIndex)
+            try store.moveItem(itemID: droppedUUID, toIndex: finalIndex)
             clearDragState()
         } catch {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {

@@ -21,9 +21,9 @@ final class ListlessiOSUITests: XCTestCase {
         app.staticTexts["Pull down to create"]
     }
 
-    /// The main scroll view area; tapping empty space here creates a draft task.
-    var taskListScrollView: XCUIElement {
-        app.scrollViews["task-list-scrollview"]
+    /// The main scroll view area; tapping empty space here creates a draft item.
+    var itemListScrollView: XCUIElement {
+        app.scrollViews["item-list-scrollview"]
     }
 
     /// The draft row text view that appears after tapping empty space.
@@ -32,19 +32,19 @@ final class ListlessiOSUITests: XCTestCase {
         app.textViews.matching(identifier: "draft-row-append").firstMatch
     }
 
-    /// Returns the static text for a committed task with the given title.
-    func taskText(_ title: String) -> XCUIElement {
+    /// Returns the static text for a committed item with the given title.
+    func itemText(_ title: String) -> XCUIElement {
         app.staticTexts.matching(
-            NSPredicate(format: "identifier BEGINSWITH 'task-text-' AND label == %@", title)
+            NSPredicate(format: "identifier BEGINSWITH 'item-text-' AND label == %@", title)
         ).firstMatch
     }
 
-    /// Creates a task by tapping empty space to reveal the draft field,
+    /// Creates a item by tapping empty space to reveal the draft field,
     /// typing a title, and pressing Return.
-    func createTask(_ title: String) {
+    func createItem(_ title: String) {
         let textView = draftTextField
         if !textView.exists {
-            taskListScrollView.tap()
+            itemListScrollView.tap()
             if !textView.waitForExistence(timeout: 2) {
                 XCTFail("Draft text view should appear after tapping empty space")
                 return
@@ -55,11 +55,11 @@ final class ListlessiOSUITests: XCTestCase {
     }
 
     /// Returns the Nth checkbox button (0-indexed).
-    func taskCheckbox(at index: Int) -> XCUIElement {
-        app.buttons.matching(identifier: "task-checkbox").element(boundBy: index)
+    func itemCheckbox(at index: Int) -> XCUIElement {
+        app.buttons.matching(identifier: "item-checkbox").element(boundBy: index)
     }
 
-    /// Exits editing mode. After createTask, the new draft text view is
+    /// Exits editing mode. After createItem, the new draft text view is
     /// focused. Dismiss it by tapping the scroll view background (which
     /// calls handleBackgroundTap to commit/dismiss the empty draft).
     func exitEditingMode() {
@@ -68,7 +68,7 @@ final class ListlessiOSUITests: XCTestCase {
             draft.typeText("\n")
         }
         // Tap background to deselect
-        taskListScrollView.tap()
+        itemListScrollView.tap()
     }
 
     // MARK: - Empty State
@@ -80,65 +80,65 @@ final class ListlessiOSUITests: XCTestCase {
         )
     }
 
-    func testEmptyStateDisappearsAfterCreatingTask() {
-        createTask("First item")
+    func testEmptyStateDisappearsAfterCreatingItem() {
+        createItem("First item")
         exitEditingMode()
-        XCTAssertFalse(emptyStateLabel.exists, "Empty state should disappear after creating a task")
+        XCTAssertFalse(emptyStateLabel.exists, "Empty state should disappear after creating a item")
     }
 
-    // MARK: - Task Creation
+    // MARK: - Item Creation
 
-    func testCreateTaskViaTap() {
-        createTask("Buy groceries")
+    func testCreateItemViaTap() {
+        createItem("Buy groceries")
         exitEditingMode()
         XCTAssertTrue(
-            taskText("Buy groceries").waitForExistence(timeout: 2),
-            "Task should appear with the typed title"
+            itemText("Buy groceries").waitForExistence(timeout: 2),
+            "Item should appear with the typed title"
         )
     }
 
-    func testReturnChainsNewTask() {
-        createTask("First item")
+    func testReturnChainsNewItem() {
+        createItem("First item")
         XCTAssertTrue(
             draftTextField.waitForExistence(timeout: 2),
             "New draft text view should appear after Return"
         )
     }
 
-    func testCreateMultipleTasks() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
+    func testCreateMultipleItems() {
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
         exitEditingMode()
 
-        XCTAssertTrue(taskText("Alpha").waitForExistence(timeout: 2))
-        XCTAssertTrue(taskText("Bravo").exists)
-        XCTAssertTrue(taskText("Charlie").exists)
+        XCTAssertTrue(itemText("Alpha").waitForExistence(timeout: 2))
+        XCTAssertTrue(itemText("Bravo").exists)
+        XCTAssertTrue(itemText("Charlie").exists)
     }
 
-    func testEmptyTaskDeletedOnCommit() {
-        taskListScrollView.tap()
+    func testEmptyItemDeletedOnCommit() {
+        itemListScrollView.tap()
         XCTAssertTrue(draftTextField.waitForExistence(timeout: 2))
         draftTextField.typeText("\n")
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "Empty state should reappear when empty task is discarded"
+            "Empty state should reappear when empty item is discarded"
         )
     }
 
-    // MARK: - Task Completion
+    // MARK: - Item Completion
 
-    func testCompleteTaskViaCheckbox() {
-        createTask("Finish report")
+    func testCompleteItemViaCheckbox() {
+        createItem("Finish report")
         exitEditingMode()
 
-        let checkbox = taskCheckbox(at: 0)
+        let checkbox = itemCheckbox(at: 0)
         XCTAssertTrue(checkbox.waitForExistence(timeout: 2))
         XCTAssertEqual(checkbox.value as? String, "circle")
         checkbox.tap()
 
         let completed = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'checkmark.circle.fill'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'checkmark.circle.fill'")
         ).firstMatch
         XCTAssertTrue(
             completed.waitForExistence(timeout: 3),
@@ -146,20 +146,20 @@ final class ListlessiOSUITests: XCTestCase {
         )
     }
 
-    func testUncompleteTask() {
-        createTask("Finish report")
+    func testUncompleteItem() {
+        createItem("Finish report")
         exitEditingMode()
 
-        taskCheckbox(at: 0).tap()
+        itemCheckbox(at: 0).tap()
 
         let completed = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'checkmark.circle.fill'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'checkmark.circle.fill'")
         ).firstMatch
         XCTAssertTrue(completed.waitForExistence(timeout: 3))
         completed.tap()
 
         let uncompleted = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'circle'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'circle'")
         ).firstMatch
         XCTAssertTrue(
             uncompleted.waitForExistence(timeout: 3),

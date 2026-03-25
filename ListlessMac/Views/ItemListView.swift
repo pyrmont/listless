@@ -1,11 +1,11 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct TaskListView: View, TaskListViewProtocol {
+struct ItemListView: View, ItemListViewProtocol {
     struct InteractionStateData {
         var dragState: DragState = .idle
-        var liftedTaskID: UUID?
-        var draftPlacement: DraftTaskPlacement?
+        var liftedItemID: UUID?
+        var draftPlacement: DraftItemPlacement?
         var draftTitle: String = ""
     }
 
@@ -15,14 +15,14 @@ struct TaskListView: View, TaskListViewProtocol {
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 
-    let store: TaskStore
+    let store: ItemStore
     let windowCoordinator: WindowCoordinator
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
     @FetchRequest(
         sortDescriptors: [],
         animation: .default
     )
-    var tasks: FetchedResults<TaskItem>
+    var items: FetchedResults<ItemEntity>
     @FocusState private var focusedFieldBinding: FocusField?
     @State var fState = FocusStateData()
     @State private var iState = InteractionStateData()
@@ -40,7 +40,7 @@ struct TaskListView: View, TaskListViewProtocol {
         nonmutating set { iState.dragState = newValue }
     }
 
-    var draftPlacement: DraftTaskPlacement? {
+    var draftPlacement: DraftItemPlacement? {
         get { iState.draftPlacement }
         nonmutating set { iState.draftPlacement = newValue }
     }
@@ -51,19 +51,19 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     var vStackSpacing: CGFloat { 0 }
-    var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
+    var isCompletelyEmpty: Bool { activeItems.isEmpty && completedItems.isEmpty }
     var selectedIndex: Int? {
-        guard let currentID = fState.selectedTaskID else { return nil }
-        return activeTasks.firstIndex(where: { $0.id == currentID })
+        guard let currentID = fState.selectedItemID else { return nil }
+        return activeItems.firstIndex(where: { $0.id == currentID })
     }
 
     var canDeleteSelectionFromList: Bool {
-        !fState.selectedTaskIDs.isEmpty && focusedField == .scrollView
+        !fState.selectedItemIDs.isEmpty && focusedField == .scrollView
     }
 
     var canMarkSelectionCompleted: Bool {
         guard focusedField == .scrollView else { return false }
-        let selected = allTasksInDisplayOrder.filter { fState.isTaskSelected($0.id) }
+        let selected = allItemsInDisplayOrder.filter { fState.isItemSelected($0.id) }
         guard !selected.isEmpty else { return false }
         let hasActive = selected.contains { !$0.isCompleted }
         let hasCompleted = selected.contains { $0.isCompleted }
@@ -72,10 +72,10 @@ struct TaskListView: View, TaskListViewProtocol {
 
     var markCompletedMenuTitle: String {
         if fState.hasMultipleSelection {
-            let hasCompleted = completedTasks.contains(where: { fState.isTaskSelected($0.id) })
+            let hasCompleted = completedItems.contains(where: { fState.isItemSelected($0.id) })
             return hasCompleted ? "Mark as Incomplete" : "Mark as Complete"
         }
-        return completedTasks.contains(where: { $0.id == fState.selectedTaskID })
+        return completedItems.contains(where: { $0.id == fState.selectedItemID })
             ? "Mark as Incomplete" : "Mark as Complete"
     }
 
@@ -90,89 +90,89 @@ struct TaskListView: View, TaskListViewProtocol {
         guard focusedField == .scrollView else { return false }
         guard !fState.hasMultipleSelection else { return false }
         guard let index = selectedIndex else { return false }
-        return index < activeTasks.count - 1
+        return index < activeItems.count - 1
     }
 
     struct MenuState: Equatable {
-        let selectedTaskIDs: Set<UUID>
+        let selectedItemIDs: Set<UUID>
         let isScrollViewFocused: Bool
-        let activeTaskCount: Int
-        let completedTaskCount: Int
+        let activeItemCount: Int
+        let completedItemCount: Int
         let selectedIndex: Int?
     }
 
     var windowCoordinatorTrigger: MenuState {
         MenuState(
-            selectedTaskIDs: fState.selectedTaskIDs,
+            selectedItemIDs: fState.selectedItemIDs,
             isScrollViewFocused: focusedField == .scrollView,
-            activeTaskCount: activeTasks.count,
-            completedTaskCount: completedTasks.count,
+            activeItemCount: activeItems.count,
+            completedItemCount: completedItems.count,
             selectedIndex: selectedIndex
         )
     }
 
     func updateWindowCoordinator() {
         let coord = windowCoordinator
-        coord.newTask = { createNewTask() }
-        coord.copySelectedTask = {
-            guard let taskID = fState.selectedTaskID,
-                  let task = tasks.first(where: { $0.id == taskID }) else { return }
+        coord.newItem = { createNewItem() }
+        coord.copySelectedItem = {
+            guard let itemID = fState.selectedItemID,
+                  let item = items.first(where: { $0.id == itemID }) else { return }
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
-            pasteboard.setString(task.title, forType: .string)
+            pasteboard.setString(item.title, forType: .string)
         }
-        coord.cutSelectedTask = {
-            guard let taskID = fState.selectedTaskID,
-                  let task = tasks.first(where: { $0.id == taskID }) else { return }
+        coord.cutSelectedItem = {
+            guard let itemID = fState.selectedItemID,
+                  let item = items.first(where: { $0.id == itemID }) else { return }
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
-            pasteboard.setString(task.title, forType: .string)
-            deleteTask(task)
+            pasteboard.setString(item.title, forType: .string)
+            deleteItem(item)
         }
-        coord.pasteAfterSelectedTask = {
-            guard let taskID = fState.selectedTaskID,
+        coord.pasteAfterSelectedItem = {
+            guard let itemID = fState.selectedItemID,
                   let string = NSPasteboard.general.string(forType: .string) else { return }
-            createTask(title: string, afterTaskID: taskID)
+            createItem(title: string, afterItemID: itemID)
         }
-        coord.deleteSelectedTask = { _ = deleteSelectedTask() }
-        coord.moveSelectedTaskUp = { moveSelectedTaskUp() }
-        coord.moveSelectedTaskDown = { moveSelectedTaskDown() }
-        coord.markSelectedTaskCompleted = { markSelectedTaskCompleted() }
-        coord.selectAllTasks = {
-            fState.selectAll(displayOrder: allTasksInDisplayOrder.map(\.id))
+        coord.deleteSelectedItem = { _ = deleteSelectedItem() }
+        coord.moveSelectedItemUp = { moveSelectedItemUp() }
+        coord.moveSelectedItemDown = { moveSelectedItemDown() }
+        coord.markSelectedItemCompleted = { markSelectedItemCompleted() }
+        coord.selectAllItems = {
+            fState.selectAll(displayOrder: allItemsInDisplayOrder.map(\.id))
         }
-        coord.clearCompletedTasks = { clearCompletedTasks() }
+        coord.clearCompletedItems = { clearCompletedItems() }
         let inNavMode = focusedField == .scrollView
-        let singleSelect = !fState.selectedTaskIDs.isEmpty && !fState.hasMultipleSelection
-        coord.canSelectAllTasks = inNavMode && !allTasksInDisplayOrder.isEmpty
-        coord.canCopySelectedTask = singleSelect && inNavMode
-        coord.canCutSelectedTask = singleSelect && inNavMode
-        coord.canPasteAfterSelectedTask = selectedIndex != nil && singleSelect && inNavMode
-        coord.canDeleteSelectedTask = canDeleteSelectionFromList
-        coord.canMoveSelectedTaskUp = canMoveSelectionUp
-        coord.canMoveSelectedTaskDown = canMoveSelectionDown
-        coord.canMarkSelectedTaskCompleted = canMarkSelectionCompleted
+        let singleSelect = !fState.selectedItemIDs.isEmpty && !fState.hasMultipleSelection
+        coord.canSelectAllItems = inNavMode && !allItemsInDisplayOrder.isEmpty
+        coord.canCopySelectedItem = singleSelect && inNavMode
+        coord.canCutSelectedItem = singleSelect && inNavMode
+        coord.canPasteAfterSelectedItem = selectedIndex != nil && singleSelect && inNavMode
+        coord.canDeleteSelectedItem = canDeleteSelectionFromList
+        coord.canMoveSelectedItemUp = canMoveSelectionUp
+        coord.canMoveSelectedItemDown = canMoveSelectionDown
+        coord.canMarkSelectedItemCompleted = canMarkSelectionCompleted
         coord.markCompletedTitle = markCompletedMenuTitle
-        coord.canClearCompletedTasks = !completedTasks.isEmpty
+        coord.canClearCompletedItems = !completedItems.isEmpty
     }
 
-    init(store: TaskStore, syncMonitor: CloudKitSyncMonitor, windowCoordinator: WindowCoordinator) {
+    init(store: ItemStore, syncMonitor: CloudKitSyncMonitor, windowCoordinator: WindowCoordinator) {
         self.store = store
         self.syncMonitor = syncMonitor
         self.windowCoordinator = windowCoordinator
     }
 
-    func isRowLifted(_ taskID: UUID) -> Bool {
-        iState.liftedTaskID == taskID || draggedTaskID == taskID
+    func isRowLifted(_ itemID: UUID) -> Bool {
+        iState.liftedItemID == itemID || draggedItemID == itemID
     }
 
-    func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle _: Bool) {
+    func clearDraftItemUI(at placement: DraftItemPlacement, hasTitle _: Bool) {
         if draftPlacement == placement {
             draftPlacement = nil
         }
         draftTitle = ""
-        if fState.selectedTaskID == draftID(for: placement) {
-            fState.selectedTaskID = nil
+        if fState.selectedItemID == draftID(for: placement) {
+            fState.selectedItemID = nil
         }
         // Resign AppKit first responder explicitly — SwiftUI's @FocusState
         // and AppKit's responder chain are parallel systems, so setting
@@ -187,52 +187,52 @@ struct TaskListView: View, TaskListViewProtocol {
         ScrollView {
           ScrollViewReader { scrollProxy in
             VStack(alignment: .leading, spacing: vStackSpacing) {
-                ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
-                    let taskID = task.id
-                    TaskRowView(
-                        task: task,
-                        taskID: taskID,
+                ForEach(Array(displayActiveItems.enumerated()), id: \.element.id) { index, item in
+                    let itemID = item.id
+                    ItemRowView(
+                        item: item,
+                        itemID: itemID,
                         index: index,
-                        totalTasks: displayActiveTasks.count,
-                        isSelected: fState.isTaskSelected(taskID),
+                        totalItems: displayActiveItems.count,
+                        isSelected: fState.isItemSelected(itemID),
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteTask($0) },
+                        onDelete: { deleteItem($0) },
                         onSelect: {
                             let modifiers = NSApp.currentEvent?.modifierFlags ?? []
-                            selectTask(
+                            selectItem(
                                 $0,
                                 extendSelection: modifiers.contains(.shift),
                                 toggleSelection: modifiers.contains(.command)
                             )
                         },
                         onStartEdit: { startEditing($0) },
-                        onEndEdit: { endEditing($0, shouldCreateNewTask: $1) },
-                        onPaste: { createTask(title: $0, afterTaskID: taskID) }
+                        onEndEdit: { endEditing($0, shouldCreateNewItem: $1) },
+                        onPaste: { createItem(title: $0, afterItemID: itemID) }
                     )
-                    .taskDragGesture(
-                        isActive: !task.isCompleted,
-                        taskID: task.id,
+                    .itemDragGesture(
+                        isActive: !item.isCompleted,
+                        itemID: item.id,
                         onDragStart: {
-                            iState.liftedTaskID = nil
-                            startDrag(taskID: task.id)
+                            iState.liftedItemID = nil
+                            startDrag(itemID: item.id)
                         },
-                        onLift: { iState.liftedTaskID = task.id },
+                        onLift: { iState.liftedItemID = item.id },
                         onLiftEnd: {
-                            if iState.liftedTaskID == task.id { iState.liftedTaskID = nil }
-                            if draggedTaskID == task.id { clearDragState() }
+                            if iState.liftedItemID == item.id { iState.liftedItemID = nil }
+                            if draggedItemID == item.id { clearDragState() }
                         }
                     )
-                    .scaleEffect(isRowLifted(taskID) ? 1.03 : 1.0)
+                    .scaleEffect(isRowLifted(itemID) ? 1.03 : 1.0)
                     .shadow(
-                        color: isRowLifted(taskID) ? .black.opacity(0.2) : .clear,
+                        color: isRowLifted(itemID) ? .black.opacity(0.2) : .clear,
                         radius: 8, y: 3
                     )
-                    .zIndex(isRowLifted(taskID) ? 1 : 0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isRowLifted(taskID))
+                    .zIndex(isRowLifted(itemID) ? 1 : 0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isRowLifted(itemID))
                     .overlay {
-                        if draggedTaskID != nil && draggedTaskID != taskID {
+                        if draggedItemID != nil && draggedItemID != itemID {
                             VStack(spacing: 0) {
                                 // Top 1/6 - insert BEFORE
                                 Color.clear
@@ -240,8 +240,8 @@ struct TaskListView: View, TaskListViewProtocol {
                                     .layoutPriority(1)
                                     .onDrop(
                                         of: [UTType.text],
-                                        delegate: TaskReorderDropDelegate(
-                                            onTargeted: { updateVisualOrder(insertBefore: taskID) },
+                                        delegate: ItemReorderDropDelegate(
+                                            onTargeted: { updateVisualOrder(insertBefore: itemID) },
                                             onPerform: { commitCurrentDrag() }
                                         )
                                     )
@@ -252,8 +252,8 @@ struct TaskListView: View, TaskListViewProtocol {
                                     .layoutPriority(4)
                                     .onDrop(
                                         of: [UTType.text],
-                                        delegate: TaskReorderDropDelegate(
-                                            onTargeted: { updateVisualOrderSmart(relativeTo: taskID) },
+                                        delegate: ItemReorderDropDelegate(
+                                            onTargeted: { updateVisualOrderSmart(relativeTo: itemID) },
                                             onPerform: { commitCurrentDrag() }
                                         )
                                     )
@@ -264,8 +264,8 @@ struct TaskListView: View, TaskListViewProtocol {
                                     .layoutPriority(1)
                                     .onDrop(
                                         of: [UTType.text],
-                                        delegate: TaskReorderDropDelegate(
-                                            onTargeted: { updateVisualOrder(insertAfter: taskID) },
+                                        delegate: ItemReorderDropDelegate(
+                                            onTargeted: { updateVisualOrder(insertAfter: itemID) },
                                             onPerform: { commitCurrentDrag() }
                                         )
                                     )
@@ -275,12 +275,12 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
 
                 if draftPlacement == .append {
-                    let total = max(1, displayActiveTasks.count + 1)
-                    let index = displayActiveTasks.count
-                    let accentColor = cachedTaskColor(
+                    let total = max(1, displayActiveItems.count + 1)
+                    let index = displayActiveItems.count
+                    let accentColor = cachedItemColor(
                         forIndex: index, total: total, theme: colorTheme
                     )
-                    let isSelected = fState.isTaskSelected(draftAppendRowID)
+                    let isSelected = fState.isItemSelected(draftAppendRowID)
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
                         Image(systemName: "circle")
                             .foregroundStyle(.primary)
@@ -296,20 +296,20 @@ struct TaskListView: View, TaskListViewProtocol {
                                 set: { iState.draftTitle = $0 }
                             ),
                             isCompleted: false,
-                            onEditingChanged: { editing, shouldCreateNewTask in
+                            onEditingChanged: { editing, shouldCreateNewItem in
                                 if editing {
-                                    beginDraftTaskEditing(.append)
+                                    beginDraftItemEditing(.append)
                                 } else {
-                                    commitDraftTask(
-                                        shouldCreateNewTask: shouldCreateNewTask
+                                    commitDraftItem(
+                                        shouldCreateNewItem: shouldCreateNewItem
                                     )
                                 }
                             },
-                            taskID: draftAppendRowID
+                            itemID: draftAppendRowID
                         )
                         .focused(
                             $focusedFieldBinding,
-                            equals: .task(draftAppendRowID)
+                            equals: .item(draftAppendRowID)
                         )
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -340,18 +340,18 @@ struct TaskListView: View, TaskListViewProtocol {
                     .id(draftAppendRowID)
                 }
 
-                ForEach(completedTasks) { task in
-                    let taskID = task.id
-                    TaskRowView(
-                        task: task,
-                        taskID: taskID,
-                        isSelected: fState.isTaskSelected(taskID),
+                ForEach(completedItems) { item in
+                    let itemID = item.id
+                    ItemRowView(
+                        item: item,
+                        itemID: itemID,
+                        isSelected: fState.isItemSelected(itemID),
                         focusedField: $focusedFieldBinding,
                         onToggle: { toggleCompletion($0) },
                         onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteTask($0) },
+                        onDelete: { deleteItem($0) },
                         onSelect: {
-                            selectTask(
+                            selectItem(
                                 $0,
                                 extendSelection: NSEvent.modifierFlags.contains(.shift)
                             )
@@ -362,14 +362,14 @@ struct TaskListView: View, TaskListViewProtocol {
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .onDrop(
                 of: [UTType.text],
-                delegate: TaskReorderDropDelegate(
+                delegate: ItemReorderDropDelegate(
                     onTargeted: {},
                     onPerform: { commitCurrentDrag() }
                 )
             )
             .onChange(of: focusedFieldBinding) { _, newValue in
-                if case .task(let id) = (newValue ?? fState.focusedField),
-                    draggedTaskID == nil,
+                if case .item(let id) = (newValue ?? fState.focusedField),
+                    draggedItemID == nil,
                     id != draftPrependRowID
                 {
                     withAnimation {
@@ -377,8 +377,8 @@ struct TaskListView: View, TaskListViewProtocol {
                     }
                 }
             }
-            .onChange(of: fState.selectedTaskID) { _, newID in
-                if let newID, draggedTaskID == nil {
+            .onChange(of: fState.selectedItemID) { _, newID in
+                if let newID, draggedItemID == nil {
                     guard newID != draftPrependRowID else { return }
                     withAnimation {
                         scrollProxy.scrollTo(newID)
@@ -389,7 +389,7 @@ struct TaskListView: View, TaskListViewProtocol {
         }
         .onDrop(
             of: [UTType.text],
-            delegate: TaskReorderDropDelegate(
+            delegate: ItemReorderDropDelegate(
                 onTargeted: {},
                 onPerform: { commitCurrentDrag() }
             )
@@ -412,13 +412,13 @@ struct TaskListView: View, TaskListViewProtocol {
         .focusable()
         .focused($focusedFieldBinding, equals: .scrollView)
         .focusEffectDisabled()
-        .accessibilityIdentifier("task-list-scrollview")
+        .accessibilityIdentifier("item-list-scrollview")
         .keyboardNavigation([
             ShortcutKey(key: .upArrow): navigateUp,
             ShortcutKey(key: .downArrow): navigateDown,
             ShortcutKey(key: .upArrow, modifiers: .shift): navigateUpExtend,
             ShortcutKey(key: .downArrow, modifiers: .shift): navigateDownExtend,
-            ShortcutKey(key: .return): focusSelectedTask,
+            ShortcutKey(key: .return): focusSelectedItem,
         ])
         .onAppear {
             if focusedFieldBinding == nil {
@@ -466,7 +466,7 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 }
 
-private struct TaskReorderDropDelegate: DropDelegate {
+private struct ItemReorderDropDelegate: DropDelegate {
     let onTargeted: () -> Void
     let onPerform: () -> Bool
 

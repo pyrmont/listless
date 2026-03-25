@@ -11,7 +11,7 @@ struct DraftRowView: View {
     var focusedField: FocusState<FocusField?>.Binding
 
     var body: some View {
-        HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
+        HStack(alignment: .center, spacing: ItemRowMetrics.contentSpacing) {
             Image(systemName: "circle")
                 .frame(width: 22, height: 22)
                 .foregroundStyle(Color.secondary)
@@ -25,17 +25,17 @@ struct DraftRowView: View {
                 returnKeyType: returnKeyType,
                 uiAccessibilityIdentifier: accessibilityIdentifier
             )
-            .focused(focusedField, equals: .task(draftID))
+            .focused(focusedField, equals: .item(draftID))
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
-        .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
-        .padding(.leading, TaskRowMetrics.activeLeadingPadding)
+        .padding(.vertical, ItemRowMetrics.contentVerticalPadding)
+        .padding(.trailing, ItemRowMetrics.contentHorizontalPadding)
+        .padding(.leading, ItemRowMetrics.activeLeadingPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .background {
-            Color.taskCard.overlay(accentColor.opacity(0.15))
+            Color.itemCard.overlay(accentColor.opacity(0.15))
         }
-        .taskCard(accentColor: accentColor, isSelected: isSelected)
+        .itemCard(accentColor: accentColor, isSelected: isSelected)
     }
 }

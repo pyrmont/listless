@@ -1,8 +1,8 @@
 import SwiftUI
 
-extension TaskListView {
-    func handleIOSDragChanged(taskID: UUID, point: CGPoint) {
-        guard let draggedID = draggedTaskID,
+extension ItemListView {
+    func handleIOSDragChanged(itemID: UUID, point: CGPoint) {
+        guard let draggedID = draggedItemID,
               var order = visualOrder,
               let currentIndex = order.firstIndex(of: draggedID) else { return }
 
@@ -30,7 +30,7 @@ extension TaskListView {
     }
 
     func commitIOSDrag() {
-        guard let draggedID = draggedTaskID,
+        guard let draggedID = draggedItemID,
               let order = visualOrder,
               let finalIndex = order.firstIndex(of: draggedID) else {
             clearDragState()
@@ -38,7 +38,7 @@ extension TaskListView {
             return
         }
         do {
-            try store.moveTask(taskID: draggedID, toIndex: finalIndex)
+            try store.moveItem(itemID: draggedID, toIndex: finalIndex)
             clearDragState()
             isDragging = false
         } catch {

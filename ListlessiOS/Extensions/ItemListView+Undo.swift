@@ -1,33 +1,33 @@
 import SwiftUI
 
-extension TaskListView {
+extension ItemListView {
 
-    func deleteTaskWithUndo(_ task: TaskItem) {
-        deleteTask(task)
+    func deleteItemWithUndo(_ item: ItemEntity) {
+        deleteItem(item)
         showUndoToast(message: "Item deleted")
     }
 
-    func deleteSelectedTaskWithUndo() -> KeyPress.Result {
+    func deleteSelectedItemWithUndo() -> KeyPress.Result {
         guard focusedField == .scrollView else {
             return .ignored
         }
-        guard let currentID = fState.selectedTaskID else {
+        guard let currentID = fState.selectedItemID else {
             return .handled
         }
-        guard let task = allTasksInDisplayOrder.first(where: { $0.id == currentID }) else {
+        guard let item = allItemsInDisplayOrder.first(where: { $0.id == currentID }) else {
             return .handled
         }
-        deleteTaskWithUndo(task)
+        deleteItemWithUndo(item)
         return .handled
     }
 
-    func clearCompletedTasksWithUndo() {
-        let ids = completedTasks.map(\.id)
+    func clearCompletedItemsWithUndo() {
+        let ids = completedItems.map(\.id)
         guard !ids.isEmpty else { return }
         let count = ids.count
         managedObjectContext.undoManager?.beginUndoGrouping()
         do {
-            try store.deleteMultiple(taskIDs: ids)
+            try store.deleteMultiple(itemIDs: ids)
         } catch {
             presentStoreError(error)
             managedObjectContext.undoManager?.endUndoGrouping()

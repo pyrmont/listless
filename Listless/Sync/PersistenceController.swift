@@ -14,7 +14,7 @@ private final class UpdatedAtMergePolicy: NSMergePolicy {
         for item in list {
             guard
                 let conflict = item as? NSMergeConflict,
-                let task = conflict.sourceObject as? TaskItem,
+                let item = conflict.sourceObject as? ItemEntity,
                 let objectSnapshot = conflict.objectSnapshot,
                 let persistedSnapshot = conflict.persistedSnapshot,
                 let storeUpdatedAt = persistedSnapshot["updatedAt"] as? Date
@@ -23,7 +23,7 @@ private final class UpdatedAtMergePolicy: NSMergePolicy {
                 continue
             }
 
-            let localUpdatedAt = (objectSnapshot["updatedAt"] as? Date) ?? task.updatedAt
+            let localUpdatedAt = (objectSnapshot["updatedAt"] as? Date) ?? item.updatedAt
 
             // Keep local in-memory values if they are newer or equal.
             guard storeUpdatedAt > localUpdatedAt else { continue }
@@ -33,9 +33,9 @@ private final class UpdatedAtMergePolicy: NSMergePolicy {
             // see these keys in changedValues() and overwrite updatedAt with Date().
             for (key, value) in persistedSnapshot {
                 if value is NSNull {
-                    task.setPrimitiveValue(nil, forKey: key)
+                    item.setPrimitiveValue(nil, forKey: key)
                 } else {
-                    task.setPrimitiveValue(value, forKey: key)
+                    item.setPrimitiveValue(value, forKey: key)
                 }
             }
         }
@@ -116,7 +116,7 @@ final class PersistenceController {
         do {
             try context.save()
         } catch {
-            throw TaskStoreError.saveFailed(error)
+            throw ItemStoreError.saveFailed(error)
         }
     }
 }

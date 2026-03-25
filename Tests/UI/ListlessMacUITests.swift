@@ -27,16 +27,16 @@ final class ListlessMacUITests: XCTestCase {
         app.textFields["draft-row-append"]
     }
 
-    /// Returns the text field for a committed task with the given title.
-    func taskText(_ title: String) -> XCUIElement {
+    /// Returns the text field for a committed item with the given title.
+    func itemText(_ title: String) -> XCUIElement {
         app.textFields.matching(
-            NSPredicate(format: "identifier BEGINSWITH 'task-text-' AND value == %@", title)
+            NSPredicate(format: "identifier BEGINSWITH 'item-text-' AND value == %@", title)
         ).firstMatch
     }
 
-    /// Creates a task by typing into the draft field and pressing Return.
+    /// Creates a item by typing into the draft field and pressing Return.
     /// If no draft field exists yet, presses Cmd+N to create one.
-    func createTask(_ title: String) {
+    func createItem(_ title: String) {
         let textField = draftTextField
         if !textField.exists {
             app.typeKey("n", modifierFlags: .command)
@@ -51,26 +51,26 @@ final class ListlessMacUITests: XCTestCase {
     }
 
     /// Returns the Nth checkbox button (0-indexed).
-    func taskCheckbox(at index: Int) -> XCUIElement {
-        app.buttons.matching(identifier: "task-checkbox").element(boundBy: index)
+    func itemCheckbox(at index: Int) -> XCUIElement {
+        app.buttons.matching(identifier: "item-checkbox").element(boundBy: index)
     }
 
-    /// Enters navigation mode by pressing Escape, then navigates to the task at
+    /// Enters navigation mode by pressing Escape, then navigates to the item at
     /// the given position (0-indexed from the top) using arrow keys.
-    func navigateToTask(at index: Int) {
+    func navigateToItem(at index: Int) {
         app.typeKey(.escape, modifierFlags: [])
         for _ in 0...index {
             app.typeKey(.downArrow, modifierFlags: [])
         }
     }
 
-    /// Performs a Command+Click on the row containing the given task title.
+    /// Performs a Command+Click on the row containing the given item title.
     /// Uses CGEvent mouse events with `.maskCommand` so the app sees the
     /// modifier via `NSApp.currentEvent?.modifierFlags`. Clicks in the
     /// row's left padding area (before the checkbox) so the tap gesture
     /// fires rather than the text field or checkbox.
     func cmdClickRow(withText title: String) {
-        let textField = taskText(title)
+        let textField = itemText(title)
         XCTAssertTrue(textField.waitForExistence(timeout: 2))
         // Offset to the left of the text field, into the row's 16pt left padding.
         let coord = textField.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5))
@@ -105,13 +105,13 @@ final class ListlessMacUITests: XCTestCase {
         )
     }
 
-    func testEmptyStateDisappearsAfterCreatingTask() {
-        createTask("First item")
+    func testEmptyStateDisappearsAfterCreatingItem() {
+        createItem("First item")
         app.typeKey(.escape, modifierFlags: [])
-        XCTAssertFalse(emptyStateLabel.exists, "Empty state should disappear after creating a task")
+        XCTAssertFalse(emptyStateLabel.exists, "Empty state should disappear after creating a item")
     }
 
-    // MARK: - Task Creation
+    // MARK: - Item Creation
 
     func testCmdNFocusesDraftField() {
         app.typeKey("n", modifierFlags: .command)
@@ -124,61 +124,61 @@ final class ListlessMacUITests: XCTestCase {
         textField.typeText("Focused item")
         textField.typeKey(.return, modifierFlags: [])
         XCTAssertTrue(
-            taskText("Focused item").waitForExistence(timeout: 2),
-            "Typing without clicking should commit the task if draft field has focus"
+            itemText("Focused item").waitForExistence(timeout: 2),
+            "Typing without clicking should commit the item if draft field has focus"
         )
     }
 
-    func testCreateTaskViaMenuShortcut() {
-        createTask("Buy groceries")
+    func testCreateItemViaMenuShortcut() {
+        createItem("Buy groceries")
         XCTAssertTrue(
-            taskText("Buy groceries").waitForExistence(timeout: 2),
-            "Task should appear with the typed title"
+            itemText("Buy groceries").waitForExistence(timeout: 2),
+            "Item should appear with the typed title"
         )
     }
 
-    func testReturnChainsNewTask() {
-        createTask("First item")
+    func testReturnChainsNewItem() {
+        createItem("First item")
         XCTAssertTrue(
             draftTextField.waitForExistence(timeout: 2),
             "New draft text field should appear after Return"
         )
     }
 
-    func testCreateMultipleTasks() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
+    func testCreateMultipleItems() {
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
         app.typeKey(.escape, modifierFlags: [])
 
-        XCTAssertTrue(taskText("Alpha").waitForExistence(timeout: 2))
-        XCTAssertTrue(taskText("Bravo").exists)
-        XCTAssertTrue(taskText("Charlie").exists)
+        XCTAssertTrue(itemText("Alpha").waitForExistence(timeout: 2))
+        XCTAssertTrue(itemText("Bravo").exists)
+        XCTAssertTrue(itemText("Charlie").exists)
     }
 
-    func testEmptyTaskDeletedOnCommit() {
+    func testEmptyItemDeletedOnCommit() {
         app.typeKey("n", modifierFlags: .command)
         XCTAssertTrue(draftTextField.waitForExistence(timeout: 2))
         app.typeKey(.escape, modifierFlags: [])
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "Empty state should reappear when empty task is discarded"
+            "Empty state should reappear when empty item is discarded"
         )
     }
 
-    // MARK: - Task Completion
+    // MARK: - Item Completion
 
-    func testCompleteTaskViaCheckbox() {
-        createTask("Finish report")
+    func testCompleteItemViaCheckbox() {
+        createItem("Finish report")
         app.typeKey(.escape, modifierFlags: [])
 
-        let checkbox = taskCheckbox(at: 0)
+        let checkbox = itemCheckbox(at: 0)
         XCTAssertTrue(checkbox.waitForExistence(timeout: 2))
         XCTAssertEqual(checkbox.value as? String, "circle")
         checkbox.click()
 
         let completed = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'checkmark.circle.fill'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'checkmark.circle.fill'")
         ).firstMatch
         XCTAssertTrue(
             completed.waitForExistence(timeout: 3),
@@ -186,20 +186,20 @@ final class ListlessMacUITests: XCTestCase {
         )
     }
 
-    func testUncompleteTask() {
-        createTask("Finish report")
+    func testUncompleteItem() {
+        createItem("Finish report")
         app.typeKey(.escape, modifierFlags: [])
 
-        taskCheckbox(at: 0).click()
+        itemCheckbox(at: 0).click()
 
         let completed = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'checkmark.circle.fill'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'checkmark.circle.fill'")
         ).firstMatch
         XCTAssertTrue(completed.waitForExistence(timeout: 3))
         completed.click()
 
         let uncompleted = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'circle'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'circle'")
         ).firstMatch
         XCTAssertTrue(
             uncompleted.waitForExistence(timeout: 3),
@@ -207,38 +207,38 @@ final class ListlessMacUITests: XCTestCase {
         )
     }
 
-    // MARK: - Task Deletion
+    // MARK: - Item Deletion
 
-    func testDeleteTaskViaBackspace() {
-        createTask("Delete me")
-        navigateToTask(at: 0)
+    func testDeleteItemViaBackspace() {
+        createItem("Delete me")
+        navigateToItem(at: 0)
         app.typeKey(.delete, modifierFlags: [])
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "Empty state should reappear after deleting the only task"
+            "Empty state should reappear after deleting the only item"
         )
     }
 
     func testArrowKeyNavigationThenDelete() {
-        createTask("Keep me")
-        createTask("Delete me")
-        navigateToTask(at: 1)
+        createItem("Keep me")
+        createItem("Delete me")
+        navigateToItem(at: 1)
         app.typeKey(.delete, modifierFlags: [])
 
-        XCTAssertTrue(taskText("Keep me").waitForExistence(timeout: 2), "First task should remain")
-        XCTAssertFalse(taskText("Delete me").exists, "Second task should be deleted")
+        XCTAssertTrue(itemText("Keep me").waitForExistence(timeout: 2), "First item should remain")
+        XCTAssertFalse(itemText("Delete me").exists, "Second item should be deleted")
     }
 
     // MARK: - Reordering
 
-    func testMoveTaskUp() {
-        createTask("Alpha")
-        createTask("Bravo")
-        navigateToTask(at: 1)
+    func testMoveItemUp() {
+        createItem("Alpha")
+        createItem("Bravo")
+        navigateToItem(at: 1)
         app.typeKey(.upArrow, modifierFlags: .command)
 
-        let bravo = taskText("Bravo")
-        let alpha = taskText("Alpha")
+        let bravo = itemText("Bravo")
+        let alpha = itemText("Alpha")
         XCTAssertTrue(bravo.waitForExistence(timeout: 2))
         XCTAssertTrue(alpha.exists)
         XCTAssertLessThan(
@@ -247,14 +247,14 @@ final class ListlessMacUITests: XCTestCase {
         )
     }
 
-    func testMoveTaskDown() {
-        createTask("Alpha")
-        createTask("Bravo")
-        navigateToTask(at: 0)
+    func testMoveItemDown() {
+        createItem("Alpha")
+        createItem("Bravo")
+        navigateToItem(at: 0)
         app.typeKey(.downArrow, modifierFlags: .command)
 
-        let alpha = taskText("Alpha")
-        let bravo = taskText("Bravo")
+        let alpha = itemText("Alpha")
+        let bravo = itemText("Bravo")
         XCTAssertTrue(alpha.waitForExistence(timeout: 2))
         XCTAssertTrue(bravo.exists)
         XCTAssertGreaterThan(
@@ -266,50 +266,50 @@ final class ListlessMacUITests: XCTestCase {
     // MARK: - Select All
 
     func testSelectAllThenDelete() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
-        navigateToTask(at: 0)
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
+        navigateToItem(at: 0)
         app.typeKey("a", modifierFlags: .command)
         app.typeKey(.delete, modifierFlags: [])
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "All tasks should be deleted after Select All + Delete"
+            "All items should be deleted after Select All + Delete"
         )
     }
 
-    func testSelectAllIncludesCompletedTasks() {
-        createTask("Active item")
-        createTask("Done item")
+    func testSelectAllIncludesCompletedItems() {
+        createItem("Active item")
+        createItem("Done item")
         app.typeKey(.escape, modifierFlags: [])
 
-        // Complete the second task
-        taskCheckbox(at: 1).click()
+        // Complete the second item
+        itemCheckbox(at: 1).click()
         let completed = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'checkmark.circle.fill'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'checkmark.circle.fill'")
         ).firstMatch
         XCTAssertTrue(completed.waitForExistence(timeout: 3))
 
-        // Navigate to first task, then select all and delete
-        navigateToTask(at: 0)
+        // Navigate to first item, then select all and delete
+        navigateToItem(at: 0)
         app.typeKey("a", modifierFlags: .command)
         app.typeKey(.delete, modifierFlags: [])
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "Both active and completed tasks should be deleted after Select All + Delete"
+            "Both active and completed items should be deleted after Select All + Delete"
         )
     }
 
     // MARK: - Clear Completed
 
     func testClearCompleted() {
-        createTask("Done task")
+        createItem("Done item")
         app.typeKey(.escape, modifierFlags: [])
 
-        taskCheckbox(at: 0).click()
+        itemCheckbox(at: 0).click()
 
         let completed = app.buttons.matching(
-            NSPredicate(format: "identifier == 'task-checkbox' AND value == 'checkmark.circle.fill'")
+            NSPredicate(format: "identifier == 'item-checkbox' AND value == 'checkmark.circle.fill'")
         ).firstMatch
         XCTAssertTrue(completed.waitForExistence(timeout: 3))
 
@@ -318,32 +318,32 @@ final class ListlessMacUITests: XCTestCase {
 
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 3),
-            "Empty state should reappear after clearing the only completed task"
+            "Empty state should reappear after clearing the only completed item"
         )
     }
 
     // MARK: - Shift+Arrow Selection
 
     func testShiftDownExtendsSelection() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
-        navigateToTask(at: 0)
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
+        navigateToItem(at: 0)
         app.typeKey(.downArrow, modifierFlags: .shift)
         app.typeKey(.downArrow, modifierFlags: .shift)
         // All three should be selected; delete removes them all.
         app.typeKey(.delete, modifierFlags: [])
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "All three tasks should be deleted after Shift+Down range select"
+            "All three items should be deleted after Shift+Down range select"
         )
     }
 
     func testShiftUpContractsSelection() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
-        navigateToTask(at: 0)
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
+        navigateToItem(at: 0)
         // Extend down to select Alpha, Bravo, Charlie
         app.typeKey(.downArrow, modifierFlags: .shift)
         app.typeKey(.downArrow, modifierFlags: .shift)
@@ -352,16 +352,16 @@ final class ListlessMacUITests: XCTestCase {
         app.typeKey(.upArrow, modifierFlags: .shift)
         // Only Alpha should be selected now.
         app.typeKey(.delete, modifierFlags: [])
-        XCTAssertTrue(taskText("Bravo").waitForExistence(timeout: 2), "Bravo should remain")
-        XCTAssertTrue(taskText("Charlie").exists, "Charlie should remain")
-        XCTAssertFalse(taskText("Alpha").exists, "Alpha should be deleted")
+        XCTAssertTrue(itemText("Bravo").waitForExistence(timeout: 2), "Bravo should remain")
+        XCTAssertTrue(itemText("Charlie").exists, "Charlie should remain")
+        XCTAssertFalse(itemText("Alpha").exists, "Alpha should be deleted")
     }
 
     func testSelectAllThenShiftDown() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
-        navigateToTask(at: 0)
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
+        navigateToItem(at: 0)
         // Select all via Cmd+A
         app.typeKey("a", modifierFlags: .command)
         // Shift+Down should be a no-op (cursor already at last item).
@@ -370,17 +370,17 @@ final class ListlessMacUITests: XCTestCase {
         app.typeKey(.delete, modifierFlags: [])
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "All tasks should still be selected after Shift+Down at end"
+            "All items should still be selected after Shift+Down at end"
         )
     }
 
     // MARK: - Cmd+Click Selection
 
     func testCmdClickDeselectsFromRange() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
-        navigateToTask(at: 0)
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
+        navigateToItem(at: 0)
         // Extend selection to all three
         app.typeKey(.downArrow, modifierFlags: .shift)
         app.typeKey(.downArrow, modifierFlags: .shift)
@@ -389,36 +389,36 @@ final class ListlessMacUITests: XCTestCase {
         app.typeKey(.delete, modifierFlags: [])
 
         XCTAssertTrue(
-            taskText("Bravo").waitForExistence(timeout: 2),
+            itemText("Bravo").waitForExistence(timeout: 2),
             "Bravo should remain (was deselected by Cmd+Click)"
         )
-        XCTAssertFalse(taskText("Alpha").exists, "Alpha should be deleted")
-        XCTAssertFalse(taskText("Charlie").exists, "Charlie should be deleted")
+        XCTAssertFalse(itemText("Alpha").exists, "Alpha should be deleted")
+        XCTAssertFalse(itemText("Charlie").exists, "Charlie should be deleted")
     }
 
     func testCmdClickAddsToSelection() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
-        navigateToTask(at: 0)
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
+        navigateToItem(at: 0)
         // Cmd+Click Charlie to add it to selection
         cmdClickRow(withText: "Charlie")
         app.typeKey(.delete, modifierFlags: [])
 
         XCTAssertTrue(
-            taskText("Bravo").waitForExistence(timeout: 2),
+            itemText("Bravo").waitForExistence(timeout: 2),
             "Bravo should remain (was not selected)"
         )
-        XCTAssertFalse(taskText("Alpha").exists, "Alpha should be deleted")
-        XCTAssertFalse(taskText("Charlie").exists, "Charlie should be deleted")
+        XCTAssertFalse(itemText("Alpha").exists, "Alpha should be deleted")
+        XCTAssertFalse(itemText("Charlie").exists, "Charlie should be deleted")
     }
 
     func testShiftUpAfterCmdClickDeselect() {
-        createTask("Delta")
-        createTask("Echo")
-        createTask("Foxtrot")
-        createTask("Golf")
-        navigateToTask(at: 0)
+        createItem("Delta")
+        createItem("Echo")
+        createItem("Foxtrot")
+        createItem("Golf")
+        navigateToItem(at: 0)
         // Select Delta through Golf
         app.typeKey(.downArrow, modifierFlags: .shift)
         app.typeKey(.downArrow, modifierFlags: .shift)
@@ -429,17 +429,17 @@ final class ListlessMacUITests: XCTestCase {
         app.typeKey(.upArrow, modifierFlags: .shift)
         app.typeKey(.delete, modifierFlags: [])
 
-        XCTAssertTrue(taskText("Echo").waitForExistence(timeout: 2), "Echo should remain")
-        XCTAssertTrue(taskText("Golf").exists, "Golf should remain")
-        XCTAssertFalse(taskText("Delta").exists, "Delta should be deleted")
-        XCTAssertFalse(taskText("Foxtrot").exists, "Foxtrot should be deleted")
+        XCTAssertTrue(itemText("Echo").waitForExistence(timeout: 2), "Echo should remain")
+        XCTAssertTrue(itemText("Golf").exists, "Golf should remain")
+        XCTAssertFalse(itemText("Delta").exists, "Delta should be deleted")
+        XCTAssertFalse(itemText("Foxtrot").exists, "Foxtrot should be deleted")
     }
 
     func testSelectAllAfterCmdClick() {
-        createTask("Alpha")
-        createTask("Bravo")
-        createTask("Charlie")
-        navigateToTask(at: 0)
+        createItem("Alpha")
+        createItem("Bravo")
+        createItem("Charlie")
+        navigateToItem(at: 0)
         app.typeKey(.downArrow, modifierFlags: .shift)
         app.typeKey(.downArrow, modifierFlags: .shift)
         // Cmd+Click Bravo to create discontinuous selection {Alpha, Charlie}
@@ -450,7 +450,7 @@ final class ListlessMacUITests: XCTestCase {
 
         XCTAssertTrue(
             emptyStateLabel.waitForExistence(timeout: 2),
-            "All tasks should be deleted after Select All"
+            "All items should be deleted after Select All"
         )
     }
 }

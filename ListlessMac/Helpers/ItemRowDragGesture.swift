@@ -3,17 +3,17 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 extension View {
-    func taskDragGesture(
+    func itemDragGesture(
         isActive: Bool,
-        taskID: UUID,
+        itemID: UUID,
         onDragStart: @escaping () -> Void,
         onLift: @escaping () -> Void = {},
         onLiftEnd: @escaping () -> Void = {}
     ) -> some View {
         self.modifier(
-            TaskRowDragGesture(
+            ItemRowDragGesture(
                 isActive: isActive,
-                taskID: taskID,
+                itemID: itemID,
                 onDragStart: onDragStart,
                 onLift: onLift,
                 onLiftEnd: onLiftEnd
@@ -21,9 +21,9 @@ extension View {
     }
 }
 
-struct TaskRowDragGesture: ViewModifier {
+struct ItemRowDragGesture: ViewModifier {
     let isActive: Bool
-    let taskID: UUID
+    let itemID: UUID
     let onDragStart: () -> Void
     let onLift: () -> Void
     let onLiftEnd: () -> Void
@@ -61,7 +61,7 @@ struct TaskRowDragGesture: ViewModifier {
             NSEvent.addLocalMonitorForEvents(matching: .leftMouseDragged) { event in
                 if isLifted && !dragSource.isActive {
                     onDragStart()
-                    dragSource.beginDrag(taskID: taskID, event: event)
+                    dragSource.beginDrag(itemID: itemID, event: event)
                 }
                 return event
             }!
@@ -113,9 +113,9 @@ class DragSourceManager: NSObject, NSDraggingSource {
     var isActive = false
     var onDragEnd: (() -> Void)?
 
-    func beginDrag(taskID: UUID, event: NSEvent) {
+    func beginDrag(itemID: UUID, event: NSEvent) {
         guard let sourceView, !isActive else { return }
-        let item = NSDraggingItem(pasteboardWriter: taskID.uuidString as NSString)
+        let item = NSDraggingItem(pasteboardWriter: itemID.uuidString as NSString)
         let image = NSImage(size: NSSize(width: 1, height: 1))
         item.setDraggingFrame(sourceView.bounds, contents: image)
         isActive = true

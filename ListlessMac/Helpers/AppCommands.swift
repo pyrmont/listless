@@ -5,29 +5,29 @@ import Foundation
 @MainActor
 final class WindowCoordinator {
 
-    // Actions — set by TaskListView on each relevant state change.
-    var newTask: (() -> Void)?
+    // Actions — set by ItemListView on each relevant state change.
+    var newItem: (() -> Void)?
     var newWindow: (() -> Void)?
-    var copySelectedTask: (() -> Void)?
-    var cutSelectedTask: (() -> Void)?
-    var pasteAfterSelectedTask: (() -> Void)?
-    var deleteSelectedTask: (() -> Void)?
-    var moveSelectedTaskUp: (() -> Void)?
-    var moveSelectedTaskDown: (() -> Void)?
-    var markSelectedTaskCompleted: (() -> Void)?
-    var selectAllTasks: (() -> Void)?
-    var clearCompletedTasks: (() -> Void)?
+    var copySelectedItem: (() -> Void)?
+    var cutSelectedItem: (() -> Void)?
+    var pasteAfterSelectedItem: (() -> Void)?
+    var deleteSelectedItem: (() -> Void)?
+    var moveSelectedItemUp: (() -> Void)?
+    var moveSelectedItemDown: (() -> Void)?
+    var markSelectedItemCompleted: (() -> Void)?
+    var selectAllItems: (() -> Void)?
+    var clearCompletedItems: (() -> Void)?
 
     // Enabled state — read by AppDelegate in menuWillOpen and validateMenuItem.
-    var canSelectAllTasks = false
-    var canCopySelectedTask = false
-    var canCutSelectedTask = false
-    var canPasteAfterSelectedTask = false
-    var canDeleteSelectedTask = false
-    var canMoveSelectedTaskUp = false
-    var canMoveSelectedTaskDown = false
-    var canMarkSelectedTaskCompleted = false
-    var canClearCompletedTasks = false
+    var canSelectAllItems = false
+    var canCopySelectedItem = false
+    var canCutSelectedItem = false
+    var canPasteAfterSelectedItem = false
+    var canDeleteSelectedItem = false
+    var canMoveSelectedItemUp = false
+    var canMoveSelectedItemDown = false
+    var canMarkSelectedItemCompleted = false
+    var canClearCompletedItems = false
 
     // Dynamic titles — read by AppDelegate in validateMenuItem.
     var markCompletedTitle: String = "Mark as Complete"

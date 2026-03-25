@@ -1,28 +1,28 @@
 import CoreData
 import SwiftUI
 
-struct TaskListView: View {
-    let store: TaskStore
+struct ItemListView: View {
+    let store: ItemStore
     let syncMonitor: CloudKitSyncMonitor
 
     @AppStorage("headingText") private var headingText = "Items"
 
     @FetchRequest(
         sortDescriptors: [
-            SortDescriptor(\TaskItem.sortOrder, order: .forward),
+            SortDescriptor(\ItemEntity.sortOrder, order: .forward),
         ],
         animation: .default
     )
-    private var tasks: FetchedResults<TaskItem>
+    private var items: FetchedResults<ItemEntity>
 
     var body: some View {
-        let activeTasks = tasks.filter { !$0.isCompleted }
-        let completedTasks = tasks.filter { $0.isCompleted }
+        let activeItems = items.filter { !$0.isCompleted }
+        let completedItems = items.filter { $0.isCompleted }
             .sorted { $0.completedOrder > $1.completedOrder }
 
         NavigationStack {
             Group {
-                if tasks.isEmpty {
+                if items.isEmpty {
                     ContentUnavailableView(
                         "No Items",
                         systemImage: "checklist",
@@ -30,23 +30,23 @@ struct TaskListView: View {
                     )
                 } else {
                     List {
-                        ForEach(Array(activeTasks.enumerated()), id: \.element.id) { index, task in
-                            TaskRowView(
-                                task: task,
+                        ForEach(Array(activeItems.enumerated()), id: \.element.id) { index, item in
+                            ItemRowView(
+                                item: item,
                                 index: index,
-                                totalActive: activeTasks.count,
-                                onToggle: { toggleTask($0) }
+                                totalActive: activeItems.count,
+                                onToggle: { toggleItem($0) }
                             )
                         }
 
-                        if !completedTasks.isEmpty {
+                        if !completedItems.isEmpty {
                             Section("Completed") {
-                                ForEach(completedTasks) { task in
-                                    TaskRowView(
-                                        task: task,
+                                ForEach(completedItems) { item in
+                                    ItemRowView(
+                                        item: item,
                                         index: 0,
                                         totalActive: 0,
-                                        onToggle: { toggleTask($0) }
+                                        onToggle: { toggleItem($0) }
                                     )
                                 }
                             }
@@ -58,12 +58,12 @@ struct TaskListView: View {
         }
     }
 
-    private func toggleTask(_ task: TaskItem) {
+    private func toggleItem(_ item: ItemEntity) {
         do {
-            if task.isCompleted {
-                try store.uncomplete(taskID: task.id)
+            if item.isCompleted {
+                try store.uncomplete(itemID: item.id)
             } else {
-                try store.complete(taskID: task.id)
+                try store.complete(itemID: item.id)
             }
         } catch {
             // Sync monitor handles error reporting

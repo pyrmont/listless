@@ -1,13 +1,13 @@
 import SwiftUI
 
-struct TaskCardModifier: ViewModifier {
+struct ItemCardModifier: ViewModifier {
     var accentColor: Color
     var isSelected: Bool
 
     static let shape = UnevenRoundedRectangle(
         topLeadingRadius: 0, bottomLeadingRadius: 0,
-        bottomTrailingRadius: TaskRowMetrics.trailingCornerRadius,
-        topTrailingRadius: TaskRowMetrics.trailingCornerRadius
+        bottomTrailingRadius: ItemRowMetrics.trailingCornerRadius,
+        topTrailingRadius: ItemRowMetrics.trailingCornerRadius
     )
 
     func body(content: Content) -> some View {
@@ -16,7 +16,7 @@ struct TaskCardModifier: ViewModifier {
             .overlay(alignment: .leading) {
                 Rectangle()
                     .fill(accentColor)
-                    .frame(width: TaskRowMetrics.accentBarWidth)
+                    .frame(width: ItemRowMetrics.accentBarWidth)
             }
             .overlay(
                 isSelected
@@ -28,7 +28,7 @@ struct TaskCardModifier: ViewModifier {
 }
 
 extension View {
-    func taskCard(accentColor: Color, isSelected: Bool) -> some View {
-        modifier(TaskCardModifier(accentColor: accentColor, isSelected: isSelected))
+    func itemCard(accentColor: Color, isSelected: Bool) -> some View {
+        modifier(ItemCardModifier(accentColor: accentColor, isSelected: isSelected))
     }
 }

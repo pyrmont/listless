@@ -1,17 +1,17 @@
 import SwiftUI
 
-struct TaskRowView: View {
-    let task: TaskItem
-    let taskID: UUID
+struct ItemRowView: View {
+    let item: ItemEntity
+    let itemID: UUID
     let index: Int
-    let totalTasks: Int
+    let totalItems: Int
     let isSelected: Bool
-    let onToggle: (TaskItem) -> Void
-    let onTitleChange: (TaskItem, String) -> Void
-    let onDelete: (TaskItem) -> Void
+    let onToggle: (ItemEntity) -> Void
+    let onTitleChange: (ItemEntity, String) -> Void
+    let onDelete: (ItemEntity) -> Void
     let onSelect: (UUID) -> Void
     let onStartEdit: (UUID) -> Void
-    let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
+    let onEndEdit: (UUID, _ shouldCreateNewItem: Bool) -> Void
     let onPaste: (String) -> Void
     @FocusState.Binding var focusedField: FocusField?
 
@@ -32,29 +32,29 @@ struct TaskRowView: View {
 
     @MainActor
     private func computeAccentColor() -> Color {
-        guard !task.isCompleted else { return .clear }
-        return cachedTaskColor(forIndex: index, total: totalTasks, theme: colorTheme)
+        guard !item.isCompleted else { return .clear }
+        return cachedItemColor(forIndex: index, total: totalItems, theme: colorTheme)
     }
 
     init(
-        task: TaskItem,
-        taskID: UUID,
+        item: ItemEntity,
+        itemID: UUID,
         index: Int = 0,
-        totalTasks: Int = 1,
+        totalItems: Int = 1,
         isSelected: Bool,
         focusedField: FocusState<FocusField?>.Binding,
-        onToggle: @escaping (TaskItem) -> Void,
-        onTitleChange: @escaping (TaskItem, String) -> Void,
-        onDelete: @escaping (TaskItem) -> Void,
+        onToggle: @escaping (ItemEntity) -> Void,
+        onTitleChange: @escaping (ItemEntity, String) -> Void,
+        onDelete: @escaping (ItemEntity) -> Void,
         onSelect: @escaping (UUID) -> Void,
         onStartEdit: @escaping (UUID) -> Void = { _ in },
-        onEndEdit: @escaping (UUID, _ shouldCreateNewTask: Bool) -> Void = { _, _ in },
+        onEndEdit: @escaping (UUID, _ shouldCreateNewItem: Bool) -> Void = { _, _ in },
         onPaste: @escaping (String) -> Void = { _ in }
     ) {
-        self.task = task
-        self.taskID = taskID
+        self.item = item
+        self.itemID = itemID
         self.index = index
-        self.totalTasks = totalTasks
+        self.totalItems = totalItems
         self.isSelected = isSelected
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
@@ -69,10 +69,10 @@ struct TaskRowView: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             Button {
-                onToggle(task)
+                onToggle(item)
             } label: {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(task.isCompleted ? .secondary : .primary)
+                Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(item.isCompleted ? .secondary : .primary)
                     .font(.system(size: 17))
                     .fontWeight(.thin)
             }
@@ -80,30 +80,30 @@ struct TaskRowView: View {
             .alignmentGuide(.firstTextBaseline) { d in
                 d[VerticalAlignment.center] + 5
             }
-            .accessibilityIdentifier("task-checkbox")
-            .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
+            .accessibilityIdentifier("item-checkbox")
+            .accessibilityValue(item.isCompleted ? "checkmark.circle.fill" : "circle")
 
             ClickableTextField(
                 text: $editingTitle,
-                isCompleted: task.isCompleted,
-                onEditingChanged: { editing, shouldCreateNewTask in
+                isCompleted: item.isCompleted,
+                onEditingChanged: { editing, shouldCreateNewItem in
                     isCurrentlyEditing = editing
                     if editing {
-                        onStartEdit(taskID)
+                        onStartEdit(itemID)
                     } else {
-                        onEndEdit(taskID, shouldCreateNewTask)
+                        onEndEdit(itemID, shouldCreateNewItem)
                     }
                 },
-                taskID: taskID,
+                itemID: itemID,
                 onContentChange: { newTitle in
-                    guard !task.isCompleted else { return }
-                    onTitleChange(task, newTitle)
+                    guard !item.isCompleted else { return }
+                    onTitleChange(item, newTitle)
                 }
             )
-            .focused($focusedField, equals: .task(taskID))
+            .focused($focusedField, equals: .item(itemID))
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier(
-                isCurrentlyEditing ? "task-textfield" : "task-text-\(taskID.uuidString)")
+                isCurrentlyEditing ? "item-textfield" : "item-text-\(itemID.uuidString)")
         }
         .padding(.top, 4)
         .padding(.vertical, 8)
@@ -111,7 +111,7 @@ struct TaskRowView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture {
-            onSelect(taskID)
+            onSelect(itemID)
         }
         .background(selectionBackground)
         .overlay(alignment: .leading) {
@@ -123,8 +123,8 @@ struct TaskRowView: View {
         }
         .overlay(alignment: .bottom) {
             // Hairline border between rows, inset to align with text
-            // Only show for active (non-completed) tasks
-            if !task.isCompleted {
+            // Only show for active (non-completed) items
+            if !item.isCompleted {
                 Rectangle()
                     .fill(.separator)
                     .frame(height: 0.5)
@@ -132,14 +132,14 @@ struct TaskRowView: View {
             }
         }
         .overlay {
-            if isSelected && !task.isCompleted {
+            if isSelected && !item.isCompleted {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .strokeBorder(cachedAccentColor.opacity(0.40), lineWidth: 2)
             }
         }
         .contextMenu {
-            Button(task.isCompleted ? "Mark as Incomplete" : "Mark as Complete") {
-                onToggle(task)
+            Button(item.isCompleted ? "Mark as Incomplete" : "Mark as Complete") {
+                onToggle(item)
             }
             Divider()
             Button("Cut") {
@@ -151,14 +151,14 @@ struct TaskRowView: View {
             Button("Paste") {
                 pasteFromPasteboard()
             }
-            .disabled(task.isCompleted)
+            .disabled(item.isCompleted)
             Divider()
             Button("Delete", role: .destructive) {
-                onDelete(task)
+                onDelete(item)
             }
         }
-        .onChange(of: task.title) { _, newValue in
-            // Keep editingTitle in sync with task.title when not editing
+        .onChange(of: item.title) { _, newValue in
+            // Keep editingTitle in sync with item.title when not editing
             if !isCurrentlyEditing {
                 editingTitle = newValue
             }
@@ -169,12 +169,12 @@ struct TaskRowView: View {
         .onChange(of: index) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
-        .onChange(of: totalTasks) { _, _ in
+        .onChange(of: totalItems) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
         .onAppear {
             // Initialize editingTitle and cache accent color (computed once)
-            editingTitle = task.title
+            editingTitle = item.title
             cachedAccentColor = computeAccentColor()
         }
     }
@@ -182,7 +182,7 @@ struct TaskRowView: View {
     @ViewBuilder
     private var selectionBackground: some View {
         if isSelected {
-            if task.isCompleted {
+            if item.isCompleted {
                 Color(nsColor: .controlBackgroundColor)
             } else {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
@@ -197,14 +197,14 @@ struct TaskRowView: View {
 
     private func cutToPasteboard() {
         copyToPasteboard()
-        onDelete(task)
+        onDelete(item)
     }
 
     private func copyToPasteboard() {
-        guard !task.title.isEmpty else { return }
+        guard !item.title.isEmpty else { return }
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(task.title, forType: .string)
+        pasteboard.setString(item.title, forType: .string)
     }
 
     private func pasteFromPasteboard() {

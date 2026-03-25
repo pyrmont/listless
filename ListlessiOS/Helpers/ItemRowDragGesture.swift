@@ -1,17 +1,17 @@
 import SwiftUI
 
 extension View {
-    func taskDragGesture(
+    func itemDragGesture(
         isActive: Bool,
-        taskID: UUID,
+        itemID: UUID,
         onDragStart: @escaping (CGFloat) -> Void,
         onDragChanged: @escaping (CGPoint) -> Void,
         onDragEnded: @escaping () -> Void
     ) -> some View {
         self.modifier(
-            TaskRowDragGesture(
+            ItemRowDragGesture(
                 isActive: isActive,
-                taskID: taskID,
+                itemID: itemID,
                 onDragStart: onDragStart,
                 onDragChanged: onDragChanged,
                 onDragEnded: onDragEnded
@@ -19,9 +19,9 @@ extension View {
     }
 }
 
-struct TaskRowDragGesture: ViewModifier {
+struct ItemRowDragGesture: ViewModifier {
     let isActive: Bool
-    let taskID: UUID
+    let itemID: UUID
     let onDragStart: (CGFloat) -> Void
     let onDragChanged: (CGPoint) -> Void
     let onDragEnded: () -> Void

@@ -1,19 +1,19 @@
 import SwiftUI
 
 extension View {
-    func taskSwipeGesture(
+    func itemSwipeGesture(
         isDragging: Binding<Bool>,
         isEditing: Bool,
         isSwiping: Binding<Bool>,
         swipeOffset: Binding<CGFloat>,
-        swipeDirection: Binding<TaskRowSwipeGesture.SwipeDirection>,
+        swipeDirection: Binding<ItemRowSwipeGesture.SwipeDirection>,
         isTriggered: Binding<Bool>,
         completeColor: Color = .green,
         onComplete: @escaping () -> Void,
         onDelete: @escaping () -> Void
     ) -> some View {
         self.modifier(
-            TaskRowSwipeGesture(
+            ItemRowSwipeGesture(
                 isDragging: isDragging,
                 isEditing: isEditing,
                 isSwiping: isSwiping,
@@ -27,7 +27,7 @@ extension View {
     }
 }
 
-struct TaskRowSwipeGesture: ViewModifier {
+struct ItemRowSwipeGesture: ViewModifier {
     @Binding var isDragging: Bool
     let isEditing: Bool
     @Binding var isSwiping: Bool

@@ -3,12 +3,12 @@ import UIKit
 
 /// UITextView that's always present, manages its own editing state, and expands
 /// vertically to fit its content. Mirrors the interface of ClickableTextField (macOS)
-/// so TaskListView can drive both platforms through the same focusedField binding.
+/// so ItemListView can drive both platforms through the same focusedField binding.
 struct TappableTextField: UIViewRepresentable {
     @Binding var text: String
     let isCompleted: Bool
     let isDragging: Bool
-    let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+    let onEditingChanged: (Bool, _ shouldCreateNewItem: Bool) -> Void
     var returnKeyType: UIReturnKeyType = .done
     var onContentChange: ((String) -> Void)? = nil
     var uiAccessibilityIdentifier: String? = nil
@@ -18,7 +18,7 @@ struct TappableTextField: UIViewRepresentable {
         let textView = UITextView()
         textView.accessibilityIdentifier = uiAccessibilityIdentifier
         textView.delegate = context.coordinator
-        textView.font = TaskRowMetrics.bodyUIK
+        textView.font = ItemRowMetrics.bodyUIK
         textView.backgroundColor = .clear
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
@@ -29,7 +29,7 @@ struct TappableTextField: UIViewRepresentable {
 
         let placeholder = UILabel()
         placeholder.text = "Enter text"
-        placeholder.font = TaskRowMetrics.bodyUIK
+        placeholder.font = ItemRowMetrics.bodyUIK
         placeholder.textColor = .placeholderText
         placeholder.tag = 100
         placeholder.translatesAutoresizingMaskIntoConstraints = false
@@ -96,7 +96,7 @@ struct TappableTextField: UIViewRepresentable {
 
     private func applyStyle(to textView: UITextView, text: String, isCompleted: Bool) {
         var attributes: [NSAttributedString.Key: Any] = [
-            .font: TaskRowMetrics.bodyUIK,
+            .font: ItemRowMetrics.bodyUIK,
             .foregroundColor: isCompleted ? UIColor.secondaryLabel : UIColor.label,
         ]
         if isCompleted {
@@ -108,7 +108,7 @@ struct TappableTextField: UIViewRepresentable {
 
     final class Coordinator: NSObject, UITextViewDelegate {
         @Binding var text: String
-        let onEditingChanged: (Bool, _ shouldCreateNewTask: Bool) -> Void
+        let onEditingChanged: (Bool, _ shouldCreateNewItem: Bool) -> Void
         let onContentChange: ((String) -> Void)?
         var returnKeyPressed: Bool = false
         weak var textView: UITextView?
@@ -117,7 +117,7 @@ struct TappableTextField: UIViewRepresentable {
 
         init(
             text: Binding<String>,
-            onEditingChanged: @escaping (Bool, _ shouldCreateNewTask: Bool) -> Void,
+            onEditingChanged: @escaping (Bool, _ shouldCreateNewItem: Bool) -> Void,
             onContentChange: ((String) -> Void)? = nil
         ) {
             _text = text
@@ -173,19 +173,19 @@ struct TappableTextField: UIViewRepresentable {
             replacementText text: String
         ) -> Bool {
             guard text == "\n" else { return true }
-            // Intercept Return: trigger new-task creation without inserting a newline.
+            // Intercept Return: trigger new-item creation without inserting a newline.
             returnKeyPressed = true
             onEditingChanged(false, true)
             if textView.returnKeyType == .done {
-                // Non-last task (or empty title): resign immediately so SwiftUI's
+                // Non-last item (or empty title): resign immediately so SwiftUI's
                 // focus binding update reliably clears the field on iPad, where the
                 // deferred focusedFieldBinding = .scrollView alone doesn't resign
                 // the UITextView through the hardware-keyboard focus system.
                 textView.resignFirstResponder()
             }
-            // Return false: for .next (last active task with text), the text view
+            // Return false: for .next (last active item with text), the text view
             // stays first responder so SwiftUI can transfer focus atomically to the
-            // newly created task's text field in the same render pass.
+            // newly created item's text field in the same render pass.
             return false
         }
     }

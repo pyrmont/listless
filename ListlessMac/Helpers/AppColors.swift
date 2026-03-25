@@ -1,7 +1,7 @@
 import SwiftUI
 
 extension Color {
-    /// Canvas behind task rows: warm gray in light mode, default window background in dark mode.
+    /// Canvas behind item rows: warm gray in light mode, default window background in dark mode.
     static let outerBackground = Color(nsColor: NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
             ? .windowBackgroundColor

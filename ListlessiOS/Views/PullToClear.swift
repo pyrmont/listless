@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Pull distance at which the indicator signals readiness and completed task clearing triggers.
+/// Pull distance at which the indicator signals readiness and completed item clearing triggers.
 let pullClearThreshold: CGFloat = 50
 
 struct PullToClearIndicator: View {
@@ -31,7 +31,7 @@ struct PullToClearIndicator: View {
                     .offset(y: isReady ? -textSlideDistance : 0)
             }
             .foregroundStyle(.secondary)
-            .font(TaskRowMetrics.hintSUI)
+            .font(ItemRowMetrics.hintSUI)
             .frame(height: textSlideDistance, alignment: .topLeading)
             .clipped()
             .animation(.easeInOut(duration: 0.15), value: isReady)

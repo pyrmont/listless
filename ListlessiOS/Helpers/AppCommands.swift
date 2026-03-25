@@ -3,7 +3,7 @@ import UIKit
 // MARK: - Menu Coordinator
 
 /// Bridges SwiftUI view state to UIKit menu items, mirroring the macOS
-/// `MenuCoordinator` pattern. `TaskListView.updateMenuCoordinator()` keeps
+/// `MenuCoordinator` pattern. `ItemListView.updateMenuCoordinator()` keeps
 /// actions and enabled flags current; `KeyCaptureView` dispatches actions
 /// and validates commands via the responder chain.
 @MainActor
@@ -11,9 +11,9 @@ final class IOSMenuCoordinator {
     static let shared = IOSMenuCoordinator()
     private init() {}
 
-    // Actions — set by TaskListView on each relevant state change.
-    var newTask: (() -> Void)?
-    var deleteTask: (() -> Void)?
+    // Actions — set by ItemListView on each relevant state change.
+    var newItem: (() -> Void)?
+    var deleteItem: (() -> Void)?
     var moveUp: (() -> Void)?
     var moveDown: (() -> Void)?
     var markCompleted: (() -> Void)?
@@ -33,8 +33,8 @@ final class IOSMenuCoordinator {
 /// Selectors for menu item actions routed through the responder chain.
 /// `KeyCaptureView` (first responder) implements these as `@objc` methods.
 enum IOSMenuSelectors {
-    static let newTask = #selector(IOSMenuActions.handleNewTask)
-    static let deleteTask = #selector(IOSMenuActions.handleDeleteTask)
+    static let newItem = #selector(IOSMenuActions.handleNewItem)
+    static let deleteItem = #selector(IOSMenuActions.handleDeleteItem)
     static let moveUp = #selector(IOSMenuActions.handleMoveUp)
     static let moveDown = #selector(IOSMenuActions.handleMoveDown)
     static let markCompleted = #selector(IOSMenuActions.handleMarkCompleted)
@@ -43,8 +43,8 @@ enum IOSMenuSelectors {
 /// Protocol declaring the `@objc` action methods so selectors can be
 /// referenced at compile time. `KeyCaptureView` conforms to this.
 @MainActor @objc protocol IOSMenuActions {
-    func handleNewTask()
-    func handleDeleteTask()
+    func handleNewItem()
+    func handleDeleteItem()
     func handleMoveUp()
     func handleMoveDown()
     func handleMarkCompleted()

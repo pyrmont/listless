@@ -2,8 +2,8 @@ import CoreGraphics
 import SwiftUI
 import UIKit
 
-enum TaskRowMetrics {
-    /// Base task-title font size (18pt), scaled by Dynamic Type.
+enum ItemRowMetrics {
+    /// Base item-title font size (18pt), scaled by Dynamic Type.
     static let bodyUIK: UIFont = UIFontMetrics(forTextStyle: .body)
         .scaledFont(for: .systemFont(ofSize: 18))
     /// SwiftUI equivalent for use in pure SwiftUI views (e.g. PullToCreate).

@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-struct TaskListView: View, TaskListViewProtocol {
+struct ItemListView: View, ItemListViewProtocol {
     class LayoutStorage {
         var draggedRowWidth: CGFloat = 0
         var draggedRowFrame: CGRect = .zero
@@ -13,10 +13,10 @@ struct TaskListView: View, TaskListViewProtocol {
         var draftCount: Int = 0
         var isShowingSyncDiagnostics = false
         var isShowingSettings = false
-        var clearingTaskIDs: Set<UUID> = []
+        var clearingItemIDs: Set<UUID> = []
         var undoToast: UndoToastData? = nil
         var isSwiping: Bool = false
-        var draftPlacement: DraftTaskPlacement?
+        var draftPlacement: DraftItemPlacement?
         var draftTitle: String = ""
         var fetchWorkaround: Int = 0
     }
@@ -36,13 +36,13 @@ struct TaskListView: View, TaskListViewProtocol {
     @Environment(\.undoManager) var undoManager
     @Environment(\.managedObjectContext) var managedObjectContext
 
-    let store: TaskStore
+    let store: ItemStore
     @ObservedObject var syncMonitor: CloudKitSyncMonitor
     @FetchRequest(
         sortDescriptors: [],
         animation: .default
     )
-    var tasks: FetchedResults<TaskItem>
+    var items: FetchedResults<ItemEntity>
     @FocusState private var focusedFieldBinding: FocusField?
     @State var fState = FocusStateData()
     @State var iState = InteractionStateData()
@@ -63,7 +63,7 @@ struct TaskListView: View, TaskListViewProtocol {
         nonmutating set { iState.dragState = newValue }
     }
 
-    var draftPlacement: DraftTaskPlacement? {
+    var draftPlacement: DraftItemPlacement? {
         get { iState.draftPlacement }
         nonmutating set {
             if newValue != nil, iState.draftPlacement == nil {
@@ -119,8 +119,8 @@ struct TaskListView: View, TaskListViewProtocol {
     }
 
     private var selectedIndex: Int? {
-        guard let currentID = fState.selectedTaskID else { return nil }
-        return activeTasks.firstIndex(where: { $0.id == currentID })
+        guard let currentID = fState.selectedItemID else { return nil }
+        return activeItems.firstIndex(where: { $0.id == currentID })
     }
 
     private var canMoveSelectionUp: Bool {
@@ -132,40 +132,40 @@ struct TaskListView: View, TaskListViewProtocol {
     private var canMoveSelectionDown: Bool {
         guard focusedField == .scrollView else { return false }
         guard let index = selectedIndex else { return false }
-        return index < activeTasks.count - 1
+        return index < activeItems.count - 1
     }
 
     private struct MenuState: Equatable {
-        let selectedTaskID: UUID?
+        let selectedItemID: UUID?
         let isScrollViewFocused: Bool
-        let activeTaskCount: Int
-        let completedTaskCount: Int
+        let activeItemCount: Int
+        let completedItemCount: Int
         let selectedIndex: Int?
     }
 
     private var menuCoordinatorTrigger: MenuState {
         MenuState(
-            selectedTaskID: fState.selectedTaskID,
+            selectedItemID: fState.selectedItemID,
             isScrollViewFocused: focusedField == .scrollView,
-            activeTaskCount: activeTasks.count,
-            completedTaskCount: completedTasks.count,
+            activeItemCount: activeItems.count,
+            completedItemCount: completedItems.count,
             selectedIndex: selectedIndex
         )
     }
 
     func updateMenuCoordinator() {
         let coord = IOSMenuCoordinator.shared
-        coord.newTask = { createNewTask() }
-        coord.deleteTask = { _ = deleteSelectedTaskWithUndo() }
-        coord.moveUp = { moveSelectedTaskUp() }
-        coord.moveDown = { moveSelectedTaskDown() }
-        coord.markCompleted = { markSelectedTaskCompleted() }
+        coord.newItem = { createNewItem() }
+        coord.deleteItem = { _ = deleteSelectedItemWithUndo() }
+        coord.moveUp = { moveSelectedItemUp() }
+        coord.moveDown = { moveSelectedItemDown() }
+        coord.markCompleted = { markSelectedItemCompleted() }
         let inNavMode = focusedField == .scrollView
-        coord.canDelete = fState.selectedTaskID != nil && inNavMode
+        coord.canDelete = fState.selectedItemID != nil && inNavMode
         coord.canMoveUp = canMoveSelectionUp
         coord.canMoveDown = canMoveSelectionDown
-        coord.canMarkCompleted = fState.selectedTaskID != nil && inNavMode
-        coord.markCompletedTitle = completedTasks.contains(where: { $0.id == fState.selectedTaskID })
+        coord.canMarkCompleted = fState.selectedItemID != nil && inNavMode
+        coord.markCompletedTitle = completedItems.contains(where: { $0.id == fState.selectedItemID })
             ? "Mark as Incomplete" : "Mark as Complete"
     }
 
@@ -173,21 +173,21 @@ struct TaskListView: View, TaskListViewProtocol {
     var rowGap: CGFloat { 12 }
     var pullCreateThreshold: CGFloat { 70 }
     var flickThreshold: CGFloat { 500 }
-    var isCompletelyEmpty: Bool { activeTasks.isEmpty && completedTasks.isEmpty }
+    var isCompletelyEmpty: Bool { activeItems.isEmpty && completedItems.isEmpty }
 
-    init(store: TaskStore, syncMonitor: CloudKitSyncMonitor) {
+    init(store: ItemStore, syncMonitor: CloudKitSyncMonitor) {
         self.store = store
         self.syncMonitor = syncMonitor
     }
 
-    func clearDraftTaskUI(at placement: DraftTaskPlacement, hasTitle: Bool) {
+    func clearDraftItemUI(at placement: DraftItemPlacement, hasTitle: Bool) {
         let clear: () -> Void = {
             if draftPlacement == placement {
                 draftPlacement = nil
             }
             draftTitle = ""
-            if fState.selectedTaskID == draftID(for: placement) {
-                fState.selectedTaskID = nil
+            if fState.selectedItemID == draftID(for: placement) {
+                fState.selectedItemID = nil
             }
 
             guard placement == .prepend else { return }
@@ -264,22 +264,22 @@ struct TaskListView: View, TaskListViewProtocol {
         .opacity(opacity)
     }
 
-    /// The draft row content styled to match a task row. Controlled by the
+    /// The draft row content styled to match a item row. Controlled by the
     /// ZStack in ``pullToCreateIndicatorRow`` rather than its own visibility.
     @ViewBuilder private var draftPrependRow: some View {
         DraftRowView(
-            accentColor: taskColor(
-                forIndex: 0, total: max(1, displayActiveTasks.count + 1), theme: colorTheme
+            accentColor: itemColor(
+                forIndex: 0, total: max(1, displayActiveItems.count + 1), theme: colorTheme
             ),
-            isSelected: fState.selectedTaskID == draftPrependRowID,
+            isSelected: fState.selectedItemID == draftPrependRowID,
             draftID: draftPrependRowID,
             title: draftTitleBinding,
             onEditingChanged: { editing, _ in
                 DispatchQueue.main.async {
                     if editing {
-                        beginDraftTaskEditing(.prepend)
+                        beginDraftItemEditing(.prepend)
                     } else {
-                        commitDraftTask()
+                        commitDraftItem()
                     }
                 }
             },
@@ -292,21 +292,21 @@ struct TaskListView: View, TaskListViewProtocol {
     @ViewBuilder private var draftAppendRow: some View {
         if isAppendDraftVisible {
             DraftRowView(
-                accentColor: taskColor(
-                    forIndex: displayActiveTasks.count,
-                    total: max(1, displayActiveTasks.count + 1),
+                accentColor: itemColor(
+                    forIndex: displayActiveItems.count,
+                    total: max(1, displayActiveItems.count + 1),
                     theme: colorTheme
                 ),
-                isSelected: fState.selectedTaskID == draftAppendRowID,
+                isSelected: fState.selectedItemID == draftAppendRowID,
                 draftID: draftAppendRowID,
                 title: draftTitleBinding,
-                onEditingChanged: { editing, shouldCreateNewTask in
+                onEditingChanged: { editing, shouldCreateNewItem in
                     DispatchQueue.main.async {
                         if editing {
-                            beginDraftTaskEditing(.append)
+                            beginDraftItemEditing(.append)
                         } else {
-                            commitDraftTask(
-                                shouldCreateNewTask: shouldCreateNewTask
+                            commitDraftItem(
+                                shouldCreateNewItem: shouldCreateNewItem
                             )
                         }
                     }
@@ -322,53 +322,53 @@ struct TaskListView: View, TaskListViewProtocol {
         }
     }
 
-    @ViewBuilder private var taskRows: some View {
+    @ViewBuilder private var itemRows: some View {
         let _ = iState.fetchWorkaround
         let draftOffset = isPrependDraftVisible ? 1 : 0
         let draftTotal = draftPlacement != nil ? 1 : 0
-        ForEach(Array(displayActiveTasks.enumerated()), id: \.element.id) { index, task in
-            let taskID = task.id
-            TaskRowView(
-                task: task,
-                taskID: taskID,
+        ForEach(Array(displayActiveItems.enumerated()), id: \.element.id) { index, item in
+            let itemID = item.id
+            ItemRowView(
+                item: item,
+                itemID: itemID,
                 index: index + draftOffset,
-                totalTasks: displayActiveTasks.count + draftTotal,
-                isSelected: fState.selectedTaskID == taskID,
+                totalItems: displayActiveItems.count + draftTotal,
+                isSelected: fState.selectedItemID == itemID,
                 isDragging: isDraggingStateBinding,
                 isSwiping: $iState.isSwiping,
-                isLastActiveTask: index == displayActiveTasks.count - 1,
+                isLastActiveItem: index == displayActiveItems.count - 1,
                 focusedField: $focusedFieldBinding,
                 onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
                 onTitleChange: { updateTitle($0, $1) },
-                onDelete: { deleteTaskWithUndo($0) },
-                onSelect: { selectTask($0) },
+                onDelete: { deleteItemWithUndo($0) },
+                onSelect: { selectItem($0) },
                 onStartEdit: { startEditing($0) },
                 onEndEdit: {
-                    if fState.selectedTaskID == $0 {
-                        fState.selectedTaskID = nil
+                    if fState.selectedItemID == $0 {
+                        fState.selectedItemID = nil
                     }
-                    endEditing($0, shouldCreateNewTask: $1)
+                    endEditing($0, shouldCreateNewItem: $1)
                 }
             )
-            .scaleEffect(draggedTaskID == taskID ? dragScaleEffect() : 1.0)
+            .scaleEffect(draggedItemID == itemID ? dragScaleEffect() : 1.0)
             .shadow(
-                color: draggedTaskID == taskID ? .black.opacity(0.3) : .clear,
+                color: draggedItemID == itemID ? .black.opacity(0.3) : .clear,
                 radius: 12, y: 4
             )
-            .taskDragGesture(
-                isActive: !task.isCompleted && focusedFieldBinding != .task(taskID),
-                taskID: taskID,
+            .itemDragGesture(
+                isActive: !item.isCompleted && focusedFieldBinding != .item(itemID),
+                itemID: itemID,
                 onDragStart: { width in
                     layoutStorage.draggedRowWidth = width
-                    startDrag(taskID: taskID)
+                    startDrag(itemID: itemID)
                 },
                 onDragChanged: { point in
-                    handleIOSDragChanged(taskID: taskID, point: point)
+                    handleIOSDragChanged(itemID: itemID, point: point)
                 },
                 onDragEnded: { commitIOSDrag() }
             )
             .background {
-                if draggedTaskID == taskID {
+                if draggedItemID == itemID {
                     Color.clear
                         .onGeometryChange(for: CGRect.self) { proxy in
                             proxy.frame(in: .global)
@@ -378,35 +378,35 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
             }
             .padding(.bottom, rowGap)
-            .zIndex(draggedTaskID == taskID ? 2 : 1)
-            .id(taskID)
+            .zIndex(draggedItemID == itemID ? 2 : 1)
+            .id(itemID)
         }
 
         draftAppendRow
 
-        ForEach(completedTasks) { task in
-            let taskID = task.id
-            let isBeingCleared = iState.clearingTaskIDs.contains(taskID)
-            TaskRowView(
-                task: task,
-                taskID: taskID,
-                isSelected: fState.selectedTaskID == taskID,
+        ForEach(completedItems) { item in
+            let itemID = item.id
+            let isBeingCleared = iState.clearingItemIDs.contains(itemID)
+            ItemRowView(
+                item: item,
+                itemID: itemID,
+                isSelected: fState.selectedItemID == itemID,
                 isSwiping: $iState.isSwiping,
                 focusedField: $focusedFieldBinding,
                 onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
                 onTitleChange: { updateTitle($0, $1) },
-                onDelete: { deleteTaskWithUndo($0) },
-                onSelect: { selectTask($0) }
+                onDelete: { deleteItemWithUndo($0) },
+                onSelect: { selectItem($0) }
             )
             .opacity(isBeingCleared ? 0 : 1)
             .offset(y: isBeingCleared ? 40 : 0)
             .padding(.bottom, rowGap)
-            .id(taskID)
+            .id(itemID)
         }
     }
 
     var body: some View {
-        taskScrollView
+        itemScrollView
             .overlay(alignment: .topLeading) {
                 if showFPSOverlay {
                     FPSOverlay()
@@ -421,17 +421,17 @@ struct TaskListView: View, TaskListViewProtocol {
                     handleBackgroundTap()
                 }
             )
-            .accessibilityIdentifier("task-list-scrollview")
+            .accessibilityIdentifier("item-list-scrollview")
             .background {
-                let isEditing = if case .task = focusedFieldBinding { true } else { false }
+                let isEditing = if case .item = focusedFieldBinding { true } else { false }
                 let isShowingSheet = iState.isShowingSettings || iState.isShowingSyncDiagnostics
                 KeyCommandBridge(
                     isActive: !isEditing && !isShowingSheet,
                     onUp: { _ = navigateUp() },
                     onDown: { _ = navigateDown() },
-                    onSpace: { _ = toggleSelectedTask() },
-                    onReturn: { _ = focusSelectedTask() },
-                    onDelete: { _ = deleteSelectedTaskWithUndo() }
+                    onSpace: { _ = toggleSelectedItem() },
+                    onReturn: { _ = focusSelectedItem() },
+                    onDelete: { _ = deleteSelectedItemWithUndo() }
                 )
             }
             .onAppear {
@@ -483,7 +483,7 @@ struct TaskListView: View, TaskListViewProtocol {
             }
     }
 
-    private var taskScrollView: some View {
+    private var itemScrollView: some View {
         ZStack(alignment: .top) {
             ScrollView {
               ScrollViewReader { scrollProxy in
@@ -495,7 +495,7 @@ struct TaskListView: View, TaskListViewProtocol {
                         draftPrependRow
                             .padding(.bottom, rowGap)
                     }
-                    taskRows
+                    itemRows
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .onGeometryChange(for: CGFloat.self) {
@@ -523,8 +523,8 @@ struct TaskListView: View, TaskListViewProtocol {
                         }
                     }
 
-                    if case .task(let id) = (newValue ?? fState.focusedField),
-                        draggedTaskID == nil,
+                    if case .item(let id) = (newValue ?? fState.focusedField),
+                        draggedItemID == nil,
                         id != draftPrependRowID
                     {
                         withAnimation {
@@ -532,8 +532,8 @@ struct TaskListView: View, TaskListViewProtocol {
                         }
                     }
                 }
-                .onChange(of: fState.selectedTaskID) { _, newID in
-                    if let newID, draggedTaskID == nil {
+                .onChange(of: fState.selectedItemID) { _, newID in
+                    if let newID, draggedItemID == nil {
                         guard newID != draftPrependRowID else { return }
                         withAnimation {
                             scrollProxy.scrollTo(newID)
@@ -542,7 +542,7 @@ struct TaskListView: View, TaskListViewProtocol {
                 }
               }
             }
-            .scrollDisabled(draggedTaskID != nil || iState.isSwiping)
+            .scrollDisabled(draggedItemID != nil || iState.isSwiping)
             .scrollBounceBehavior(.always)
             .contentMargins(.bottom, 20)
             .background {
@@ -551,7 +551,7 @@ struct TaskListView: View, TaskListViewProtocol {
             .overlay {
                 if isCompletelyEmpty && draftPlacement == nil {
                     Text("Pull down to create")
-                        .font(TaskRowMetrics.hintSUI)
+                        .font(ItemRowMetrics.hintSUI)
                         .foregroundStyle(.secondary)
                         .padding(.top, 24)
                         .allowsHitTesting(false)
@@ -564,18 +564,18 @@ struct TaskListView: View, TaskListViewProtocol {
                 pullToCreate: pullToCreateStateBinding,
                 pullUpOffset: pullUpOffsetStateBinding,
                 isDraftOpen: draftPlacement != nil,
-                hasCompletedTasks: !completedTasks.isEmpty,
+                hasCompletedItems: !completedItems.isEmpty,
                 pullCreateThreshold: pullCreateThreshold,
                 flickThreshold: flickThreshold,
                 pullClearThreshold: pullClearThreshold,
-                onCreateTaskAtTop: { revealPhantomRow() },
+                onCreateItemAtTop: { revealPhantomRow() },
                 onClearCompleted: {
-                    let ids = Set(completedTasks.map(\.id))
+                    let ids = Set(completedItems.map(\.id))
                     withAnimation(.easeIn(duration: 0.35)) {
-                        iState.clearingTaskIDs = ids
+                        iState.clearingItemIDs = ids
                     } completion: {
-                        iState.clearingTaskIDs = []
-                        clearCompletedTasksWithUndo()
+                        iState.clearingItemIDs = []
+                        clearCompletedItemsWithUndo()
                     }
                 }
             )

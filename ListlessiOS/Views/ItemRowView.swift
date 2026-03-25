@@ -1,26 +1,26 @@
 import SwiftUI
 
-struct TaskRowView: View {
-    let task: TaskItem
-    let taskID: UUID
+struct ItemRowView: View {
+    let item: ItemEntity
+    let itemID: UUID
     let index: Int
-    let totalTasks: Int
+    let totalItems: Int
     let isSelected: Bool
     @Binding var isDragging: Bool
     @Binding var isSwiping: Bool
-    let onToggle: (TaskItem) -> Void
-    let onTitleChange: (TaskItem, String) -> Void
-    let onDelete: (TaskItem) -> Void
+    let onToggle: (ItemEntity) -> Void
+    let onTitleChange: (ItemEntity, String) -> Void
+    let onDelete: (ItemEntity) -> Void
     let onSelect: (UUID) -> Void
-    let isLastActiveTask: Bool
+    let isLastActiveItem: Bool
     let onStartEdit: (UUID) -> Void
-    let onEndEdit: (UUID, _ shouldCreateNewTask: Bool) -> Void
+    let onEndEdit: (UUID, _ shouldCreateNewItem: Bool) -> Void
     @FocusState.Binding var focusedField: FocusField?
 
     @AppStorage("colorTheme") private var colorThemeRaw = 0
     private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
     @State private var swipeOffset: CGFloat = 0
-    @State private var swipeDirection: TaskRowSwipeGesture.SwipeDirection = .none
+    @State private var swipeDirection: ItemRowSwipeGesture.SwipeDirection = .none
     @State private var isSwipeTriggered: Bool = false
     @State private var editingTitle: String = ""
     @State private var isCurrentlyEditing: Bool = false
@@ -28,30 +28,30 @@ struct TaskRowView: View {
     @State private var cachedAccentColor: Color = .clear
 
     init(
-        task: TaskItem,
-        taskID: UUID,
+        item: ItemEntity,
+        itemID: UUID,
         index: Int = 0,
-        totalTasks: Int = 1,
+        totalItems: Int = 1,
         isSelected: Bool,
         isDragging: Binding<Bool> = .constant(false),
         isSwiping: Binding<Bool> = .constant(false),
-        isLastActiveTask: Bool = false,
+        isLastActiveItem: Bool = false,
         focusedField: FocusState<FocusField?>.Binding,
-        onToggle: @escaping (TaskItem) -> Void,
-        onTitleChange: @escaping (TaskItem, String) -> Void,
-        onDelete: @escaping (TaskItem) -> Void,
+        onToggle: @escaping (ItemEntity) -> Void,
+        onTitleChange: @escaping (ItemEntity, String) -> Void,
+        onDelete: @escaping (ItemEntity) -> Void,
         onSelect: @escaping (UUID) -> Void,
         onStartEdit: @escaping (UUID) -> Void = { _ in },
-        onEndEdit: @escaping (UUID, _ shouldCreateNewTask: Bool) -> Void = { _, _ in }
+        onEndEdit: @escaping (UUID, _ shouldCreateNewItem: Bool) -> Void = { _, _ in }
     ) {
-        self.task = task
-        self.taskID = taskID
+        self.item = item
+        self.itemID = itemID
         self.index = index
-        self.totalTasks = totalTasks
+        self.totalItems = totalItems
         self.isSelected = isSelected
         _isDragging = isDragging
         _isSwiping = isSwiping
-        self.isLastActiveTask = isLastActiveTask
+        self.isLastActiveItem = isLastActiveItem
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
@@ -62,14 +62,14 @@ struct TaskRowView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: TaskRowMetrics.contentSpacing) {
+        HStack(alignment: .center, spacing: ItemRowMetrics.contentSpacing) {
             Button {
-                onToggle(task)
+                onToggle(item)
             } label: {
                 // When a right-swipe is past the threshold, preview the toggled state
                 let previewCompleted = isSwipeTriggered && swipeDirection == .right
-                    ? !task.isCompleted
-                    : task.isCompleted
+                    ? !item.isCompleted
+                    : item.isCompleted
                 Image(systemName: previewCompleted ? "checkmark.circle.fill" : "circle")
                     .contentTransition(.identity)
                     .frame(width: 22, height: 22)
@@ -77,53 +77,53 @@ struct TaskRowView: View {
                     .font(.system(size: 17))
             }
             .buttonStyle(.borderless)
-            .accessibilityIdentifier("task-checkbox")
-            .accessibilityValue(task.isCompleted ? "checkmark.circle.fill" : "circle")
+            .accessibilityIdentifier("item-checkbox")
+            .accessibilityValue(item.isCompleted ? "checkmark.circle.fill" : "circle")
 
-            if !task.isCompleted && (isSelected || isEditing) {
+            if !item.isCompleted && (isSelected || isEditing) {
                 TappableTextField(
                     text: $editingTitle,
-                    isCompleted: task.isCompleted,
+                    isCompleted: item.isCompleted,
                     isDragging: isDragging,
-                    onEditingChanged: { editing, shouldCreateNewTask in
+                    onEditingChanged: { editing, shouldCreateNewItem in
                         DispatchQueue.main.async {
                             isCurrentlyEditing = editing
-                            if editing { onStartEdit(taskID) }
+                            if editing { onStartEdit(itemID) }
                             else {
                                 tapPoint = nil
-                                onEndEdit(taskID, shouldCreateNewTask)
+                                onEndEdit(itemID, shouldCreateNewItem)
                             }
                         }
                     },
-                    returnKeyType: isLastActiveTask && !editingTitle.isEmpty ? .next : .done,
+                    returnKeyType: isLastActiveItem && !editingTitle.isEmpty ? .next : .done,
                     onContentChange: { newTitle in
-                        guard !task.isCompleted else { return }
-                        onTitleChange(task, newTitle)
+                        guard !item.isCompleted else { return }
+                        onTitleChange(item, newTitle)
                     },
-                    uiAccessibilityIdentifier: "task-text-\(taskID.uuidString)",
+                    uiAccessibilityIdentifier: "item-text-\(itemID.uuidString)",
                     initialCursorPoint: tapPoint
                 )
-                .focused($focusedField, equals: .task(taskID))
+                .focused($focusedField, equals: .item(itemID))
                 .frame(maxWidth: .infinity, alignment: .leading)
-            } else if !task.isCompleted {
-                taskProxy
+            } else if !item.isCompleted {
+                itemProxy
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .gesture(SpatialTapGesture().onEnded { value in
                         tapPoint = value.location
-                        onSelect(taskID)
-                        focusedField = .task(taskID)
+                        onSelect(itemID)
+                        focusedField = .item(itemID)
                     })
             } else {
-                taskProxy
+                itemProxy
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(.vertical, TaskRowMetrics.contentVerticalPadding)
-        .padding(.trailing, TaskRowMetrics.contentHorizontalPadding)
+        .padding(.vertical, ItemRowMetrics.contentVerticalPadding)
+        .padding(.trailing, ItemRowMetrics.contentHorizontalPadding)
         .padding(
             .leading,
-            task.isCompleted ? TaskRowMetrics.completedLeadingPadding : TaskRowMetrics.activeLeadingPadding
+            item.isCompleted ? ItemRowMetrics.completedLeadingPadding : ItemRowMetrics.activeLeadingPadding
         )
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
@@ -132,34 +132,34 @@ struct TaskRowView: View {
             // gesture for its own hit area, so circle button taps don't also fire here.
             // If tapping a completed row while another row is being edited, preserve
             // the current focus/selection.
-            if task.isCompleted,
+            if item.isCompleted,
                let field = focusedField,
-               case .task(let id) = field,
-               id != taskID
+               case .item(let id) = field,
+               id != itemID
             {
                 return
             }
-            if task.isCompleted {
-                withAnimation { onToggle(task) }
+            if item.isCompleted {
+                withAnimation { onToggle(item) }
             } else {
                 tapPoint = nil
-                onSelect(taskID)
-                focusedField = .task(taskID)
+                onSelect(itemID)
+                focusedField = .item(itemID)
             }
         }
         .background(cardBackground)
         .overlay(alignment: .leading) {
-            if !task.isCompleted {
+            if !item.isCompleted {
                 Rectangle()
                     .fill(cachedAccentColor)
-                    .frame(width: TaskRowMetrics.accentBarWidth)
+                    .frame(width: ItemRowMetrics.accentBarWidth)
             }
         }
         .onAppear {
-            editingTitle = task.title
+            editingTitle = item.title
             cachedAccentColor = computeAccentColor()
         }
-        .onChange(of: task.title) { _, newValue in
+        .onChange(of: item.title) { _, newValue in
             if !isCurrentlyEditing {
                 editingTitle = newValue
             }
@@ -167,22 +167,22 @@ struct TaskRowView: View {
         .onChange(of: index) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
-        .onChange(of: totalTasks) { _, _ in
+        .onChange(of: totalItems) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
         .onChange(of: colorThemeRaw) { _, _ in
             cachedAccentColor = computeAccentColor()
         }
-        .taskSwipeGesture(
+        .itemSwipeGesture(
             isDragging: $isDragging,
-            isEditing: focusedField == .task(taskID),
+            isEditing: focusedField == .item(itemID),
             isSwiping: $isSwiping,
             swipeOffset: $swipeOffset,
             swipeDirection: $swipeDirection,
             isTriggered: $isSwipeTriggered,
             completeColor: cachedAccentColor,
-            onComplete: { onToggle(task) },
-            onDelete: { onDelete(task) }
+            onComplete: { onToggle(item) },
+            onDelete: { onDelete(item) }
         )
         .onChange(of: isDragging) { _, newValue in
             if newValue {
@@ -191,49 +191,49 @@ struct TaskRowView: View {
                 isSwipeTriggered = false
             }
         }
-        .clipShape(TaskCardModifier.shape)
+        .clipShape(ItemCardModifier.shape)
         .overlay(
-            isSelected && !task.isCompleted
-                ? TaskCardModifier.shape
+            isSelected && !item.isCompleted
+                ? ItemCardModifier.shape
                     .strokeBorder(cachedAccentColor.opacity(0.40), lineWidth: 2)
                 : nil
         )
     }
 
     private var isEditing: Bool {
-        focusedField == .task(taskID)
+        focusedField == .item(itemID)
     }
 
     @ViewBuilder
-    private var taskProxy: some View {
-        if task.isCompleted {
+    private var itemProxy: some View {
+        if item.isCompleted {
             Text(editingTitle)
-                .font(TaskRowMetrics.bodySUI)
+                .font(ItemRowMetrics.bodySUI)
                 .foregroundStyle(.secondary)
                 .strikethrough(true, color: .secondary)
-                .accessibilityIdentifier("task-text-\(taskID.uuidString)")
+                .accessibilityIdentifier("item-text-\(itemID.uuidString)")
         } else {
             Text(editingTitle)
-                .font(TaskRowMetrics.bodySUI)
+                .font(ItemRowMetrics.bodySUI)
                 .foregroundStyle(.primary)
-                .accessibilityIdentifier("task-text-\(taskID.uuidString)")
+                .accessibilityIdentifier("item-text-\(itemID.uuidString)")
         }
     }
 
     @MainActor
     private func computeAccentColor() -> Color {
-        guard !task.isCompleted else { return .clear }
-        return cachedTaskColor(forIndex: index, total: totalTasks, theme: colorTheme)
+        guard !item.isCompleted else { return .clear }
+        return cachedItemColor(forIndex: index, total: totalItems, theme: colorTheme)
     }
 
     @ViewBuilder
     private var cardBackground: some View {
-        if task.isCompleted {
+        if item.isCompleted {
             isSelected ? Color.completedSelected : Color.clear
         } else if isSelected {
-            Color.taskCard.overlay(cachedAccentColor.opacity(0.15))
+            Color.itemCard.overlay(cachedAccentColor.opacity(0.15))
         } else {
-            Color.taskCard
+            Color.itemCard
         }
     }
 }

@@ -96,12 +96,12 @@ struct KeyCommandBridge: UIViewRepresentable {
 
         // MARK: - Menu item actions (from buildMenu via responder chain)
 
-        @objc func handleNewTask() {
-            IOSMenuCoordinator.shared.newTask?()
+        @objc func handleNewItem() {
+            IOSMenuCoordinator.shared.newItem?()
         }
 
-        @objc func handleDeleteTask() {
-            IOSMenuCoordinator.shared.deleteTask?()
+        @objc func handleDeleteItem() {
+            IOSMenuCoordinator.shared.deleteItem?()
         }
 
         @objc func handleMoveUp() {
@@ -120,9 +120,9 @@ struct KeyCommandBridge: UIViewRepresentable {
 
         override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
             switch action {
-            case IOSMenuSelectors.newTask:
+            case IOSMenuSelectors.newItem:
                 return isActive
-            case IOSMenuSelectors.deleteTask:
+            case IOSMenuSelectors.deleteItem:
                 return isActive && IOSMenuCoordinator.shared.canDelete
             case IOSMenuSelectors.moveUp:
                 return isActive && IOSMenuCoordinator.shared.canMoveUp

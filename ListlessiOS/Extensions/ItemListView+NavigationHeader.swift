@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension TaskListView {
+extension ItemListView {
     @ViewBuilder
     private var settingsButton: some View {
         Button {
@@ -41,7 +41,7 @@ extension TaskListView {
         .padding(.bottom, 8)
         .contentShape(Rectangle())
         .onTapGesture {
-            fState.selectedTaskID = nil
+            fState.selectedItemID = nil
             focusedField = nil
         }
     }

@@ -12,7 +12,7 @@ class IOSAppDelegate: UIResponder, UIApplicationDelegate {
         // File menu — New Item (⌘N)
         let newItem = UIKeyCommand(
             title: "New Item",
-            action: IOSMenuSelectors.newTask,
+            action: IOSMenuSelectors.newItem,
             input: "n",
             modifierFlags: .command
         )
@@ -37,7 +37,7 @@ class IOSAppDelegate: UIResponder, UIApplicationDelegate {
         )
         let delete = UIKeyCommand(
             title: "Delete",
-            action: IOSMenuSelectors.deleteTask,
+            action: IOSMenuSelectors.deleteItem,
             input: "\u{8}",
             modifierFlags: .command
         )
@@ -73,8 +73,8 @@ struct ListlessiOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TaskListView(
-                store: TaskStore(persistenceController: persistenceController),
+            ItemListView(
+                store: ItemStore(persistenceController: persistenceController),
                 syncMonitor: persistenceController.syncMonitor
             )
                 .safeAreaInset(edge: .top) {

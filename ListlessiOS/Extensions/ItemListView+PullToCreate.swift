@@ -1,26 +1,26 @@
 import SwiftUI
 
-extension TaskListView {
+extension ItemListView {
 
     // MARK: - Pull-to-Create Draft Helpers
 
     func revealPhantomRow() -> UUID {
-        let taskID = draftPrependRowID
+        let itemID = draftPrependRowID
 
         if draftPlacement != .prepend, draftPlacement != nil {
-            commitDraftTask()
+            commitDraftItem()
         }
         clearDragState()
         draftTitle = ""
         draftPlacement = .prepend
-        fState.selectedTaskID = taskID
-        fState.pendingFocus = .task(taskID)
-        focusedField = .task(taskID)
+        fState.selectedItemID = itemID
+        fState.pendingFocus = .item(itemID)
+        focusedField = .item(itemID)
 
-        return taskID
+        return itemID
     }
 
     func commitPhantomRow() {
-        commitDraftTask()
+        commitDraftItem()
     }
 }

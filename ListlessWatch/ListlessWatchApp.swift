@@ -11,8 +11,8 @@ struct ListlessWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TaskListView(
-                store: TaskStore(persistenceController: persistenceController),
+            ItemListView(
+                store: ItemStore(persistenceController: persistenceController),
                 syncMonitor: persistenceController.syncMonitor
             )
             .environment(\.managedObjectContext, persistenceController.viewContext)

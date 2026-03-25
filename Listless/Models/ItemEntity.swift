@@ -2,18 +2,18 @@ import CoreData
 import Foundation
 
 @objc(TaskItem)
-public class TaskItem: NSManagedObject, Identifiable {
+public class ItemEntity: NSManagedObject, Identifiable {
     private enum Keys {
-        private static func key<Value>(_ keyPath: KeyPath<TaskItem, Value>) -> String {
+        private static func key<Value>(_ keyPath: KeyPath<ItemEntity, Value>) -> String {
             NSExpression(forKeyPath: keyPath).keyPath
         }
 
-        static let id = key(\TaskItem.id as KeyPath<TaskItem, UUID>)
-        static let title = key(\TaskItem.title)
-        static let createdAt = key(\TaskItem.createdAt)
-        static let updatedAt = key(\TaskItem.updatedAt)
-        static let sortOrder = key(\TaskItem.sortOrder)
-        static let completedOrder = key(\TaskItem.completedOrder)
+        static let id = key(\ItemEntity.id as KeyPath<ItemEntity, UUID>)
+        static let title = key(\ItemEntity.title)
+        static let createdAt = key(\ItemEntity.createdAt)
+        static let updatedAt = key(\ItemEntity.updatedAt)
+        static let sortOrder = key(\ItemEntity.sortOrder)
+        static let completedOrder = key(\ItemEntity.completedOrder)
     }
 
     @NSManaged public var id: UUID
@@ -25,8 +25,8 @@ public class TaskItem: NSManagedObject, Identifiable {
 
     public var isCompleted: Bool { completedOrder > 0 }
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<TaskItem> {
-        return NSFetchRequest<TaskItem>(entityName: "TaskItem")
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<ItemEntity> {
+        return NSFetchRequest<ItemEntity>(entityName: "TaskItem")
     }
 
     public override func awakeFromInsert() {

@@ -41,18 +41,18 @@ enum ColorTheme: Int, CaseIterable, Identifiable {
     }
 }
 
-private struct TaskAccentColorKey: Hashable {
+private struct ItemAccentColorKey: Hashable {
     let index: Int
     let total: Int
     let theme: ColorTheme
 }
 
 @MainActor
-private enum TaskAccentColorCache {
-    static var colors: [TaskAccentColorKey: Color] = [:]
+private enum ItemAccentColorCache {
+    static var colors: [ItemAccentColorKey: Color] = [:]
 }
 
-func taskColor(forIndex index: Int, total: Int, theme: ColorTheme = .pilbara) -> Color {
+func itemColor(forIndex index: Int, total: Int, theme: ColorTheme = .pilbara) -> Color {
     let top = theme.top
     guard total > 1 else { return Color(hue: top.h, saturation: top.s, brightness: top.b) }
 
@@ -68,14 +68,14 @@ func taskColor(forIndex index: Int, total: Int, theme: ColorTheme = .pilbara) ->
 }
 
 @MainActor
-func cachedTaskColor(forIndex index: Int, total: Int, theme: ColorTheme = .pilbara) -> Color {
-    let key = TaskAccentColorKey(index: index, total: total, theme: theme)
-    if let cached = TaskAccentColorCache.colors[key] {
+func cachedItemColor(forIndex index: Int, total: Int, theme: ColorTheme = .pilbara) -> Color {
+    let key = ItemAccentColorKey(index: index, total: total, theme: theme)
+    if let cached = ItemAccentColorCache.colors[key] {
         return cached
     }
 
-    let computed = taskColor(forIndex: index, total: total, theme: theme)
-    TaskAccentColorCache.colors[key] = computed
+    let computed = itemColor(forIndex: index, total: total, theme: theme)
+    ItemAccentColorCache.colors[key] = computed
     return computed
 }
 
