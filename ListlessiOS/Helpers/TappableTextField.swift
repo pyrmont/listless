@@ -70,6 +70,7 @@ struct TappableTextField: UIViewRepresentable {
         let dragging = isDragging
         if dragging != context.coordinator.isDragging {
             let coordinator = context.coordinator
+            // Task (not DispatchQueue.main.async) since coordinator is Sendable.
             Task { @MainActor in
                 coordinator.setDragging(dragging)
             }
