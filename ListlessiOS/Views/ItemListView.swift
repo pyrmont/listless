@@ -22,6 +22,10 @@ struct ItemListView: View, ItemListViewProtocol {
         var draftPlacement: DraftItemPlacement?
         var draftTitle: String = ""
         var fetchWorkaround: Int = 0
+
+        var isShowingOverlay: Bool {
+            isShowingSettings || isShowingSyncDiagnostics || isShowingRenameAlert
+        }
     }
 
     struct PullStateData {
@@ -401,9 +405,8 @@ struct ItemListView: View, ItemListViewProtocol {
             .accessibilityIdentifier("item-list-scrollview")
             .background {
                 let isEditing = if case .item = focusedFieldBinding { true } else { false }
-                let isShowingSheet = iState.isShowingSettings || iState.isShowingSyncDiagnostics
                 KeyCommandBridge(
-                    isActive: !isEditing && !isShowingSheet,
+                    isActive: !isEditing && !iState.isShowingOverlay,
                     onUp: { _ = navigateUp() },
                     onDown: { _ = navigateDown() },
                     onSpace: { _ = toggleSelectedItem() },
@@ -502,8 +505,7 @@ struct ItemListView: View, ItemListViewProtocol {
                     handleFocusChange(from: oldValue, to: newValue)
 
                     if newValue == nil,
-                        !iState.isShowingSettings,
-                        !iState.isShowingSyncDiagnostics
+                        !iState.isShowingOverlay
                     {
                         if let pending = fState.pendingFocus {
                             focusedFieldBinding = pending
