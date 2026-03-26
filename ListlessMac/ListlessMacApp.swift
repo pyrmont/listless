@@ -16,7 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private static let appearanceModeKey = "appearanceMode"
     private static let colorThemeKey = "colorTheme"
 
-    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText", "colorTheme"])
+    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["listName", "colorTheme"])
 
     private var keyWindowCoordinator: WindowCoordinator? {
         guard let window = NSApp.keyWindow else { return nil }

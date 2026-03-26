@@ -35,7 +35,7 @@ struct ItemListView: View, ItemListViewProtocol {
         var headerHeight: CGFloat = 60
     }
 
-    @AppStorage("headingText") var headingText = "Items"
+    @AppStorage("listName") var listName = "Items"
     @AppStorage("colorTheme") private var colorThemeRaw = 0
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @AppStorage("showFPSOverlay") private var showFPSOverlay = false
@@ -210,7 +210,7 @@ struct ItemListView: View, ItemListViewProtocol {
     }
 
     func showRenameAlert() {
-        iState.renameText = headingText
+        iState.renameText = listName
         iState.isShowingRenameAlert = true
     }
 
@@ -463,7 +463,7 @@ struct ItemListView: View, ItemListViewProtocol {
                     let trimmed = iState.renameText
                         .trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmed.isEmpty {
-                        headingText = trimmed
+                        listName = trimmed
                     }
                 }
                 .keyboardShortcut(.defaultAction)

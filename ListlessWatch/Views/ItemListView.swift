@@ -5,7 +5,7 @@ struct ItemListView: View {
     let store: ItemStore
     let syncMonitor: CloudKitSyncMonitor
 
-    @AppStorage("headingText") private var headingText = "Items"
+    @AppStorage("listName") private var listName = "Items"
     @AppStorage("colorTheme") private var colorThemeRaw = 0
     private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
 
@@ -58,7 +58,7 @@ struct ItemListView: View {
                     }
                 }
             }
-            .navigationTitle(headingText)
+            .navigationTitle(listName)
         }
     }
 

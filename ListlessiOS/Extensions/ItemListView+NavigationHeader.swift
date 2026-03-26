@@ -49,7 +49,7 @@ extension ItemListView {
 
     var navigationHeader: some View {
         HStack {
-            Text(headingText)
+            Text(listName)
                 .font(.largeTitle)
                 .fontWeight(.bold)
             Spacer()
