@@ -9,11 +9,10 @@ extension ItemListView {
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.title2)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 44, height: 44)
+                    .padding()
+                    .glassEffect(.clear)
             }
-            .buttonStyle(.plain)
-            .glassEffect(.clear.interactive(), in: .circle)
+            .tint(.secondary)
         } else {
             Menu {
                 overflowMenuItems
