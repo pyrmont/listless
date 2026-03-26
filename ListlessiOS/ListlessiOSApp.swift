@@ -63,7 +63,7 @@ struct ListlessiOSApp: App {
     @UIApplicationDelegateAdaptor(IOSAppDelegate.self) var appDelegate
     @AppStorage("appearanceMode") private var appearanceMode = 0
     private let persistenceController: PersistenceController
-    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText"])
+    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText", "colorTheme"])
 
     init() {
         let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")

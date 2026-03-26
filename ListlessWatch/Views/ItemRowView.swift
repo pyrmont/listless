@@ -4,6 +4,7 @@ struct ItemRowView: View {
     let item: ItemEntity
     let index: Int
     let totalActive: Int
+    let colorTheme: ColorTheme
     let onToggle: (ItemEntity) -> Void
 
     var body: some View {
@@ -15,7 +16,7 @@ struct ItemRowView: View {
                     .foregroundColor(
                         item.isCompleted
                             ? .secondary
-                            : cachedItemColor(forIndex: index, total: totalActive)
+                            : cachedItemColor(forIndex: index, total: totalActive, theme: colorTheme)
                     )
                     .font(.system(size: 17))
 
@@ -33,7 +34,7 @@ struct ItemRowView: View {
                 : AnyView(
                     ZStack(alignment: .top) {
                         Color(white: 0.15)
-                        cachedItemColor(forIndex: index, total: totalActive)
+                        cachedItemColor(forIndex: index, total: totalActive, theme: colorTheme)
                             .frame(height: 3)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

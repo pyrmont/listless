@@ -16,6 +16,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private static let appearanceModeKey = "appearanceMode"
     private static let colorThemeKey = "colorTheme"
 
+    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText", "colorTheme"])
+
     private var keyWindowCoordinator: WindowCoordinator? {
         guard let window = NSApp.keyWindow else { return nil }
         return coordinators.object(forKey: window)
@@ -34,6 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSWindow.allowsAutomaticWindowTabbing = false
         applyAppearanceMode(UserDefaults.standard.integer(forKey: Self.appearanceModeKey))
+        keyValueSyncBridge.start()
         installMainMenu()
         openNewWindow()
     }

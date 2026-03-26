@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct ListlessWatchApp: App {
     private let persistenceController = PersistenceController.shared
-    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText"])
+    private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["headingText", "colorTheme"])
 
     init() {
         keyValueSyncBridge.start()

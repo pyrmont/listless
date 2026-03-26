@@ -6,6 +6,8 @@ struct ItemListView: View {
     let syncMonitor: CloudKitSyncMonitor
 
     @AppStorage("headingText") private var headingText = "Items"
+    @AppStorage("colorTheme") private var colorThemeRaw = 0
+    private var colorTheme: ColorTheme { ColorTheme(rawValue: colorThemeRaw) ?? .pilbara }
 
     @FetchRequest(
         sortDescriptors: [
@@ -35,6 +37,7 @@ struct ItemListView: View {
                                 item: item,
                                 index: index,
                                 totalActive: activeItems.count,
+                                colorTheme: colorTheme,
                                 onToggle: { toggleItem($0) }
                             )
                         }
@@ -46,6 +49,7 @@ struct ItemListView: View {
                                         item: item,
                                         index: 0,
                                         totalActive: 0,
+                                        colorTheme: colorTheme,
                                         onToggle: { toggleItem($0) }
                                     )
                                 }
