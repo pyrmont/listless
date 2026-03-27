@@ -16,6 +16,7 @@ ARCHIVE_PATH="/tmp/Listless-latest.xcarchive"
 EXPORT_PATH="/tmp/Listless-export"
 EXPORT_PLIST="/tmp/Listless-ExportOptions.plist"
 IPA_PATH="$EXPORT_PATH/Listless iOS.ipa"
+DEV_P12="$REPO_ROOT/.asc/ios-signing/dev.p12"
 DIST_P12="$REPO_ROOT/.asc/ios-signing/dist-headless.p12"
 TMP_KEYCHAIN="$REPO_ROOT/.asc/build.keychain-db"
 
@@ -36,6 +37,8 @@ security delete-keychain "$TMP_KEYCHAIN" 2>/dev/null || true
 security create-keychain -p "$TMP_KEYCHAIN_PASS" "$TMP_KEYCHAIN"
 security unlock-keychain -p "$TMP_KEYCHAIN_PASS" "$TMP_KEYCHAIN"
 security set-keychain-settings -lut 21600 "$TMP_KEYCHAIN"
+security import "$DEV_P12" -k "$TMP_KEYCHAIN" -P "$DEV_P12_PASS" \
+    -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 security import "$DIST_P12" -k "$TMP_KEYCHAIN" -P "$DIST_P12_PASS" \
     -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild: \

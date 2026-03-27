@@ -18,6 +18,7 @@ EXPORT_PATH="/tmp/Listless-mac-export"
 EXPORT_PLIST="/tmp/Listless-mac-ExportOptions.plist"
 PKG_PATH="$EXPORT_PATH/Listless.pkg"
 SIGNING_DIR="$REPO_ROOT/.asc/macos-signing"
+DEV_P12="$REPO_ROOT/.asc/ios-signing/dev.p12"
 APP_P12="$SIGNING_DIR/app-headless.p12"
 INSTALLER_P12="$SIGNING_DIR/installer-headless.p12"
 TMP_KEYCHAIN="$REPO_ROOT/.asc/build.keychain-db"
@@ -34,6 +35,8 @@ security delete-keychain "$TMP_KEYCHAIN" 2>/dev/null || true
 security create-keychain -p "$TMP_KEYCHAIN_PASS" "$TMP_KEYCHAIN"
 security unlock-keychain -p "$TMP_KEYCHAIN_PASS" "$TMP_KEYCHAIN"
 security set-keychain-settings -lut 21600 "$TMP_KEYCHAIN"
+security import "$DEV_P12" -k "$TMP_KEYCHAIN" -P "$DEV_P12_PASS" \
+    -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 security import "$APP_P12" -k "$TMP_KEYCHAIN" -P "$DIST_P12_PASS" \
     -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 security import "$INSTALLER_P12" -k "$TMP_KEYCHAIN" -P "$DIST_P12_PASS" \
