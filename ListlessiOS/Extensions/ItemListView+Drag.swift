@@ -17,6 +17,7 @@ extension ItemListView {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 setDragOrder(order)
             }
+            revealAdjacentItem(order: order, draggedID: draggedID, fingerY: point.y)
             return
         }
 
@@ -25,6 +26,33 @@ extension ItemListView {
             order.swapAt(currentIndex, currentIndex - 1)
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 setDragOrder(order)
+            }
+            revealAdjacentItem(order: order, draggedID: draggedID, fingerY: point.y)
+            return
+        }
+
+        // No swap, but proactively scroll if finger is in an edge zone
+        revealAdjacentItem(order: order, draggedID: draggedID, fingerY: point.y)
+    }
+
+    private func revealAdjacentItem(order: [UUID], draggedID: UUID, fingerY: CGFloat) {
+        guard let idx = order.firstIndex(of: draggedID) else { return }
+
+        let now = CACurrentMediaTime()
+        guard now - layoutStorage.lastAutoScrollTime > 0.2 else { return }
+
+        let screenHeight = UIScreen.main.bounds.height
+        let edgeZone: CGFloat = 120
+
+        if fingerY > screenHeight - edgeZone, idx + 1 < order.count {
+            layoutStorage.lastAutoScrollTime = now
+            withAnimation(.easeInOut(duration: 0.2)) {
+                scrollPosition.scrollTo(id: order[idx + 1], anchor: .bottom)
+            }
+        } else if fingerY < edgeZone, idx > 0 {
+            layoutStorage.lastAutoScrollTime = now
+            withAnimation(.easeInOut(duration: 0.2)) {
+                scrollPosition.scrollTo(id: order[idx - 1], anchor: .top)
             }
         }
     }

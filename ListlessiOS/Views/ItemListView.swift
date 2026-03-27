@@ -6,6 +6,7 @@ struct ItemListView: View, ItemListViewProtocol {
         var draggedRowWidth: CGFloat = 0
         var draggedRowFrame: CGRect = .zero
         var contentBottomY: CGFloat = 0
+        var lastAutoScrollTime: CFTimeInterval = 0
     }
 
     struct InteractionStateData {
@@ -56,6 +57,7 @@ struct ItemListView: View, ItemListViewProtocol {
     @State var pState = PullStateData()
     @State var isDragging = false
     @State var layoutStorage = LayoutStorage()
+    @State var scrollPosition = ScrollPosition()
 
     var focusedField: FocusField? {
         get { fState.focusedField }
@@ -481,7 +483,6 @@ struct ItemListView: View, ItemListViewProtocol {
     private var itemScrollView: some View {
         ZStack(alignment: .top) {
             ScrollView {
-              ScrollViewReader { scrollProxy in
                 VStack(alignment: .leading, spacing: vStackSpacing) {
                     navigationHeader
                         .padding(.bottom, 12)
@@ -522,7 +523,7 @@ struct ItemListView: View, ItemListViewProtocol {
                         id != draftPrependRowID
                     {
                         withAnimation {
-                            scrollProxy.scrollTo(id)
+                            scrollPosition.scrollTo(id: id)
                         }
                     }
                 }
@@ -530,12 +531,12 @@ struct ItemListView: View, ItemListViewProtocol {
                     if let newID, draggedItemID == nil {
                         guard newID != draftPrependRowID else { return }
                         withAnimation {
-                            scrollProxy.scrollTo(newID)
+                            scrollPosition.scrollTo(id: newID)
                         }
                     }
                 }
-              }
             }
+            .scrollPosition($scrollPosition)
             .scrollDisabled(draggedItemID != nil || iState.isSwiping)
             .scrollBounceBehavior(.always)
             .contentMargins(.bottom, 20)
