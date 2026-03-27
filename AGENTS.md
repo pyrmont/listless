@@ -16,6 +16,10 @@ Listless is a to-do list app for Apple platforms. It is intended to run on iPhon
 - `ListlessWatch/` contains the watchOS app entry point and a simplified `Views/` subdirectory (`ItemListView`, `ItemRowView`). The watchOS target selectively includes only `Listless/Models`, `Listless/Sync`, and `Listless/Helpers/AccentColor.swift` — it does not use `ItemListViewProtocol` or the shared extensions. The watch app is read-only (no creating, editing, reordering, or deleting) and supports toggling item completion only.
 - `Tests/Unit` covers ordering, editing, and persistence; `Tests/Support` holds shared test helpers and fixtures.
 
+## Deployment Targets
+- iOS 18.0, macOS 14.0, watchOS 11.0 (defined in `project.yml`).
+- Use platform APIs available at these floors freely; no need for `@available` checks or older-OS fallbacks.
+
 ## Build, Test, and Development Commands
 - `xed .` launches the project in Xcode.
 - `xcodegen generate` regenerates `Listless.xcodeproj` from `project.yml`.
