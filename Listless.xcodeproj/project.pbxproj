@@ -64,6 +64,7 @@
 		90BC899E66B98517A91F2627 /* ItemListView+Drag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D4ED76F5996A4308D2BC7C8 /* ItemListView+Drag.swift */; };
 		930AE396D982D7C46E498311 /* ItemEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 138DCA35ED82A745E4745175 /* ItemEntity.swift */; };
 		96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
+		9853BD0C426C4F4348D08E8F /* TutorialSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F7B7D46010E217FC0A5BFF /* TutorialSeeder.swift */; };
 		99D17075DA3F00F52A18BB4D /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		9E75E4AEEF577E0096E22DBA /* ItemListView+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03343E3D48A0EF2B146528E2 /* ItemListView+Toolbar.swift */; };
 		A0AA8FD4C542E9AEB2437BC2 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
@@ -240,6 +241,7 @@
 		E8448C5778F75F52719114AF /* PlatformTextFieldWidthModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformTextFieldWidthModifier.swift; sourceTree = "<group>"; };
 		E85BFCBD4DCB35CC1C8F9401 /* ItemListView+PullGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+PullGestures.swift"; sourceTree = "<group>"; };
 		E8B5E429B253183F887C5FD6 /* KeyCommandBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommandBridge.swift; sourceTree = "<group>"; };
+		E8F7B7D46010E217FC0A5BFF /* TutorialSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialSeeder.swift; sourceTree = "<group>"; };
 		E9288507CE6023425D1DE724 /* SyncDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDiagnosticsView.swift; sourceTree = "<group>"; };
 		EADAA53B8BCBC80AEFF191EF /* ListlessMacUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessMacUITests.swift; sourceTree = "<group>"; };
 		F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClickMonitor.swift; sourceTree = "<group>"; };
@@ -264,6 +266,7 @@
 				FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */,
 				E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */,
 				6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */,
+				E8F7B7D46010E217FC0A5BFF /* TutorialSeeder.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -847,6 +850,7 @@
 				072594B24D88AD6D1DF7AFE5 /* SettingsView.swift in Sources */,
 				4DD2030E321567BD25661760 /* SyncDiagnosticsView.swift in Sources */,
 				0F12D56A528FCBF8A67864CB /* TappableTextField.swift in Sources */,
+				9853BD0C426C4F4348D08E8F /* TutorialSeeder.swift in Sources */,
 				1A66A0454558B207AF9265D4 /* UndoToast.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -2,6 +2,30 @@ import SwiftUI
 
 extension ItemListView {
     @ViewBuilder
+    private var finishButton: some View {
+        if #available(iOS 26.0, *) {
+            Button {
+                onFinishTutorial?()
+            } label: {
+                Text("Finish")
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .glassEffect(.clear)
+            }
+            .tint(.secondary)
+        } else {
+            Button("Finish") {
+                onFinishTutorial?()
+            }
+            .font(.body)
+            .fontWeight(.semibold)
+            .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
     private var overflowMenu: some View {
         if #available(iOS 26.0, *) {
             Menu {
@@ -49,20 +73,24 @@ extension ItemListView {
 
     var navigationHeader: some View {
         HStack {
-            Text(listName)
+            Text(isTutorial ? "Tutorial" : listName)
                 .font(.largeTitle)
                 .fontWeight(.bold)
             Spacer()
-            if syncMonitor.hasDiagnosticsIssue {
-                Button {
-                    showSyncDiagnostics()
-                } label: {
-                    Image(systemName: "exclamationmark.icloud")
-                        .font(.title2)
-                        .foregroundStyle(.red)
+            if isTutorial {
+                finishButton
+            } else {
+                if syncMonitor.hasDiagnosticsIssue {
+                    Button {
+                        showSyncDiagnostics()
+                    } label: {
+                        Image(systemName: "exclamationmark.icloud")
+                            .font(.title2)
+                            .foregroundStyle(.red)
+                    }
                 }
+                overflowMenu
             }
-            overflowMenu
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)

@@ -58,6 +58,7 @@ struct ItemListView: View, ItemListViewProtocol {
     @State var isDragging = false
     @State var layoutStorage = LayoutStorage()
     @State var scrollPosition = ScrollPosition()
+    @State private var showTutorialHint = false
 
     var focusedField: FocusField? {
         get { fState.focusedField }
@@ -153,9 +154,13 @@ struct ItemListView: View, ItemListViewProtocol {
     var flickThreshold: CGFloat { 500 }
     var isCompletelyEmpty: Bool { activeItems.isEmpty && completedItems.isEmpty }
 
-    init(store: ItemStore, syncMonitor: CloudKitSyncMonitor) {
+    var onFinishTutorial: (() -> Void)?
+    var isTutorial: Bool { onFinishTutorial != nil }
+
+    init(store: ItemStore, syncMonitor: CloudKitSyncMonitor, onFinishTutorial: (() -> Void)? = nil) {
         self.store = store
         self.syncMonitor = syncMonitor
+        self.onFinishTutorial = onFinishTutorial
     }
 
     func clearDraftItemUI(at placement: DraftItemPlacement, hasTitle: Bool) {
@@ -444,6 +449,36 @@ struct ItemListView: View, ItemListViewProtocol {
                 try? await Task.sleep(for: .seconds(7))
                 guard !Task.isCancelled else { return }
                 dismissUndoToast()
+            }
+            .overlay(alignment: .top) {
+                if showTutorialHint {
+                    Text("Submit empty to remove")
+                        .font(.body)
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(red: 1.0, green: 0.84, blue: 0.04))
+                        )
+                        .padding(.top, 24)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .onChange(of: iState.draftPlacement) { _, newValue in
+                if isTutorial, newValue == .append {
+                    withAnimation {
+                        showTutorialHint = true
+                    }
+                }
+            }
+            .task(id: showTutorialHint) {
+                guard showTutorialHint else { return }
+                try? await Task.sleep(for: .seconds(4))
+                guard !Task.isCancelled else { return }
+                withAnimation {
+                    showTutorialHint = false
+                }
             }
             .sheet(isPresented: $iState.isShowingSyncDiagnostics) {
                 NavigationStack {

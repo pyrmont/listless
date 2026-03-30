@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @AppStorage("debugMode") private var debugMode = false
     @AppStorage("showFPSOverlay") private var showFPSOverlay = false
+    @AppStorage("didCompleteTutorial") private var didCompleteTutorial = false
     @State private var easterEggTaps = 0
 
     var body: some View {
@@ -63,6 +64,10 @@ struct SettingsView: View {
                         Toggle("FPS Overlay", isOn: $showFPSOverlay)
                         NavigationLink("iCloud Diagnostics") {
                             SyncDiagnosticsView(syncMonitor: syncMonitor)
+                        }
+                        Button("Reset Tutorial") {
+                            didCompleteTutorial = false
+                            dismiss()
                         }
                     }
                 }

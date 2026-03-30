@@ -62,44 +62,86 @@ class IOSAppDelegate: UIResponder, UIApplicationDelegate {
 struct ListlessiOSApp: App {
     @UIApplicationDelegateAdaptor(IOSAppDelegate.self) var appDelegate
     @AppStorage("appearanceMode") private var appearanceMode = 0
+    @AppStorage("didCompleteTutorial") private var didCompleteTutorial = false
     private let persistenceController: PersistenceController
+    private let tutorialPersistenceController = PersistenceController(inMemory: true)
     private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["listName", "colorTheme"])
 
     init() {
         let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
         persistenceController = isUITesting ? PersistenceController(inMemory: true) : .shared
         keyValueSyncBridge.start()
+
+        if isUITesting {
+            UserDefaults.standard.set(true, forKey: "didCompleteTutorial")
+        }
+
+        let tutorialStore = ItemStore(persistenceController: tutorialPersistenceController)
+        TutorialSeeder.seed(store: tutorialStore)
     }
 
     var body: some Scene {
         WindowGroup {
-            ItemListView(
-                store: ItemStore(persistenceController: persistenceController),
-                syncMonitor: persistenceController.syncMonitor
-            )
-                .safeAreaInset(edge: .top) {
-                    Color.clear.frame(height: 8)
-                }
-                .environment(\.managedObjectContext, persistenceController.viewContext)
-                .onChange(of: appearanceMode, initial: true) { _, newValue in
-                    let style: UIUserInterfaceStyle = switch newValue {
-                    case 1: .light
-                    case 2: .dark
-                    default: .unspecified
-                    }
-                    for scene in UIApplication.shared.connectedScenes {
-                        guard let windowScene = scene as? UIWindowScene else { continue }
-                        for window in windowScene.windows {
-                            window.overrideUserInterfaceStyle = style
-                        }
-                    }
-                }
-                .overlay(alignment: .top) {
-                    Color.outerBackground
-                        .opacity(0.9)
-                        .ignoresSafeArea(edges: .top)
-                        .frame(height: 0)
-                }
+            if didCompleteTutorial {
+                mainListView
+            } else {
+                tutorialListView
+            }
+        }
+    }
+
+    private var mainListView: some View {
+        ItemListView(
+            store: ItemStore(persistenceController: persistenceController),
+            syncMonitor: persistenceController.syncMonitor
+        )
+        .safeAreaInset(edge: .top) {
+            Color.clear.frame(height: 8)
+        }
+        .environment(\.managedObjectContext, persistenceController.viewContext)
+        .onChange(of: appearanceMode, initial: true) { _, newValue in
+            applyAppearanceMode(newValue)
+        }
+        .overlay(alignment: .top) {
+            Color.outerBackground
+                .opacity(0.9)
+                .ignoresSafeArea(edges: .top)
+                .frame(height: 0)
+        }
+    }
+
+    private var tutorialListView: some View {
+        ItemListView(
+            store: ItemStore(persistenceController: tutorialPersistenceController),
+            syncMonitor: tutorialPersistenceController.syncMonitor,
+            onFinishTutorial: { didCompleteTutorial = true }
+        )
+        .safeAreaInset(edge: .top) {
+            Color.clear.frame(height: 8)
+        }
+        .environment(\.managedObjectContext, tutorialPersistenceController.viewContext)
+        .onChange(of: appearanceMode, initial: true) { _, newValue in
+            applyAppearanceMode(newValue)
+        }
+        .overlay(alignment: .top) {
+            Color.outerBackground
+                .opacity(0.9)
+                .ignoresSafeArea(edges: .top)
+                .frame(height: 0)
+        }
+    }
+
+    private func applyAppearanceMode(_ mode: Int) {
+        let style: UIUserInterfaceStyle = switch mode {
+        case 1: .light
+        case 2: .dark
+        default: .unspecified
+        }
+        for scene in UIApplication.shared.connectedScenes {
+            guard let windowScene = scene as? UIWindowScene else { continue }
+            for window in windowScene.windows {
+                window.overrideUserInterfaceStyle = style
+            }
         }
     }
 }
