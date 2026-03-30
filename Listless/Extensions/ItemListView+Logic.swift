@@ -86,21 +86,17 @@ extension ItemListViewProtocol {
     }
 
     func createNewItem() {
-        revealDraftItem(at: .append)
+        revealDraftItem(at: .append, animated: true)
     }
 
-    func revealDraftItem(at placement: DraftItemPlacement) {
+    func revealDraftItem(at placement: DraftItemPlacement, animated: Bool = false) {
         if draftPlacement != placement, draftPlacement != nil {
             commitDraftItem()
         }
 
         clearDragState()
-        let itemID = draftID(for: placement)
         draftTitle = ""
-        draftPlacement = placement
-        fState.pendingFocus = .item(itemID)
-        focusedField = .item(itemID)
-        fState.selectedItemID = itemID
+        revealDraftItemUI(at: placement, animated: animated)
     }
 
     func beginDraftItemEditing(_ placement: DraftItemPlacement) {
@@ -199,7 +195,7 @@ extension ItemListViewProtocol {
             fState.selectedItemID = nil
             focusedField = nil
         } else {
-            revealDraftItem(at: .append)
+            revealDraftItem(at: .append, animated: true)
         }
     }
 

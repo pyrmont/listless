@@ -163,6 +163,22 @@ struct ItemListView: View, ItemListViewProtocol {
         self.onFinishTutorial = onFinishTutorial
     }
 
+    func revealDraftItemUI(at placement: DraftItemPlacement, animated: Bool) {
+        let itemID = draftID(for: placement)
+        if animated {
+            withAnimation { draftPlacement = placement }
+        } else {
+            draftPlacement = placement
+        }
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            fState.pendingFocus = .item(itemID)
+            focusedField = .item(itemID)
+            fState.selectedItemID = itemID
+        }
+    }
+
     func clearDraftItemUI(at placement: DraftItemPlacement, hasTitle: Bool) {
         let clear: () -> Void = {
             if draftPlacement == placement {
@@ -191,6 +207,8 @@ struct ItemListView: View, ItemListViewProtocol {
             withTransaction(transaction) {
                 clear()
             }
+        } else if !hasTitle {
+            withAnimation { clear() }
         } else {
             clear()
         }
@@ -240,7 +258,13 @@ struct ItemListView: View, ItemListViewProtocol {
         let frameHeight: CGFloat = isPrependDraftVisible
             ? 0
             : min(pullOffset, indicatorHeight + rowGap)
-        let opacity: Double = isPrependDraftVisible || pullOffset <= 0 ? 0 : 1
+        let opacity: Double = if isPrependDraftVisible || pullOffset <= 0 {
+            0
+        } else if displayActiveItems.isEmpty {
+            min(1, pullOffset / indicatorHeight)
+        } else {
+            1
+        }
         PullToCreateIndicator(
             pullOffset: max(0, indicatorDisplayOffset),
             threshold: pullCreateThreshold
@@ -248,6 +272,11 @@ struct ItemListView: View, ItemListViewProtocol {
         .frame(
             height: frameHeight,
             alignment: .top
+        )
+        .offset(
+            y: displayActiveItems.isEmpty
+                ? -indicatorHeight * (1 - min(1, pullOffset / indicatorHeight))
+                : 0
         )
         .opacity(opacity)
     }
@@ -371,6 +400,23 @@ struct ItemListView: View, ItemListViewProtocol {
         }
 
         draftAppendRow
+            .zIndex(3)
+            .overlay(alignment: .top) {
+                if showTutorialHint {
+                    Text("Submit empty to remove")
+                        .font(.body)
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(red: 1.0, green: 0.84, blue: 0.04))
+                        )
+                        .shadow(color: .black.opacity(0.15), radius: 8, y: 2)
+                        .offset(y: -56)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
 
         ForEach(completedItems) { item in
             let itemID = item.id
@@ -449,21 +495,6 @@ struct ItemListView: View, ItemListViewProtocol {
                 try? await Task.sleep(for: .seconds(7))
                 guard !Task.isCancelled else { return }
                 dismissUndoToast()
-            }
-            .overlay(alignment: .top) {
-                if showTutorialHint {
-                    Text("Submit empty to remove")
-                        .font(.body)
-                        .foregroundStyle(.black)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(red: 1.0, green: 0.84, blue: 0.04))
-                        )
-                        .padding(.top, 24)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
             }
             .onChange(of: iState.draftPlacement) { _, newValue in
                 if isTutorial, newValue == .append {

@@ -13,5 +13,6 @@ protocol ItemListViewProtocol {
     var draftPlacement: DraftItemPlacement? { get nonmutating set }
     var draftTitle: String { get nonmutating set }
     func didStartDrag()
+    func revealDraftItemUI(at placement: DraftItemPlacement, animated: Bool)
     func clearDraftItemUI(at placement: DraftItemPlacement, hasTitle: Bool)
 }

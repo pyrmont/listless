@@ -27,6 +27,7 @@ struct UndoToastView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color(white: 0.2))
         )
+        .shadow(color: .black.opacity(0.15), radius: 8, y: 2)
         .padding(.bottom, 24)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }

@@ -166,6 +166,14 @@ struct ItemListView: View, ItemListViewProtocol {
         iState.liftedItemID == itemID || draggedItemID == itemID
     }
 
+    func revealDraftItemUI(at placement: DraftItemPlacement, animated: Bool = false) {
+        let itemID = draftID(for: placement)
+        draftPlacement = placement
+        fState.pendingFocus = .item(itemID)
+        focusedField = .item(itemID)
+        fState.selectedItemID = itemID
+    }
+
     func clearDraftItemUI(at placement: DraftItemPlacement, hasTitle _: Bool) {
         if draftPlacement == placement {
             draftPlacement = nil
