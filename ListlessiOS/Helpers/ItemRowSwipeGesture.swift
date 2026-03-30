@@ -145,11 +145,9 @@ struct ItemRowSwipeGesture: ViewModifier {
         }
         if isTriggered {
             if swipeDirection == .right {
-                // Complete: spring back and let SwiftUI animate the row to the completed section
+                // Complete: keep the row at its current offset and let the
+                // ForEach re-evaluation animate it out of the active section.
                 triggerAction(action: onComplete)
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    resetSwipeState()
-                }
             } else {
                 // Delete: slide off screen
                 triggerAction(action: onDelete)
