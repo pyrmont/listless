@@ -583,7 +583,7 @@ struct ItemListView: View, ItemListViewProtocol {
                     Text("Pull down to create")
                         .font(ItemRowMetrics.hintSUI)
                         .foregroundStyle(.secondary)
-                        .padding(.top, 24)
+                        .offset(y: pState.pullToCreate.pullOffset)
                         .allowsHitTesting(false)
                 }
             }
