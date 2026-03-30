@@ -64,7 +64,6 @@ struct ListlessiOSApp: App {
     @AppStorage("appearanceMode") private var appearanceMode = 0
     @AppStorage("didCompleteTutorial") private var didCompleteTutorial = false
     private let persistenceController: PersistenceController
-    private let tutorialPersistenceController = PersistenceController(inMemory: true)
     private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["listName", "colorTheme"])
 
     init() {
@@ -75,9 +74,6 @@ struct ListlessiOSApp: App {
         if isUITesting {
             UserDefaults.standard.set(true, forKey: "didCompleteTutorial")
         }
-
-        let tutorialStore = ItemStore(persistenceController: tutorialPersistenceController)
-        TutorialSeeder.seed(store: tutorialStore)
     }
 
     var body: some Scene {
@@ -111,15 +107,18 @@ struct ListlessiOSApp: App {
     }
 
     private var tutorialListView: some View {
-        ItemListView(
-            store: ItemStore(persistenceController: tutorialPersistenceController),
-            syncMonitor: tutorialPersistenceController.syncMonitor,
+        let pc = PersistenceController(inMemory: true)
+        let store = ItemStore(persistenceController: pc)
+        TutorialSeeder.seed(store: store)
+        return ItemListView(
+            store: store,
+            syncMonitor: pc.syncMonitor,
             onFinishTutorial: { didCompleteTutorial = true }
         )
         .safeAreaInset(edge: .top) {
             Color.clear.frame(height: 8)
         }
-        .environment(\.managedObjectContext, tutorialPersistenceController.viewContext)
+        .environment(\.managedObjectContext, pc.viewContext)
         .onChange(of: appearanceMode, initial: true) { _, newValue in
             applyAppearanceMode(newValue)
         }
