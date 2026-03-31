@@ -5,7 +5,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SECRETS="$REPO_ROOT/.asc/secrets.sh"
 
 if [[ ! -f "$SECRETS" ]]; then
-    echo "Error: $SECRETS not found. See .asc/secrets.sh.example for the required format."
+    echo "Error: $SECRETS not found. See Scripts/secrets.sh.example for the required format."
     exit 1
 fi
 
@@ -16,7 +16,7 @@ ARCHIVE_PATH="/tmp/Listless-latest.xcarchive"
 EXPORT_PATH="/tmp/Listless-export"
 EXPORT_PLIST="/tmp/Listless-ExportOptions.plist"
 IPA_PATH="$EXPORT_PATH/Listless iOS.ipa"
-DEV_P12="$REPO_ROOT/.asc/ios-signing/dev.p12"
+DEV_P12="$REPO_ROOT/.asc/dev.p12"
 DIST_P12="$REPO_ROOT/.asc/ios-signing/dist-headless.p12"
 TMP_KEYCHAIN="$REPO_ROOT/.asc/build.keychain-db"
 

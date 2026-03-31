@@ -5,7 +5,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SECRETS="$REPO_ROOT/.asc/secrets.sh"
 
 if [[ ! -f "$SECRETS" ]]; then
-    echo "Error: $SECRETS not found. See .asc/secrets.sh.example for the required format."
+    echo "Error: $SECRETS not found. See Scripts/secrets.sh.example for the required format."
     exit 1
 fi
 
@@ -18,7 +18,7 @@ EXPORT_PATH="/tmp/Listless-mac-export"
 EXPORT_PLIST="/tmp/Listless-mac-ExportOptions.plist"
 PKG_PATH="$EXPORT_PATH/Listless.pkg"
 SIGNING_DIR="$REPO_ROOT/.asc/macos-signing"
-DEV_P12="$REPO_ROOT/.asc/ios-signing/dev.p12"
+DEV_P12="$REPO_ROOT/.asc/dev.p12"
 APP_P12="$SIGNING_DIR/app-headless.p12"
 INSTALLER_P12="$SIGNING_DIR/installer-headless.p12"
 TMP_KEYCHAIN="$REPO_ROOT/.asc/build.keychain-db"
