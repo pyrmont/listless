@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct ItemRowView: View {
-    let item: ItemEntity
+    let item: ItemValue
     let index: Int
     let totalActive: Int
     let colorTheme: ColorTheme
-    let onToggle: (ItemEntity) -> Void
+    let onToggle: (ItemValue) -> Void
 
     var body: some View {
         Button {

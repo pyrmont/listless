@@ -49,7 +49,10 @@ final class ItemStore {
         }
     }
 
-    func createItem(title: String = "", atBeginning: Bool = false, sortOrder: Int64? = nil) throws -> ItemEntity {
+    @discardableResult
+    func createItem(title: String = "", atBeginning: Bool = false, sortOrder: Int64? = nil) throws
+        -> ItemEntity
+    {
         // Compute sort order before inserting the new object so we don't need
         // processPendingChanges() and the new item can't appear in our own query.
         let resolvedSortOrder: Int64
@@ -73,7 +76,9 @@ final class ItemStore {
     private func minActiveSortOrder() throws -> Int64? {
         let request = ItemEntity.fetchRequest()
         request.predicate = NSPredicate(format: "completedOrder == 0")
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \ItemEntity.sortOrder, ascending: true)]
+        request.sortDescriptors = [
+            NSSortDescriptor(keyPath: \ItemEntity.sortOrder, ascending: true)
+        ]
         request.fetchLimit = 1
         do {
             return try context.fetch(request).first?.sortOrder
@@ -85,7 +90,9 @@ final class ItemStore {
     private func maxActiveSortOrder() throws -> Int64? {
         let request = ItemEntity.fetchRequest()
         request.predicate = NSPredicate(format: "completedOrder == 0")
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \ItemEntity.sortOrder, ascending: false)]
+        request.sortDescriptors = [
+            NSSortDescriptor(keyPath: \ItemEntity.sortOrder, ascending: false)
+        ]
         request.fetchLimit = 1
         do {
             return try context.fetch(request).first?.sortOrder

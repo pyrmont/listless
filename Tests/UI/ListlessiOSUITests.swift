@@ -149,7 +149,7 @@ final class ListlessiOSUITests: XCTestCase {
     func testUncompleteItem() {
         createItem("Finish report")
         exitEditingMode()
-        usleep(300_000)  // Wait for draft row reveal animation to settle
+        usleep(500_000)  // Wait for draft row reveal animation to settle
 
         itemCheckbox(at: 0).tap()
 

@@ -1,14 +1,14 @@
 import SwiftUI
 
 struct ItemRowView: View {
-    let item: ItemEntity
+    let item: ItemValue
     let itemID: UUID
     let index: Int
     let totalItems: Int
     let isSelected: Bool
-    let onToggle: (ItemEntity) -> Void
-    let onTitleChange: (ItemEntity, String) -> Void
-    let onDelete: (ItemEntity) -> Void
+    let onToggle: (UUID) -> Void
+    let onTitleChange: (UUID, String) -> Void
+    let onDelete: (UUID) -> Void
     let onSelect: (UUID) -> Void
     let onStartEdit: (UUID) -> Void
     let onEndEdit: (UUID, _ shouldCreateNewItem: Bool) -> Void
@@ -37,15 +37,15 @@ struct ItemRowView: View {
     }
 
     init(
-        item: ItemEntity,
+        item: ItemValue,
         itemID: UUID,
         index: Int = 0,
         totalItems: Int = 1,
         isSelected: Bool,
         focusedField: FocusState<FocusField?>.Binding,
-        onToggle: @escaping (ItemEntity) -> Void,
-        onTitleChange: @escaping (ItemEntity, String) -> Void,
-        onDelete: @escaping (ItemEntity) -> Void,
+        onToggle: @escaping (UUID) -> Void,
+        onTitleChange: @escaping (UUID, String) -> Void,
+        onDelete: @escaping (UUID) -> Void,
         onSelect: @escaping (UUID) -> Void,
         onStartEdit: @escaping (UUID) -> Void = { _ in },
         onEndEdit: @escaping (UUID, _ shouldCreateNewItem: Bool) -> Void = { _, _ in },
@@ -69,7 +69,7 @@ struct ItemRowView: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             Button {
-                onToggle(item)
+                onToggle(itemID)
             } label: {
                 Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(item.isCompleted ? .secondary : .primary)
@@ -97,7 +97,7 @@ struct ItemRowView: View {
                 itemID: itemID,
                 onContentChange: { newTitle in
                     guard !item.isCompleted else { return }
-                    onTitleChange(item, newTitle)
+                    onTitleChange(itemID, newTitle)
                 }
             )
             .focused($focusedField, equals: .item(itemID))
@@ -139,7 +139,7 @@ struct ItemRowView: View {
         }
         .contextMenu {
             Button(item.isCompleted ? "Mark as Incomplete" : "Mark as Complete") {
-                onToggle(item)
+                onToggle(itemID)
             }
             Divider()
             Button("Cut") {
@@ -154,11 +154,10 @@ struct ItemRowView: View {
             .disabled(item.isCompleted)
             Divider()
             Button("Delete", role: .destructive) {
-                onDelete(item)
+                onDelete(itemID)
             }
         }
         .onChange(of: item.title) { _, newValue in
-            // Keep editingTitle in sync with item.title when not editing
             if !isCurrentlyEditing {
                 editingTitle = newValue
             }
@@ -173,7 +172,6 @@ struct ItemRowView: View {
             cachedAccentColor = computeAccentColor()
         }
         .onAppear {
-            // Initialize editingTitle and cache accent color (computed once)
             editingTitle = item.title
             cachedAccentColor = computeAccentColor()
         }
@@ -191,13 +189,9 @@ struct ItemRowView: View {
         }
     }
 
-    // These context menu actions only run in navigation mode — when a row is
-    // being edited, the NSTextField field editor is first responder and its
-    // native context menu handles Cut/Copy/Paste for text directly.
-
     private func cutToPasteboard() {
         copyToPasteboard()
-        onDelete(item)
+        onDelete(itemID)
     }
 
     private func copyToPasteboard() {

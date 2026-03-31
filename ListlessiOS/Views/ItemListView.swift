@@ -355,9 +355,9 @@ struct ItemListView: View, ItemListViewProtocol {
                 isSwiping: $iState.isSwiping,
                 isLastActiveItem: index == displayActiveItems.count - 1,
                 focusedField: $focusedFieldBinding,
-                onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
-                onTitleChange: { updateTitle($0, $1) },
-                onDelete: { deleteItemWithUndo($0) },
+                onToggle: { handleSwipeComplete($0); withAnimation { iState.fetchWorkaround &+= 1 } },
+                onTitleChange: { updateTitle(itemID: $0, title: $1) },
+                onDelete: { deleteItemWithUndo(itemID: $0) },
                 onSelect: { selectItem($0) },
                 onStartEdit: { startEditing($0) },
                 onEndEdit: {
@@ -427,9 +427,9 @@ struct ItemListView: View, ItemListViewProtocol {
                 isSelected: fState.selectedItemID == itemID,
                 isSwiping: $iState.isSwiping,
                 focusedField: $focusedFieldBinding,
-                onToggle: { toggleCompletion($0); withAnimation { iState.fetchWorkaround &+= 1 } },
-                onTitleChange: { updateTitle($0, $1) },
-                onDelete: { deleteItemWithUndo($0) },
+                onToggle: { handleSwipeComplete($0); withAnimation { iState.fetchWorkaround &+= 1 } },
+                onTitleChange: { updateTitle(itemID: $0, title: $1) },
+                onDelete: { deleteItemWithUndo(itemID: $0) },
                 onSelect: { selectItem($0) }
             )
             .opacity(isBeingCleared ? 0 : 1)

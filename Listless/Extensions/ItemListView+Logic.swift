@@ -4,12 +4,13 @@ extension ItemListViewProtocol {
 
     // MARK: - Computed Properties
 
-    var activeItems: [ItemEntity] {
+    var activeItems: [ItemValue] {
         Array(items.filter { !$0.isDeleted && !$0.isCompleted })
             .sorted { $0.sortOrder < $1.sortOrder }
+            .map(ItemValue.init)
     }
 
-    var displayActiveItems: [ItemEntity] {
+    var displayActiveItems: [ItemValue] {
         guard let visualOrder else {
             return activeItems
         }
@@ -19,12 +20,13 @@ extension ItemListViewProtocol {
         }
     }
 
-    var completedItems: [ItemEntity] {
+    var completedItems: [ItemValue] {
         Array(items.filter { !$0.isDeleted && $0.isCompleted })
             .sorted { $0.completedOrder > $1.completedOrder }
+            .map(ItemValue.init)
     }
 
-    var allItemsInDisplayOrder: [ItemEntity] {
+    var allItemsInDisplayOrder: [ItemValue] {
         displayActiveItems + completedItems
     }
 
@@ -129,15 +131,16 @@ extension ItemListViewProtocol {
         guard !title.isEmpty else { return }
 
         do {
-            let item = switch placement {
-            case .prepend:
-                try store.createItem(title: title, atBeginning: true)
-            case .append:
-                try store.createItem(title: title)
-            }
+            let newItem =
+                switch placement {
+                case .prepend:
+                    try store.createItem(title: title, atBeginning: true)
+                case .append:
+                    try store.createItem(title: title)
+                }
             try store.save()
             if placement == .append {
-                fState.selectedItemID = item.id
+                fState.selectedItemID = newItem.id
             }
         } catch {
             presentStoreError(error)
@@ -224,33 +227,32 @@ extension ItemListViewProtocol {
             return
         }
 
-        guard let item = items.first(where: { $0.id == itemID }) else {
+        guard let entity = items.first(where: { $0.id == itemID }) else {
             return
         }
-        let trimmedTitle = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedTitle = entity.title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedTitle.isEmpty else { return }
 
-        managedObjectContext.undoManager?.removeAllActions(withTarget: item)
+        managedObjectContext.undoManager?.removeAllActions(withTarget: entity)
         managedObjectContext.undoManager?.disableUndoRegistration()
-        deleteItem(item)
+        deleteItem(itemID: itemID)
         managedObjectContext.undoManager?.enableUndoRegistration()
     }
 
-    func updateTitle(_ item: ItemEntity, _ title: String) {
-        guard item.title != title else { return }
+    func updateTitle(itemID: UUID, title: String) {
         do {
-            try store.updateWithoutSaving(itemID: item.id, title: title)
+            try store.updateWithoutSaving(itemID: itemID, title: title)
         } catch {
             presentStoreError(error)
         }
     }
 
-    func toggleCompletion(_ item: ItemEntity) {
+    func toggleCompletion(itemID: UUID, isCompleted: Bool) {
         do {
-            if item.isCompleted {
-                try store.uncomplete(itemID: item.id)
+            if isCompleted {
+                try store.uncomplete(itemID: itemID)
             } else {
-                try store.complete(itemID: item.id)
+                try store.complete(itemID: itemID)
             }
         } catch {
             presentStoreError(error)
@@ -258,13 +260,12 @@ extension ItemListViewProtocol {
     }
 
     func handleSwipeComplete(_ itemID: UUID) {
-        guard let item = items.first(where: { $0.id == itemID }) else { return }
-        toggleCompletion(item)
+        guard let item = allItemsInDisplayOrder.first(where: { $0.id == itemID }) else { return }
+        toggleCompletion(itemID: item.id, isCompleted: item.isCompleted)
     }
 
     func handleSwipeDelete(_ itemID: UUID) {
-        guard let item = items.first(where: { $0.id == itemID }) else { return }
-        deleteItem(item)
+        deleteItem(itemID: itemID)
     }
 
     func selectItem(
@@ -290,9 +291,7 @@ extension ItemListViewProtocol {
         }
     }
 
-    func deleteItem(_ item: ItemEntity) {
-        guard !item.isDeleted else { return }
-        let itemID = item.id
+    func deleteItem(itemID: UUID) {
         do {
             try store.delete(itemID: itemID)
             if fState.selectedItemID == itemID {
@@ -421,7 +420,7 @@ extension ItemListViewProtocol {
         let hasCompleted = itemsToToggle.contains { $0.isCompleted }
         guard !(hasActive && hasCompleted) else { return .handled }
         for item in itemsToToggle {
-            toggleCompletion(item)
+            toggleCompletion(itemID: item.id, isCompleted: item.isCompleted)
         }
         return .handled
     }
@@ -445,18 +444,19 @@ extension ItemListViewProtocol {
         let ids = fState.selectedItemIDs
         guard !ids.isEmpty else { return .handled }
         let displayOrder = allItemsInDisplayOrder
-        let itemsToDelete = displayOrder.filter { ids.contains($0.id) }
-        guard !itemsToDelete.isEmpty else { return .handled }
+        let idsToDelete = displayOrder.filter { ids.contains($0.id) }.map(\.id)
+        guard !idsToDelete.isEmpty else { return .handled }
 
         // Find the next item after the last selected one to move selection to.
-        let lastSelectedIndex = displayOrder.lastIndex(where: { ids.contains($0.id) })
+        let idsToDeleteSet = Set(idsToDelete)
+        let lastSelectedIndex = displayOrder.lastIndex(where: { idsToDeleteSet.contains($0.id) })
         let nextItem = lastSelectedIndex.flatMap { idx in
-            displayOrder.dropFirst(idx + 1).first(where: { !ids.contains($0.id) })
+            displayOrder.dropFirst(idx + 1).first(where: { !idsToDeleteSet.contains($0.id) })
         }
 
         fState.selectedItemID = nil
-        for item in itemsToDelete {
-            deleteItem(item)
+        for itemID in idsToDelete {
+            deleteItem(itemID: itemID)
         }
         if let nextItem {
             fState.selectedItemID = nextItem.id
@@ -467,7 +467,9 @@ extension ItemListViewProtocol {
     func moveSelectedItemUp() {
         guard focusedField == .scrollView else { return }
         guard let currentID = fState.selectedItemID else { return }
-        guard let currentIndex = activeItems.firstIndex(where: { $0.id == currentID }) else { return }
+        guard let currentIndex = activeItems.firstIndex(where: { $0.id == currentID }) else {
+            return
+        }
         guard currentIndex > 0 else { return }
 
         do {
@@ -480,7 +482,9 @@ extension ItemListViewProtocol {
     func moveSelectedItemDown() {
         guard focusedField == .scrollView else { return }
         guard let currentID = fState.selectedItemID else { return }
-        guard let currentIndex = activeItems.firstIndex(where: { $0.id == currentID }) else { return }
+        guard let currentIndex = activeItems.firstIndex(where: { $0.id == currentID }) else {
+            return
+        }
         guard currentIndex < activeItems.count - 1 else { return }
 
         do {
@@ -496,7 +500,7 @@ extension ItemListViewProtocol {
         guard !ids.isEmpty else { return }
         let itemsToToggle = allItemsInDisplayOrder.filter { ids.contains($0.id) }
         for item in itemsToToggle {
-            toggleCompletion(item)
+            toggleCompletion(itemID: item.id, isCompleted: item.isCompleted)
         }
     }
 
@@ -538,10 +542,10 @@ extension ItemListViewProtocol {
     }
 
     private func shouldDeleteIfEmpty(itemID: UUID) -> Bool {
-        guard let item = items.first(where: { $0.id == itemID }) else {
+        guard let entity = items.first(where: { $0.id == itemID }) else {
             return false
         }
-        let trimmedTitle = item.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedTitle = entity.title.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedTitle.isEmpty
     }
 

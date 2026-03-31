@@ -2,8 +2,8 @@ import SwiftUI
 
 extension ItemListView {
 
-    func deleteItemWithUndo(_ item: ItemEntity) {
-        deleteItem(item)
+    func deleteItemWithUndo(itemID: UUID) {
+        deleteItem(itemID: itemID)
         showUndoToast(message: "Item deleted")
     }
 
@@ -14,10 +14,10 @@ extension ItemListView {
         guard let currentID = fState.selectedItemID else {
             return .handled
         }
-        guard let item = allItemsInDisplayOrder.first(where: { $0.id == currentID }) else {
+        guard allItemsInDisplayOrder.contains(where: { $0.id == currentID }) else {
             return .handled
         }
-        deleteItemWithUndo(item)
+        deleteItemWithUndo(itemID: currentID)
         return .handled
     }
 

@@ -18,9 +18,10 @@ struct ItemListView: View {
     private var items: FetchedResults<ItemEntity>
 
     var body: some View {
-        let activeItems = items.filter { !$0.isCompleted }
+        let activeItems = items.filter { !$0.isCompleted }.map(ItemValue.init)
         let completedItems = items.filter { $0.isCompleted }
             .sorted { $0.completedOrder > $1.completedOrder }
+            .map(ItemValue.init)
 
         NavigationStack {
             Group {
@@ -62,7 +63,7 @@ struct ItemListView: View {
         }
     }
 
-    private func toggleItem(_ item: ItemEntity) {
+    private func toggleItem(_ item: ItemValue) {
         do {
             if item.isCompleted {
                 try store.uncomplete(itemID: item.id)

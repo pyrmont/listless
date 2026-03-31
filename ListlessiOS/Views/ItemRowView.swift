@@ -1,16 +1,16 @@
 import SwiftUI
 
 struct ItemRowView: View {
-    let item: ItemEntity
+    let item: ItemValue
     let itemID: UUID
     let index: Int
     let totalItems: Int
     let isSelected: Bool
     @Binding var isDragging: Bool
     @Binding var isSwiping: Bool
-    let onToggle: (ItemEntity) -> Void
-    let onTitleChange: (ItemEntity, String) -> Void
-    let onDelete: (ItemEntity) -> Void
+    let onToggle: (UUID) -> Void
+    let onTitleChange: (UUID, String) -> Void
+    let onDelete: (UUID) -> Void
     let onSelect: (UUID) -> Void
     let isLastActiveItem: Bool
     let onStartEdit: (UUID) -> Void
@@ -28,7 +28,7 @@ struct ItemRowView: View {
     @State private var cachedAccentColor: Color = .clear
 
     init(
-        item: ItemEntity,
+        item: ItemValue,
         itemID: UUID,
         index: Int = 0,
         totalItems: Int = 1,
@@ -37,9 +37,9 @@ struct ItemRowView: View {
         isSwiping: Binding<Bool> = .constant(false),
         isLastActiveItem: Bool = false,
         focusedField: FocusState<FocusField?>.Binding,
-        onToggle: @escaping (ItemEntity) -> Void,
-        onTitleChange: @escaping (ItemEntity, String) -> Void,
-        onDelete: @escaping (ItemEntity) -> Void,
+        onToggle: @escaping (UUID) -> Void,
+        onTitleChange: @escaping (UUID, String) -> Void,
+        onDelete: @escaping (UUID) -> Void,
         onSelect: @escaping (UUID) -> Void,
         onStartEdit: @escaping (UUID) -> Void = { _ in },
         onEndEdit: @escaping (UUID, _ shouldCreateNewItem: Bool) -> Void = { _, _ in }
@@ -64,7 +64,7 @@ struct ItemRowView: View {
     var body: some View {
         HStack(alignment: .center, spacing: ItemRowMetrics.contentSpacing) {
             Button {
-                onToggle(item)
+                onToggle(itemID)
             } label: {
                 // When a right-swipe is past the threshold, preview the toggled state
                 let previewCompleted = isSwipeTriggered && swipeDirection == .right
@@ -98,7 +98,7 @@ struct ItemRowView: View {
                     returnKeyType: isLastActiveItem && !editingTitle.isEmpty ? .next : .done,
                     onContentChange: { newTitle in
                         guard !item.isCompleted else { return }
-                        onTitleChange(item, newTitle)
+                        onTitleChange(itemID, newTitle)
                     },
                     uiAccessibilityIdentifier: "item-text-\(itemID.uuidString)",
                     initialCursorPoint: tapPoint
@@ -140,7 +140,7 @@ struct ItemRowView: View {
                 return
             }
             if item.isCompleted {
-                withAnimation { onToggle(item) }
+                withAnimation { onToggle(itemID) }
             } else {
                 tapPoint = nil
                 onSelect(itemID)
@@ -181,8 +181,8 @@ struct ItemRowView: View {
             swipeDirection: $swipeDirection,
             isTriggered: $isSwipeTriggered,
             completeColor: cachedAccentColor,
-            onComplete: { onToggle(item) },
-            onDelete: { onDelete(item) }
+            onComplete: { onToggle(itemID) },
+            onDelete: { onDelete(itemID) }
         )
         .onChange(of: isDragging) { _, newValue in
             if newValue {

@@ -3,12 +3,14 @@ import Foundation
 
 @objc(TaskItem)
 public class ItemEntity: NSManagedObject, Identifiable {
+    private static let invalidatedID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+
     private enum Keys {
         private static func key<Value>(_ keyPath: KeyPath<ItemEntity, Value>) -> String {
             NSExpression(forKeyPath: keyPath).keyPath
         }
 
-        static let id = key(\ItemEntity.id as KeyPath<ItemEntity, UUID>)
+        static let id = "id"
         static let title = key(\ItemEntity.title)
         static let createdAt = key(\ItemEntity.createdAt)
         static let updatedAt = key(\ItemEntity.updatedAt)
@@ -16,7 +18,10 @@ public class ItemEntity: NSManagedObject, Identifiable {
         static let completedOrder = key(\ItemEntity.completedOrder)
     }
 
-    @NSManaged public var id: UUID
+    public var id: UUID {
+        (primitiveValue(forKey: Keys.id) as? UUID) ?? Self.invalidatedID
+    }
+
     @NSManaged public var title: String
     @NSManaged public var createdAt: Date
     @NSManaged public var updatedAt: Date

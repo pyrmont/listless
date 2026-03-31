@@ -116,18 +116,18 @@ struct ItemListView: View, ItemListViewProtocol {
         coord.newItem = { createNewItem() }
         coord.copySelectedItem = {
             guard let itemID = fState.selectedItemID,
-                  let item = items.first(where: { $0.id == itemID }) else { return }
+                  let item = allItemsInDisplayOrder.first(where: { $0.id == itemID }) else { return }
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
             pasteboard.setString(item.title, forType: .string)
         }
         coord.cutSelectedItem = {
             guard let itemID = fState.selectedItemID,
-                  let item = items.first(where: { $0.id == itemID }) else { return }
+                  let item = allItemsInDisplayOrder.first(where: { $0.id == itemID }) else { return }
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
             pasteboard.setString(item.title, forType: .string)
-            deleteItem(item)
+            deleteItem(itemID: itemID)
         }
         coord.pasteAfterSelectedItem = {
             guard let itemID = fState.selectedItemID,
@@ -204,9 +204,9 @@ struct ItemListView: View, ItemListViewProtocol {
                         totalItems: displayActiveItems.count,
                         isSelected: fState.isItemSelected(itemID),
                         focusedField: $focusedFieldBinding,
-                        onToggle: { toggleCompletion($0) },
-                        onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteItem($0) },
+                        onToggle: { handleSwipeComplete($0) },
+                        onTitleChange: { updateTitle(itemID: $0, title: $1) },
+                        onDelete: { deleteItem(itemID: $0) },
                         onSelect: {
                             let modifiers = NSApp.currentEvent?.modifierFlags ?? []
                             selectItem(
@@ -221,15 +221,15 @@ struct ItemListView: View, ItemListViewProtocol {
                     )
                     .itemDragGesture(
                         isActive: !item.isCompleted,
-                        itemID: item.id,
+                        itemID: itemID,
                         onDragStart: {
                             iState.liftedItemID = nil
-                            startDrag(itemID: item.id)
+                            startDrag(itemID: itemID)
                         },
-                        onLift: { iState.liftedItemID = item.id },
+                        onLift: { iState.liftedItemID = itemID },
                         onLiftEnd: {
-                            if iState.liftedItemID == item.id { iState.liftedItemID = nil }
-                            if draggedItemID == item.id { clearDragState() }
+                            if iState.liftedItemID == itemID { iState.liftedItemID = nil }
+                            if draggedItemID == itemID { clearDragState() }
                         }
                     )
                     .scaleEffect(isRowLifted(itemID) ? 1.03 : 1.0)
@@ -355,9 +355,9 @@ struct ItemListView: View, ItemListViewProtocol {
                         itemID: itemID,
                         isSelected: fState.isItemSelected(itemID),
                         focusedField: $focusedFieldBinding,
-                        onToggle: { toggleCompletion($0) },
-                        onTitleChange: { updateTitle($0, $1) },
-                        onDelete: { deleteItem($0) },
+                        onToggle: { handleSwipeComplete($0) },
+                        onTitleChange: { updateTitle(itemID: $0, title: $1) },
+                        onDelete: { deleteItem(itemID: $0) },
                         onSelect: {
                             selectItem(
                                 $0,

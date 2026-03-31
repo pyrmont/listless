@@ -30,6 +30,7 @@
 		2CCB5FE0084742D018E52A3D /* KeyValueSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE264D30C7692457B92E518 /* KeyValueSyncBridge.swift */; };
 		2F5309630692E89276CC3149 /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A09A6C1C2251E96E1B5D96 /* ItemListView.swift */; };
 		3383645AE13E9C3AAECFBD0B /* ItemListView+PullToClear.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23060125DF03EE84F3AED8CB /* ItemListView+PullToClear.swift */; };
+		345C3D4D9A82B9AE0C8CB153 /* ItemValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EB9F584EF43678536F5FDE /* ItemValue.swift */; };
 		37AEF10712B3325BF9BC72E4 /* BackgroundClickMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */; };
 		3EDB6A9A30B4226C15E7F44D /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C46FC97E6DB6FF81AC5C22 /* AppCommands.swift */; };
 		4263E6472020564AA702D117 /* ItemCardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CF4BADA48F30C5F471EA910 /* ItemCardModifier.swift */; };
@@ -44,11 +45,13 @@
 		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		5D3EE9526DA269EE9EE3AB52 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E998119283F784B9ADEE28 /* AppColors.swift */; };
 		5E6BE0BA881F6CAEF455D9ED /* ListlessMacUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADAA53B8BCBC80AEFF191EF /* ListlessMacUITests.swift */; };
+		60FB7A1F3B2F037C655E10DB /* ItemValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EB9F584EF43678536F5FDE /* ItemValue.swift */; };
 		614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */; };
 		620D9398218A88B7E4C2331C /* ItemStoreEdgeCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FCE9FC4EFD26C9016389B7 /* ItemStoreEdgeCaseTests.swift */; };
 		63C08E89303BD17601271D2C /* ItemListView+SyncUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E209A0014EE95F2BC300CE42 /* ItemListView+SyncUI.swift */; };
 		65E97DE8C190E9E9B71EC356 /* ListlessWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE7F4637B4F4C1FF4BE160B /* ListlessWatchApp.swift */; };
 		6FE9D247153209BD4CFD9E34 /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
+		73C05B273DC49DE48B82822E /* ItemValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EB9F584EF43678536F5FDE /* ItemValue.swift */; };
 		763363F6F3C7D2D3C9A63977 /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */; };
 		77FE96F070B1F7FE31A9CE51 /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */; };
 		785721EB774EAC6BBA26C038 /* PullToClear.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567DBAC2A39FA2760D006AAB /* PullToClear.swift */; };
@@ -226,6 +229,7 @@
 		C611E04943F1D82D6F975592 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C6812E535A24C599C28F9278 /* Listless watchOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Listless watchOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C71466C5CD1A5BA984352F8D /* Listless iOS Unit Tests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Listless iOS Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7EB9F584EF43678536F5FDE /* ItemValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemValue.swift; sourceTree = "<group>"; };
 		C9B14DC786A336008AAB78EE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		CCB5F87A520B1CD47F2F71D0 /* Listless macOS UI Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Listless macOS UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF3374CE58E7D9378C6997D2 /* SyncDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDiagnosticsView.swift; sourceTree = "<group>"; };
@@ -387,6 +391,7 @@
 				74255E6B6C40899E9B17D927 /* .gitkeep */,
 				138DCA35ED82A745E4745175 /* ItemEntity.swift */,
 				2B8EC97702E7B218A03B7898 /* ItemStore.swift */,
+				C7EB9F584EF43678536F5FDE /* ItemValue.swift */,
 				C093494053E6C348F245D4EC /* Listless.xcdatamodeld */,
 			);
 			path = Models;
@@ -776,6 +781,7 @@
 				BDA8D53342F745B27B72B242 /* ItemRowDragGesture.swift in Sources */,
 				194CAF0FBC308BE96CE8AA7B /* ItemRowView.swift in Sources */,
 				D24133A6C0105FE8E4528EF2 /* ItemStore.swift in Sources */,
+				73C05B273DC49DE48B82822E /* ItemValue.swift in Sources */,
 				2CCB5FE0084742D018E52A3D /* KeyValueSyncBridge.swift in Sources */,
 				172F2DD978988E207610055F /* KeyboardNavigationModifier.swift in Sources */,
 				96617677059FABDBB80D642B /* Listless.xcdatamodeld in Sources */,
@@ -798,6 +804,7 @@
 				2F5309630692E89276CC3149 /* ItemListView.swift in Sources */,
 				8FB18395E5436F6C91A0F077 /* ItemRowView.swift in Sources */,
 				47D9272442A5F15B324D3DAC /* ItemStore.swift in Sources */,
+				345C3D4D9A82B9AE0C8CB153 /* ItemValue.swift in Sources */,
 				264BD64C1DD30376E8BDAF79 /* KeyValueSyncBridge.swift in Sources */,
 				6FE9D247153209BD4CFD9E34 /* Listless.xcdatamodeld in Sources */,
 				65E97DE8C190E9E9B71EC356 /* ListlessWatchApp.swift in Sources */,
@@ -837,6 +844,7 @@
 				B0F8B09E2AB38C8C4AF74C10 /* ItemRowSwipeGesture.swift in Sources */,
 				DB0CBB6C3EE56406AF86FDE3 /* ItemRowView.swift in Sources */,
 				790843E40F28B4E186F88F16 /* ItemStore.swift in Sources */,
+				60FB7A1F3B2F037C655E10DB /* ItemValue.swift in Sources */,
 				12E43D0CD9124037022E3C38 /* KeyCommandBridge.swift in Sources */,
 				19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */,
 				F6587B84ECC6BFE92A5FB493 /* KeyboardNavigationModifier.swift in Sources */,
