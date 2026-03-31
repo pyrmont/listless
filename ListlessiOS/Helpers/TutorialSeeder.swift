@@ -4,13 +4,13 @@ import Foundation
 enum TutorialSeeder {
     static func seed(store: ItemStore) {
         let titles = [
-            "Swipe left to complete",
-            "Swipe right to delete",
+            "Swipe right to complete",
+            "Swipe left to delete",
             "Long press and drag to reorder",
             "Tap the text to edit",
             "Pull down to create",
             "Or tap below to create",
-            "Pull up to clear",
+            "Pull up to clear completed",
         ]
 
         for (index, title) in titles.enumerated() {
