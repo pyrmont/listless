@@ -69,7 +69,7 @@ private struct PullGesturesModifier: ViewModifier {
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @State private var isScrollInteracting = false
 
-    let isDraftOpen: Bool
+    let isEditing: Bool
     let hasCompletedItems: Bool
     let pullCreateThreshold: CGFloat
     let flickThreshold: CGFloat
@@ -82,7 +82,7 @@ private struct PullGesturesModifier: ViewModifier {
             .onScrollGeometryChange(for: CGFloat.self) { geo in
                 max(0, -(geo.contentOffset.y + geo.contentInsets.top))
             } action: { _, pullDistance in
-                if isDraftOpen {
+                if isEditing {
                     pullToCreate.updatePullDistance(0)
                 } else {
                     pullToCreate.updatePullDistance(pullDistance)
@@ -113,7 +113,7 @@ private struct PullGesturesModifier: ViewModifier {
             }
             .sensoryFeedback(
                 .impact(weight: .light),
-                trigger: hapticsEnabled && !isDraftOpen && pullToCreate.pullOffset >= pullCreateThreshold
+                trigger: hapticsEnabled && !isEditing && pullToCreate.pullOffset >= pullCreateThreshold
             ) { old, new in
                 !old && new
             }
@@ -123,7 +123,7 @@ private struct PullGesturesModifier: ViewModifier {
     }
 
     private func handlePullToCreateScrollPhaseChange(from oldPhase: ScrollPhase, to newPhase: ScrollPhase) {
-        guard !isDraftOpen else { return }
+        guard !isEditing else { return }
         let action = pullToCreate.handlePhaseChange(
             from: oldPhase,
             to: newPhase,
@@ -163,7 +163,7 @@ extension View {
     func pullGestures(
         pullToCreate: Binding<ItemListView.PullToCreateState>,
         pullUpOffset: Binding<CGFloat>,
-        isDraftOpen: Bool,
+        isEditing: Bool,
         hasCompletedItems: Bool,
         pullCreateThreshold: CGFloat,
         flickThreshold: CGFloat,
@@ -175,7 +175,7 @@ extension View {
             PullGesturesModifier(
                 pullToCreate: pullToCreate,
                 pullUpOffset: pullUpOffset,
-                isDraftOpen: isDraftOpen,
+                isEditing: isEditing,
                 hasCompletedItems: hasCompletedItems,
                 pullCreateThreshold: pullCreateThreshold,
                 flickThreshold: flickThreshold,

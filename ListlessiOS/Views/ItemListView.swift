@@ -624,7 +624,7 @@ struct ItemListView: View, ItemListViewProtocol {
             .pullGestures(
                 pullToCreate: $pState.pullToCreate,
                 pullUpOffset: $pState.pullUpOffset,
-                isDraftOpen: draftPlacement != nil,
+                isEditing: focusedField != nil && focusedField != .scrollView,
                 hasCompletedItems: !completedItems.isEmpty,
                 pullCreateThreshold: pullCreateThreshold,
                 flickThreshold: flickThreshold,
