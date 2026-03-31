@@ -81,7 +81,7 @@ struct ListlessiOSApp: App {
             if didCompleteTutorial {
                 mainListView
             } else {
-                tutorialListView
+                TutorialListView { didCompleteTutorial = true }
             }
         }
     }
@@ -106,19 +106,40 @@ struct ListlessiOSApp: App {
         }
     }
 
-    private var tutorialListView: some View {
-        let pc = PersistenceController(inMemory: true)
-        let store = ItemStore(persistenceController: pc)
+    private func applyAppearanceMode(_ mode: Int) {
+        let style: UIUserInterfaceStyle = switch mode {
+        case 1: .light
+        case 2: .dark
+        default: .unspecified
+        }
+        for scene in UIApplication.shared.connectedScenes {
+            guard let windowScene = scene as? UIWindowScene else { continue }
+            for window in windowScene.windows {
+                window.overrideUserInterfaceStyle = style
+            }
+        }
+    }
+}
+
+// MARK: - Tutorial
+
+struct TutorialListView: View {
+    @AppStorage("appearanceMode") private var appearanceMode = 0
+    @State private var persistenceController = PersistenceController(inMemory: true)
+    var onFinishTutorial: () -> Void
+
+    var body: some View {
+        let store = ItemStore(persistenceController: persistenceController)
         TutorialSeeder.seed(store: store)
         return ItemListView(
             store: store,
-            syncMonitor: pc.syncMonitor,
-            onFinishTutorial: { didCompleteTutorial = true }
+            syncMonitor: persistenceController.syncMonitor,
+            onFinishTutorial: onFinishTutorial
         )
         .safeAreaInset(edge: .top) {
             Color.clear.frame(height: 8)
         }
-        .environment(\.managedObjectContext, pc.viewContext)
+        .environment(\.managedObjectContext, persistenceController.viewContext)
         .onChange(of: appearanceMode, initial: true) { _, newValue in
             applyAppearanceMode(newValue)
         }

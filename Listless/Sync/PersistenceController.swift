@@ -50,6 +50,16 @@ private final class UpdatedAtMergePolicy: NSMergePolicy {
 final class PersistenceController {
     static let shared = PersistenceController()
 
+    private static let model: NSManagedObjectModel = {
+        let bundle = Bundle(for: PersistenceController.self)
+        guard let url = bundle.url(forResource: "Listless", withExtension: "momd"),
+            let model = NSManagedObjectModel(contentsOf: url)
+        else {
+            fatalError("Failed to load Core Data model")
+        }
+        return model
+    }()
+
     let container: NSPersistentContainer
     let syncMonitor: CloudKitSyncMonitor
 
@@ -66,10 +76,12 @@ final class PersistenceController {
             let tempURL = FileManager.default.temporaryDirectory
                 .appendingPathComponent(UUID().uuidString)
                 .appendingPathExtension("sqlite")
-            container = NSPersistentContainer(name: "Listless")
+            container = NSPersistentContainer(
+                name: "Listless", managedObjectModel: Self.model)
             container.persistentStoreDescriptions.first?.url = tempURL
         } else {
-            container = NSPersistentCloudKitContainer(name: "Listless")
+            container = NSPersistentCloudKitContainer(
+                name: "Listless", managedObjectModel: Self.model)
             // Configure CloudKit sync
             guard let description = container.persistentStoreDescriptions.first else {
                 fatalError("Failed to retrieve persistent store description")
