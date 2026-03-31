@@ -82,7 +82,11 @@ private struct PullGesturesModifier: ViewModifier {
             .onScrollGeometryChange(for: CGFloat.self) { geo in
                 max(0, -(geo.contentOffset.y + geo.contentInsets.top))
             } action: { _, pullDistance in
-                pullToCreate.updatePullDistance(pullDistance)
+                if isDraftOpen {
+                    pullToCreate.updatePullDistance(0)
+                } else {
+                    pullToCreate.updatePullDistance(pullDistance)
+                }
             }
             .onScrollGeometryChange(for: CGFloat.self) { geo in
                 let adjustedBottomInset = geo.contentInsets.bottom - 20
