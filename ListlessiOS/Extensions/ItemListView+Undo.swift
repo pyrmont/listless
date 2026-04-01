@@ -34,6 +34,7 @@ extension ItemListView {
             return
         }
         managedObjectContext.undoManager?.endUndoGrouping()
+        fState.pruneDeletedItems(displayOrder: allItemsInDisplayOrder.map(\.id))
         let noun = count == 1 ? "item" : "items"
         showUndoToast(message: "\(count) \(noun) deleted")
     }
@@ -51,6 +52,7 @@ extension ItemListView {
             return
         }
         managedObjectContext.undoManager?.endUndoGrouping()
+        fState.pruneDeletedItems(displayOrder: allItemsInDisplayOrder.map(\.id))
         let noun = count == 1 ? "item" : "items"
         showUndoToast(message: "\(count) \(noun) cleared")
     }

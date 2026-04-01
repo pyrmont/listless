@@ -294,9 +294,7 @@ extension ItemListViewProtocol {
     func deleteItem(itemID: UUID) {
         do {
             try store.delete(itemID: itemID)
-            if fState.selectedItemID == itemID {
-                fState.selectedItemID = nil
-            }
+            fState.pruneDeletedItems(displayOrder: allItemsInDisplayOrder.map(\.id))
         } catch {
             presentStoreError(error)
         }
@@ -310,6 +308,7 @@ extension ItemListViewProtocol {
                 presentStoreError(error)
             }
         }
+        fState.pruneDeletedItems(displayOrder: allItemsInDisplayOrder.map(\.id))
     }
 
     // MARK: - Keyboard Navigation

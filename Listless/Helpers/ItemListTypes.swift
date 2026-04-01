@@ -131,6 +131,29 @@ struct FocusStateData {
         mergeAdjacentInactiveSelections(displayOrder: displayOrder)
     }
 
+    /// Remove IDs from selection state that are no longer in display order.
+    /// Call after deleting items to prevent ghost selections.
+    mutating func pruneDeletedItems(displayOrder: [UUID]) {
+        let valid = Set(displayOrder)
+        selectedItemIDs.formIntersection(valid)
+        inactiveSelections.formIntersection(valid)
+        if let id = anchorItemID, !valid.contains(id) {
+            anchorItemID = nil
+        }
+        if let id = cursorItemID, !valid.contains(id) {
+            cursorItemID = nil
+        }
+        // If the cursor was pruned, fall back to anchor or first selected.
+        if cursorItemID == nil, !selectedItemIDs.isEmpty {
+            cursorItemID = anchorItemID ?? selectedItemIDs.first
+        }
+        if selectedItemIDs.isEmpty {
+            anchorItemID = nil
+            cursorItemID = nil
+            inactiveSelections = []
+        }
+    }
+
     // MARK: - Private Helpers
 
     /// Partition `selectedItemIDs` into those inside vs outside the
