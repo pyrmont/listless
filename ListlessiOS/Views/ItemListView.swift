@@ -23,7 +23,6 @@ struct ItemListView: View, ItemListViewProtocol {
         var draftPlacement: DraftItemPlacement?
         var draftTitle: String = ""
         var fetchWorkaround: Int = 0
-        var undoGeneration: Int = 0
 
         var isShowingOverlay: Bool {
             isShowingSettings || isShowingSyncDiagnostics || isShowingRenameAlert

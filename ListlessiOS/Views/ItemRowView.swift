@@ -15,7 +15,6 @@ struct ItemRowView: View {
     let isLastActiveItem: Bool
     let onStartEdit: (UUID) -> Void
     let onEndEdit: (UUID, _ shouldCreateNewItem: Bool) -> Void
-    let undoGeneration: Int
     @FocusState.Binding var focusedField: FocusField?
 
     @AppStorage("colorTheme") private var colorThemeRaw = 0
@@ -37,7 +36,6 @@ struct ItemRowView: View {
         isDragging: Binding<Bool> = .constant(false),
         isSwiping: Binding<Bool> = .constant(false),
         isLastActiveItem: Bool = false,
-        undoGeneration: Int = 0,
         focusedField: FocusState<FocusField?>.Binding,
         onToggle: @escaping (UUID) -> Void,
         onTitleChange: @escaping (UUID, String) -> Void,
@@ -54,7 +52,6 @@ struct ItemRowView: View {
         _isDragging = isDragging
         _isSwiping = isSwiping
         self.isLastActiveItem = isLastActiveItem
-        self.undoGeneration = undoGeneration
         self.onToggle = onToggle
         self.onTitleChange = onTitleChange
         self.onDelete = onDelete
@@ -175,15 +172,6 @@ struct ItemRowView: View {
         }
         .onChange(of: colorThemeRaw) { _, _ in
             cachedAccentColor = computeAccentColor()
-        }
-        .onChange(of: undoGeneration) { _, _ in
-            var transaction = Transaction(animation: nil)
-            transaction.disablesAnimations = true
-            withTransaction(transaction) {
-                swipeOffset = 0
-                swipeDirection = .none
-                isSwipeTriggered = false
-            }
         }
         .itemSwipeGesture(
             isDragging: $isDragging,

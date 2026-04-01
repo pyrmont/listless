@@ -149,10 +149,13 @@ struct ItemRowSwipeGesture: ViewModifier {
                 // ForEach re-evaluation animate it out of the active section.
                 triggerAction(action: onComplete)
             } else {
-                // Delete: slide off screen
+                // Delete: slide off screen, then reset so undo doesn't
+                // restore the row with a frozen swipe state.
                 triggerAction(action: onDelete)
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     swipeOffset = -400
+                } completion: {
+                    resetSwipeState()
                 }
             }
         } else {
