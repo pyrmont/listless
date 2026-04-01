@@ -68,6 +68,7 @@ extension ItemListView {
         } catch {
             presentStoreError(error)
         }
+        iState.undoGeneration &+= 1
         dismissUndoToast()
     }
 
