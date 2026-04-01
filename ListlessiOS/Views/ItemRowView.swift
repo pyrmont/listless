@@ -158,6 +158,9 @@ struct ItemRowView: View {
         .onAppear {
             editingTitle = item.title
             cachedAccentColor = computeAccentColor()
+            swipeOffset = 0
+            swipeDirection = .none
+            isSwipeTriggered = false
         }
         .onChange(of: item.title) { _, newValue in
             if !isCurrentlyEditing {
