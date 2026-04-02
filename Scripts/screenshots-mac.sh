@@ -113,7 +113,7 @@ if [ "$DO_COMPOSE" = true ]; then
   echo "Composing desktop images..."
   n=0
   for file in "${SCREENSHOT_TMP}"/0*.png; do
-    swift "${SCRIPT_DIR}/screenshots-mac-desktop.swift" "$file" "${DESKTOP_TMP}/desktop_${n}.png" "$(pwd)/sequoia-light.jpg"
+    swift "${SCRIPT_DIR}/screenshots-mac-desktop.swift" "$file" "${DESKTOP_TMP}/desktop_${n}.png" "$(pwd)/Marketing/sequoia-wallpaper.jpg"
     echo "  desktop_${n}.png"
     n=$((n + 1))
   done

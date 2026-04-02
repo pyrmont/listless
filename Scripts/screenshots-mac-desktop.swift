@@ -16,7 +16,7 @@ let outputPath = CommandLine.arguments[2]
 let wallpaperPath =
     CommandLine.arguments.count >= 4
     ? CommandLine.arguments[3]
-    : "sequoia-light.jpg"
+    : "Marketing/sequoia-wallpaper.jpg"
 
 // MacBook Air 13" 4th Gen native resolution
 let canvasWidth: CGFloat = 2560
