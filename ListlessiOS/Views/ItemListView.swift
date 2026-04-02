@@ -470,6 +470,9 @@ struct ItemListView: View, ItemListViewProtocol {
             .onAppear {
                 fState.focusedField = .scrollView
                 updateMenuCoordinator()
+                if ProcessInfo.processInfo.arguments.contains("SCREENSHOT_SHOW_SETTINGS") {
+                    iState.isShowingSettings = true
+                }
             }
             .onChange(of: menuCoordinatorTrigger) { _, _ in updateMenuCoordinator() }
             .onChange(of: undoManager, initial: true) { _, newValue in

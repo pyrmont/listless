@@ -73,6 +73,8 @@ struct ListlessiOSApp: App {
 
         if isUITesting {
             UserDefaults.standard.set(true, forKey: "didCompleteTutorial")
+            let theme = ProcessInfo.processInfo.arguments.contains("THEME_COLLAROY") ? 1 : 0
+            UserDefaults.standard.set(theme, forKey: "colorTheme")
         }
     }
 

@@ -158,6 +158,13 @@ struct ItemRowView: View {
         .onAppear {
             editingTitle = item.title
             cachedAccentColor = computeAccentColor()
+            if index == 0, !item.isCompleted,
+                ProcessInfo.processInfo.arguments.contains("SCREENSHOT_SWIPE")
+            {
+                swipeOffset = 60
+                swipeDirection = .right
+                isSwipeTriggered = true
+            }
         }
         .onChange(of: item.title) { _, newValue in
             if !isCurrentlyEditing {

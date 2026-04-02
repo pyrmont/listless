@@ -50,6 +50,7 @@
 		5761B201BF46FCA9C5C98CEF /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466F9B0E407DF1F5B4789531 /* PlatformScrollIndicatorsModifier.swift */; };
 		5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		5D3EE9526DA269EE9EE3AB52 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E998119283F784B9ADEE28 /* AppColors.swift */; };
+		5D79B17FCA4C50C0CF08899A /* ListlessiOSScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0F534D5B4D5ECF74CF6E6 /* ListlessiOSScreenshots.swift */; };
 		5E6BE0BA881F6CAEF455D9ED /* ListlessMacUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADAA53B8BCBC80AEFF191EF /* ListlessMacUITests.swift */; };
 		60FB7A1F3B2F037C655E10DB /* ItemValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EB9F584EF43678536F5FDE /* ItemValue.swift */; };
 		614FCCA450EC0BFFD8B40640 /* ListlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */; };
@@ -180,6 +181,7 @@
 		114A89FD89C8EFB5771B7242 /* ItemStoreCompletionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStoreCompletionTests.swift; sourceTree = "<group>"; };
 		126108860D7878DDC3BECC4B /* Listless iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Listless iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		138DCA35ED82A745E4745175 /* ItemEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEntity.swift; sourceTree = "<group>"; };
+		16D0F534D5B4D5ECF74CF6E6 /* ListlessiOSScreenshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSScreenshots.swift; sourceTree = "<group>"; };
 		17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
 		1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessMacApp.swift; sourceTree = "<group>"; };
 		20A09A6C1C2251E96E1B5D96 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
@@ -290,6 +292,7 @@
 		20349AB212EAB4FB5F21D959 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				16D0F534D5B4D5ECF74CF6E6 /* ListlessiOSScreenshots.swift */,
 				88C0D6F2667BD14F29CB84E5 /* ListlessiOSUITests.swift */,
 				EADAA53B8BCBC80AEFF191EF /* ListlessMacUITests.swift */,
 			);
@@ -701,7 +704,6 @@
 				};
 			};
 			buildConfigurationList = CAACA40A09D5F78ECE7A0EDF /* Build configuration list for PBXProject "Listless" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -711,6 +713,7 @@
 			mainGroup = ED4862258A8A70025EE14416;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 3936BDEE64D16E6C4C85B3DD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -887,6 +890,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D79B17FCA4C50C0CF08899A /* ListlessiOSScreenshots.swift in Sources */,
 				239F975836FD432A5FF04036 /* ListlessiOSUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

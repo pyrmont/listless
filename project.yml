@@ -185,6 +185,7 @@ targets:
       - path: Tests/UI
         includes:
           - "ListlessiOSUITests.swift"
+          - "ListlessiOSScreenshots.swift"
     dependencies:
       - target: Listless iOS
     settings:
