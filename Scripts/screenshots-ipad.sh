@@ -22,13 +22,20 @@ if [ -z "$RUNTIME" ]; then
   exit 1
 fi
 
+# Prefer iPad Pro 13" for ASC screenshots (2064x2752)
 DEVICE=$(xcrun simctl list devices available "iOS ${RUNTIME}" \
-  | grep "iPhone" \
+  | grep "iPad Pro 13" \
   | head -1 \
   | sed 's/^ *\(.*\) ([A-F0-9-]*).*/\1/')
+if [ -z "$DEVICE" ]; then
+  DEVICE=$(xcrun simctl list devices available "iOS ${RUNTIME}" \
+    | grep "iPad" \
+    | head -1 \
+    | sed 's/^ *\(.*\) ([A-F0-9-]*).*/\1/')
+fi
 
 if [ -z "$DEVICE" ]; then
-  echo "No available iPhone simulator found for iOS ${RUNTIME}." >&2
+  echo "No available iPad simulator found for iOS ${RUNTIME}." >&2
   exit 1
 fi
 
@@ -59,7 +66,10 @@ FRAMED_TMP="/tmp/listless-framed"
 MARKETING_DIR="$(pwd)/Marketing"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Screenshot captions for composing
+# iPad Pro 13" ASC canvas dimensions
+CANVAS_WIDTH=2064
+CANVAS_HEIGHT=2752
+
 CAPTIONS=(
   "Syncs via iCloud"
   "Minimalist"
@@ -67,7 +77,7 @@ CAPTIONS=(
   "(Slightly) Customisable"
 )
 
-# Run screenshot tests (writes to SCREENSHOT_TMP)
+# Run screenshot tests (same iOS UI test target, different simulator)
 xcodebuild test \
   -scheme "Listless iOS" \
   -destination "platform=iOS Simulator,name=${DEVICE},OS=${RUNTIME}" \
@@ -85,7 +95,6 @@ fi
 mkdir -p "${MARKETING_DIR}"
 
 if [ "$DO_COMPOSE" = true ]; then
-  # Frame with Framous, then compose onto background with text
   mkdir -p "${FRAMED_TMP}"
 
   echo ""
@@ -101,21 +110,18 @@ if [ "$DO_COMPOSE" = true ]; then
   n=0
   for file in "${FRAMED_TMP}"/framed_*.png; do
     caption="${CAPTIONS[$n]:-}"
-    swift "${SCRIPT_DIR}/screenshots-ios-compose.swift" "$file" "${MARKETING_DIR}/iphone_${n}.png" "$caption"
-    echo "  iphone_${n}.png — ${caption}"
+    swift "${SCRIPT_DIR}/screenshots-ios-compose.swift" "$file" "${MARKETING_DIR}/ipad_${n}.png" "$caption" "$CANVAS_WIDTH" "$CANVAS_HEIGHT"
+    echo "  ipad_${n}.png — ${caption}"
     n=$((n + 1))
   done
 
   rm -rf "${FRAMED_TMP}"
 else
-  # Raw screenshots with Dynamic Island overlay
   OUTPUT_DIR="$(pwd)"
   echo ""
-  echo "Adding Dynamic Island..."
   n=0
   for file in "${SCREENSHOT_TMP}"/0*.png; do
-    swift "${SCRIPT_DIR}/screenshots-iphone-island.swift" "$file" "${OUTPUT_DIR}/iphone_${n}.png"
-    echo "  iphone_${n}.png"
+    cp "$file" "${OUTPUT_DIR}/ipad_${n}.png"
     n=$((n + 1))
   done
 fi
@@ -125,9 +131,9 @@ rm -rf "${SCREENSHOT_TMP}"
 if [ "$DO_COMPOSE" = true ]; then
   echo ""
   echo "Screenshots saved to ${MARKETING_DIR}/"
-  ls -la "${MARKETING_DIR}"/iphone_*.png
+  ls -la "${MARKETING_DIR}"/ipad_*.png
 else
   echo ""
   echo "Screenshots saved to ${OUTPUT_DIR}/"
-  ls -la "${OUTPUT_DIR}"/iphone_*.png
+  ls -la "${OUTPUT_DIR}"/ipad_*.png
 fi

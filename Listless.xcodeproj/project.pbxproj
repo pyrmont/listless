@@ -41,6 +41,7 @@
 		42CB50C94EDF48562F680B56 /* ItemStoreDeleteAndNormalizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EFAB5629C31FC2C6FFE0A1 /* ItemStoreDeleteAndNormalizeTests.swift */; };
 		47D9272442A5F15B324D3DAC /* ItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8EC97702E7B218A03B7898 /* ItemStore.swift */; };
 		4A0682E85B50DF42ECF83B48 /* Listless watchOS.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C6812E535A24C599C28F9278 /* Listless watchOS.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4CA383C2B90DA7EF080BDABB /* ListlessWatchScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A89CFEB95B9BB9A0540CD9 /* ListlessWatchScreenshots.swift */; };
 		4DD2030E321567BD25661760 /* SyncDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9288507CE6023425D1DE724 /* SyncDiagnosticsView.swift */; };
 		4F150E893D1F78BC23A49659 /* AccentColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C96B8A403274C4CC7F57460 /* AccentColorTests.swift */; };
 		53700EA974FE4AD771FE89EC /* CloudKitSyncMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */; };
@@ -102,6 +103,7 @@
 		DBFE5DADCAAF26CF77245410 /* ItemListTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848DBC251E2D2EB7BD089768 /* ItemListTypes.swift */; };
 		DC103B1BFDC5940F63DD48ED /* ItemRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05AB46824DCDD04903EA4C82 /* ItemRowDragGesture.swift */; };
 		DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14858BDFD1FD5119F1F24A6 /* PersistenceController.swift */; };
+		DD2F098B472D048B66CEC8B1 /* ListlessMacScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3578459F9888CA59AACBEC /* ListlessMacScreenshots.swift */; };
 		DEE187A790A4058FE4AFDB2E /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8448C5778F75F52719114AF /* PlatformTextFieldWidthModifier.swift */; };
 		E0BDC0FCAB43CEE0C9AC5279 /* ItemListView+Undo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB4B98BD127A56CE4669DCD5 /* ItemListView+Undo.swift */; };
 		E12C1304464FC7799856B2BA /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B048B19C5219862BBED2E7 /* TestHelpers.swift */; };
@@ -127,6 +129,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 0FB4F07A37999BBC6DFE4DBB;
 			remoteInfo = "Listless macOS";
+		};
+		47C07B5C46AB5A2CD8741632 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3256C2BF8F1DAF371DA32120 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9BDC1B2175AB9CE26790448D;
+			remoteInfo = "Listless watchOS";
 		};
 		642EE6A5908DB4216F049E9C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -186,6 +195,7 @@
 		1DA467DF2E59BDBE6EEF6A7D /* ListlessMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessMacApp.swift; sourceTree = "<group>"; };
 		20A09A6C1C2251E96E1B5D96 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
 		23060125DF03EE84F3AED8CB /* ItemListView+PullToClear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+PullToClear.swift"; sourceTree = "<group>"; };
+		2523E01C8F130C2799123479 /* Listless watchOS UI Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Listless watchOS UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B8EC97702E7B218A03B7898 /* ItemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStore.swift; sourceTree = "<group>"; };
 		3048ACA1CAF1284F99E1400E /* ItemRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemRowView.swift; sourceTree = "<group>"; };
 		3116A37F1353BF6E18308DD2 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
@@ -216,6 +226,7 @@
 		72BAC76C5B5ED291048705CF /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		74255E6B6C40899E9B17D927 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		75B048B19C5219862BBED2E7 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
+		76A89CFEB95B9BB9A0540CD9 /* ListlessWatchScreenshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessWatchScreenshots.swift; sourceTree = "<group>"; };
 		78232E9D9F77FA3630F9D089 /* ItemListView+PullToCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+PullToCreate.swift"; sourceTree = "<group>"; };
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		82F2C024B6C1F2F1FD7A25B0 /* ItemListView+Logic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+Logic.swift"; sourceTree = "<group>"; };
@@ -262,6 +273,7 @@
 		E8F7B7D46010E217FC0A5BFF /* TutorialSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialSeeder.swift; sourceTree = "<group>"; };
 		E9288507CE6023425D1DE724 /* SyncDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDiagnosticsView.swift; sourceTree = "<group>"; };
 		EADAA53B8BCBC80AEFF191EF /* ListlessMacUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessMacUITests.swift; sourceTree = "<group>"; };
+		EE3578459F9888CA59AACBEC /* ListlessMacScreenshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessMacScreenshots.swift; sourceTree = "<group>"; };
 		F15BF645DEDE8D9E94DB508B /* BackgroundClickMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClickMonitor.swift; sourceTree = "<group>"; };
 		F1E998119283F784B9ADEE28 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		F31EDB2C34C8B255000A2525 /* ItemListViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewProtocol.swift; sourceTree = "<group>"; };
@@ -294,7 +306,9 @@
 			children = (
 				16D0F534D5B4D5ECF74CF6E6 /* ListlessiOSScreenshots.swift */,
 				88C0D6F2667BD14F29CB84E5 /* ListlessiOSUITests.swift */,
+				EE3578459F9888CA59AACBEC /* ListlessMacScreenshots.swift */,
 				EADAA53B8BCBC80AEFF191EF /* ListlessMacUITests.swift */,
+				76A89CFEB95B9BB9A0540CD9 /* ListlessWatchScreenshots.swift */,
 			);
 			name = UI;
 			path = Tests/UI;
@@ -320,6 +334,7 @@
 				CCB5F87A520B1CD47F2F71D0 /* Listless macOS UI Tests.xctest */,
 				B88DC6E36FA41DCB6CEB9647 /* Listless macOS Unit Tests.xctest */,
 				5B0E22B8F7B2B7283CAF749E /* Listless macOS.app */,
+				2523E01C8F130C2799123479 /* Listless watchOS UI Tests.xctest */,
 				C6812E535A24C599C28F9278 /* Listless watchOS.app */,
 			);
 			name = Products;
@@ -662,6 +677,24 @@
 			productReference = CCB5F87A520B1CD47F2F71D0 /* Listless macOS UI Tests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		FAC694EFB69F0D9F12557137 /* Listless watchOS UI Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C82D32230C96FF767EC26C77 /* Build configuration list for PBXNativeTarget "Listless watchOS UI Tests" */;
+			buildPhases = (
+				6B19BAB29A5C66A5E7516EB8 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				05AD385080A44E4C08F53091 /* PBXTargetDependency */,
+			);
+			name = "Listless watchOS UI Tests";
+			packageProductDependencies = (
+			);
+			productName = "Listless watchOS UI Tests";
+			productReference = 2523E01C8F130C2799123479 /* Listless watchOS UI Tests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -701,6 +734,11 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 0FB4F07A37999BBC6DFE4DBB;
 					};
+					FAC694EFB69F0D9F12557137 = {
+						DevelopmentTeam = 7TD7PZBNXP;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 9BDC1B2175AB9CE26790448D;
+					};
 				};
 			};
 			buildConfigurationList = CAACA40A09D5F78ECE7A0EDF /* Build configuration list for PBXProject "Listless" */;
@@ -724,6 +762,7 @@
 				ECF4D3D0597D0648A1FBC4A4 /* Listless macOS UI Tests */,
 				7F0B17D1EC9FD4A80BC99002 /* Listless macOS Unit Tests */,
 				9BDC1B2175AB9CE26790448D /* Listless watchOS */,
+				FAC694EFB69F0D9F12557137 /* Listless watchOS UI Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -778,6 +817,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD2F098B472D048B66CEC8B1 /* ListlessMacScreenshots.swift in Sources */,
 				5E6BE0BA881F6CAEF455D9ED /* ListlessMacUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -886,6 +926,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6B19BAB29A5C66A5E7516EB8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4CA383C2B90DA7EF080BDABB /* ListlessWatchScreenshots.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8A2F25417981C1E116479B25 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -924,6 +972,11 @@
 			isa = PBXTargetDependency;
 			target = 34A03D42B91730DEAC2EBD8E /* Listless iOS */;
 			targetProxy = 6F7E207AE10E1516EF8A683C /* PBXContainerItemProxy */;
+		};
+		05AD385080A44E4C08F53091 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9BDC1B2175AB9CE26790448D /* Listless watchOS */;
+			targetProxy = 47C07B5C46AB5A2CD8741632 /* PBXContainerItemProxy */;
 		};
 		56F7D0BF0FAA18615E95FB41 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -979,6 +1032,25 @@
 			};
 			name = Release;
 		};
+		10A7B7F1EF302597A276E649 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.watchos.uitests;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "Listless watchOS";
+			};
+			name = Debug;
+		};
 		2D4E3CC5FF8E6299F754CCFC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1009,6 +1081,25 @@
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+		8AEF59A64EEB64E23C516357 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.inqk.listless.watchos.uitests;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "Listless watchOS";
 			};
 			name = Release;
 		};
@@ -1370,6 +1461,15 @@
 			buildConfigurations = (
 				D861F23D4EA8C4101536F8DE /* Debug */,
 				F9DCF7B07CCBB6881C4642BD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C82D32230C96FF767EC26C77 /* Build configuration list for PBXNativeTarget "Listless watchOS UI Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				10A7B7F1EF302597A276E649 /* Debug */,
+				8AEF59A64EEB64E23C516357 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

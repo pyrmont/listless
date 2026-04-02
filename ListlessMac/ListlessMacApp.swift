@@ -28,9 +28,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     override init() {
-        let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
+        let args = ProcessInfo.processInfo.arguments
+        let isUITesting = args.contains("UI_TESTING")
         persistenceController = isUITesting ? PersistenceController(inMemory: true) : .shared
         super.init()
+
+        if isUITesting, args.contains("SCREENSHOT_LIGHT") {
+            UserDefaults.standard.set(1, forKey: Self.appearanceModeKey)
+        } else if isUITesting, args.contains("SCREENSHOT_DARK") {
+            UserDefaults.standard.set(2, forKey: Self.appearanceModeKey)
+        }
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {

@@ -200,10 +200,25 @@ targets:
       - path: Tests/UI
         includes:
           - "ListlessMacUITests.swift"
+          - "ListlessMacScreenshots.swift"
     dependencies:
       - target: Listless macOS
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.macos.uitests
+      CODE_SIGN_STYLE: Automatic
+      GENERATE_INFOPLIST_FILE: YES
+
+  Listless watchOS UI Tests:
+    type: bundle.ui-testing
+    platform: watchOS
+    sources:
+      - path: Tests/UI
+        includes:
+          - "ListlessWatchScreenshots.swift"
+    dependencies:
+      - target: Listless watchOS
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: net.inqk.listless.watchos.uitests
       CODE_SIGN_STYLE: Automatic
       GENERATE_INFOPLIST_FILE: YES
 
@@ -279,6 +294,11 @@ schemes:
           settingsTarget: Listless watchOS
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - name: Listless watchOS UI Tests
+          parallelizable: false
     profile:
       config: Release
     analyze:

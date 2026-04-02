@@ -7,7 +7,9 @@ import Foundation
 import ImageIO
 
 guard CommandLine.arguments.count >= 4 else {
-    fputs("Usage: compose-screenshot.swift <input.png> <output.png> <text>\n", stderr)
+    fputs(
+        "Usage: screenshots-ios-compose.swift <input.png> <output.png> <text> [width height]\n",
+        stderr)
     exit(1)
 }
 
@@ -15,9 +17,11 @@ let inputPath = CommandLine.arguments[1]
 let outputPath = CommandLine.arguments[2]
 let text = CommandLine.arguments[3]
 
-// Output dimensions (6.9" App Store)
-let canvasWidth: CGFloat = 1320
-let canvasHeight: CGFloat = 2868
+// Output dimensions (default: 6.9" iPhone for App Store)
+let canvasWidth: CGFloat =
+    CommandLine.arguments.count >= 5 ? CGFloat(Int(CommandLine.arguments[4]) ?? 1320) : 1320
+let canvasHeight: CGFloat =
+    CommandLine.arguments.count >= 6 ? CGFloat(Int(CommandLine.arguments[5]) ?? 2868) : 2868
 
 // Background: rgb(30, 16, 40)
 let bgColor = CGColor(red: 30.0 / 255.0, green: 16.0 / 255.0, blue: 40.0 / 255.0, alpha: 1.0)
@@ -56,9 +60,11 @@ context.setFillColor(bgColor)
 context.fill(CGRect(x: 0, y: 0, width: canvasWidth, height: canvasHeight))
 
 // Scale device image to fit width with padding, leaving space for text
-let bottomPadding: CGFloat = 60
-let sidePadding: CGFloat = 60
-let topReserved: CGFloat = 300
+let isCompact = canvasWidth < 600
+let isLandscape = canvasWidth > canvasHeight
+let bottomPadding: CGFloat = isCompact ? -60 : isLandscape ? -350 : 60
+let sidePadding: CGFloat = isCompact ? 20 : isLandscape ? 20 : 60
+let topReserved: CGFloat = isCompact ? 90 : isLandscape ? 200 : 300
 let maxDeviceWidth = canvasWidth - sidePadding * 2
 let maxDeviceHeight = canvasHeight - bottomPadding - topReserved
 let scale = min(maxDeviceWidth / deviceWidth, maxDeviceHeight / deviceHeight, 1.0)
@@ -71,7 +77,7 @@ context.draw(
     deviceImage, in: CGRect(x: deviceX, y: deviceY, width: scaledWidth, height: scaledHeight))
 
 // Draw text centered above device
-let fontSize: CGFloat = 72
+let fontSize: CGFloat = isCompact ? canvasWidth * 0.08 : isLandscape ? canvasHeight * 0.06 : canvasWidth * 0.0545
 let font = NSFont.systemFont(ofSize: fontSize, weight: .bold)
 let attributes: [NSAttributedString.Key: Any] = [
     .font: font,
@@ -81,7 +87,7 @@ let attrString = NSAttributedString(string: text, attributes: attributes)
 let ctLine = CTLineCreateWithAttributedString(attrString)
 let textBounds = CTLineGetBoundsWithOptions(ctLine, .useOpticalBounds)
 
-let textAreaTop = canvasHeight
+let textAreaTop = isLandscape ? canvasHeight - 40 : canvasHeight
 let textAreaBottom = deviceY + scaledHeight
 let textX = (canvasWidth - textBounds.width) / 2 - textBounds.origin.x
 let textY = (textAreaTop + textAreaBottom) / 2 - textBounds.height / 2 - textBounds.origin.y

@@ -55,6 +55,16 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FAC694EFB69F0D9F12557137"
+               BuildableName = "Listless watchOS UI Tests.xctest"
+               BlueprintName = "Listless watchOS UI Tests"
+               ReferencedContainer = "container:Listless.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
