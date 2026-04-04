@@ -44,8 +44,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         NSWindow.allowsAutomaticWindowTabbing = false
         applyAppearanceMode(UserDefaults.standard.integer(forKey: Self.appearanceModeKey))
         keyValueSyncBridge.start()
+        NSApplication.shared.registerForRemoteNotifications()
         installMainMenu()
         openNewWindow()
+    }
+
+    func application(
+        _ application: NSApplication,
+        didReceiveRemoteNotification userInfo: [String: Any]
+    ) {
+        // NSPersistentCloudKitContainer handles the sync internally;
+        // implementing this delegate method ensures macOS delivers the
+        // silent push to this process.
     }
 
 
