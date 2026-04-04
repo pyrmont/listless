@@ -45,7 +45,7 @@ targets:
       path: ListlessiOS/Info.plist
       properties:
         CFBundleDisplayName: Listless
-        CFBundleShortVersionString: "1.0"
+        CFBundleShortVersionString: "1.1"
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CADisableMinimumFrameDuration: true
         ITSAppUsesNonExemptEncryption: false
@@ -99,7 +99,7 @@ targets:
       path: ListlessMac/Info.plist
       properties:
         CFBundleDisplayName: Listless
-        CFBundleShortVersionString: "1.0"
+        CFBundleShortVersionString: "1.1"
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         ITSAppUsesNonExemptEncryption: false
         LSApplicationCategoryType: public.app-category.productivity
@@ -136,7 +136,7 @@ targets:
       path: ListlessWatch/Info.plist
       properties:
         CFBundleDisplayName: Listless
-        CFBundleShortVersionString: "1.0"
+        CFBundleShortVersionString: "1.1"
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         ITSAppUsesNonExemptEncryption: false
         WKApplication: true
