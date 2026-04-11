@@ -168,6 +168,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         openSyncDiagnosticsWindow()
     }
 
+    @objc private func handleContactSupport() {
+        NSWorkspace.shared.open(URL(string: "mailto:listless@inqk.net?subject=Listless%20Support")!)
+    }
+
     @objc private func handleAppearanceSystem() { setAppearanceMode(0) }
     @objc private func handleAppearanceLight() { setAppearanceMode(1) }
     @objc private func handleAppearanceDark() { setAppearanceMode(2) }
@@ -434,7 +438,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         NSApp.windowsMenu = windowMenu
 
         let helpMenu = NSMenu(title: "Help")
-        helpMenu.addItem(withTitle: "\(appName) Help", action: #selector(NSApplication.showHelp(_:)), keyEquivalent: "?")
+        helpMenu.addItem(withTitle: "Contact Support", action: #selector(handleContactSupport), keyEquivalent: "")
         let helpMenuItem = NSMenuItem(title: "Help", action: nil, keyEquivalent: "")
         helpMenuItem.submenu = helpMenu
         mainMenu.addItem(helpMenuItem)
