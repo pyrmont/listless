@@ -18,6 +18,10 @@ struct KeyCommandBridge: UIViewRepresentable {
     let onSpace: () -> Void
     let onReturn: () -> Void
     let onDelete: () -> Void
+    let onHome: () -> Void
+    let onEnd: () -> Void
+    let onPageUp: () -> Void
+    let onPageDown: () -> Void
 
     func makeUIView(context: Context) -> KeyCaptureView {
         let view = KeyCaptureView()
@@ -26,6 +30,10 @@ struct KeyCommandBridge: UIViewRepresentable {
         view.onSpace = onSpace
         view.onReturn = onReturn
         view.onDelete = onDelete
+        view.onHome = onHome
+        view.onEnd = onEnd
+        view.onPageUp = onPageUp
+        view.onPageDown = onPageDown
         view.isActive = isActive
         return view
     }
@@ -36,6 +44,10 @@ struct KeyCommandBridge: UIViewRepresentable {
         view.onSpace = onSpace
         view.onReturn = onReturn
         view.onDelete = onDelete
+        view.onHome = onHome
+        view.onEnd = onEnd
+        view.onPageUp = onPageUp
+        view.onPageDown = onPageDown
         view.isActive = isActive
 
         if isActive && !view.isFirstResponder {
@@ -53,6 +65,10 @@ struct KeyCommandBridge: UIViewRepresentable {
         var onSpace: (() -> Void)?
         var onReturn: (() -> Void)?
         var onDelete: (() -> Void)?
+        var onHome: (() -> Void)?
+        var onEnd: (() -> Void)?
+        var onPageUp: (() -> Void)?
+        var onPageDown: (() -> Void)?
 
         override var canBecomeFirstResponder: Bool { true }
 
@@ -66,6 +82,10 @@ struct KeyCommandBridge: UIViewRepresentable {
                 " ",
                 "\r",
                 "\u{8}",
+                UIKeyCommand.inputHome,
+                UIKeyCommand.inputEnd,
+                UIKeyCommand.inputPageUp,
+                UIKeyCommand.inputPageDown,
             ].map { input in
                 let cmd = UIKeyCommand(
                     input: input,
@@ -89,6 +109,14 @@ struct KeyCommandBridge: UIViewRepresentable {
                 onReturn?()
             case "\u{8}":
                 onDelete?()
+            case UIKeyCommand.inputHome:
+                onHome?()
+            case UIKeyCommand.inputEnd:
+                onEnd?()
+            case UIKeyCommand.inputPageUp:
+                onPageUp?()
+            case UIKeyCommand.inputPageDown:
+                onPageDown?()
             default:
                 break
             }

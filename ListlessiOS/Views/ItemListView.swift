@@ -464,7 +464,11 @@ struct ItemListView: View, ItemListViewProtocol {
                     onDown: { _ = navigateDown() },
                     onSpace: { _ = toggleSelectedItem() },
                     onReturn: { _ = focusSelectedItem() },
-                    onDelete: { _ = deleteSelectedItemWithUndo() }
+                    onDelete: { _ = deleteSelectedItemWithUndo() },
+                    onHome: { _ = navigateToFirst() },
+                    onEnd: { _ = navigateToLast() },
+                    onPageUp: { _ = navigatePageUp() },
+                    onPageDown: { _ = navigatePageDown() }
                 )
             }
             .onAppear {

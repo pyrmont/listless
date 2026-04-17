@@ -5,6 +5,8 @@ enum FocusField: Hashable {
     case scrollView
 }
 
+let pageNavigationSize = 10
+
 enum DragState: Equatable {
     case idle
     case dragging(id: UUID, order: [UUID])

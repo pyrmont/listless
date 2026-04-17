@@ -355,6 +355,72 @@ extension ItemListViewProtocol {
         return .handled
     }
 
+    func navigateToFirst() -> KeyPress.Result {
+        guard focusedField == .scrollView else {
+            return .ignored
+        }
+
+        let displayOrder = allItemsInDisplayOrder
+        guard let first = displayOrder.first else {
+            return .handled
+        }
+        fState.selectedItemID = first.id
+        return .handled
+    }
+
+    func navigateToLast() -> KeyPress.Result {
+        guard focusedField == .scrollView else {
+            return .ignored
+        }
+
+        let displayOrder = allItemsInDisplayOrder
+        guard let last = displayOrder.last else {
+            return .handled
+        }
+        fState.selectedItemID = last.id
+        return .handled
+    }
+
+    func navigatePageUp() -> KeyPress.Result {
+        guard focusedField == .scrollView else {
+            return .ignored
+        }
+
+        let displayOrder = allItemsInDisplayOrder
+        guard !displayOrder.isEmpty else { return .handled }
+
+        guard let currentID = fState.selectedItemID,
+            let currentIndex = displayOrder.firstIndex(where: { $0.id == currentID })
+        else {
+            fState.selectedItemID = displayOrder.first?.id
+            return .handled
+        }
+
+        let targetIndex = max(0, currentIndex - pageNavigationSize)
+        fState.selectedItemID = displayOrder[targetIndex].id
+        return .handled
+    }
+
+    func navigatePageDown() -> KeyPress.Result {
+        guard focusedField == .scrollView else {
+            return .ignored
+        }
+
+        let displayOrder = allItemsInDisplayOrder
+        guard !displayOrder.isEmpty else { return .handled }
+
+        guard let currentID = fState.selectedItemID,
+            let currentIndex = displayOrder.firstIndex(where: { $0.id == currentID })
+        else {
+            fState.selectedItemID = displayOrder.first?.id
+            return .handled
+        }
+
+        let targetIndex = min(displayOrder.count - 1, currentIndex + pageNavigationSize)
+        fState.selectedItemID = displayOrder[targetIndex].id
+        return .handled
+    }
+
     func navigateUpExtend() -> KeyPress.Result {
         guard focusedField == .scrollView else {
             return .ignored

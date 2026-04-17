@@ -426,6 +426,10 @@ struct ItemListView: View, ItemListViewProtocol {
             ShortcutKey(key: .downArrow): navigateDown,
             ShortcutKey(key: .upArrow, modifiers: .shift): navigateUpExtend,
             ShortcutKey(key: .downArrow, modifiers: .shift): navigateDownExtend,
+            ShortcutKey(key: .home): navigateToFirst,
+            ShortcutKey(key: .end): navigateToLast,
+            ShortcutKey(key: .pageUp): navigatePageUp,
+            ShortcutKey(key: .pageDown): navigatePageDown,
             ShortcutKey(key: .return): focusSelectedItem,
         ])
         .onAppear {
