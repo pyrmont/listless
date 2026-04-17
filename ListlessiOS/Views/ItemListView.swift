@@ -139,6 +139,10 @@ struct ItemListView: View, ItemListViewProtocol {
         coord.moveUp = { moveSelectedItemUp() }
         coord.moveDown = { moveSelectedItemDown() }
         coord.markCompleted = { markSelectedItemCompleted() }
+        coord.navigatePageUp = { _ = navigatePageUp() }
+        coord.navigatePageDown = { _ = navigatePageDown() }
+        coord.navigateToFirst = { _ = navigateToFirst() }
+        coord.navigateToLast = { _ = navigateToLast() }
         let inNavMode = focusedField == .scrollView
         coord.canDelete = fState.selectedItemID != nil && inNavMode
         coord.canMoveUp = canMoveSelectionUp

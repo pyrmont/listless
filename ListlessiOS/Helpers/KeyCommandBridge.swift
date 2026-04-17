@@ -144,6 +144,22 @@ struct KeyCommandBridge: UIViewRepresentable {
             IOSMenuCoordinator.shared.markCompleted?()
         }
 
+        @objc func handleNavigatePageUp() {
+            IOSMenuCoordinator.shared.navigatePageUp?()
+        }
+
+        @objc func handleNavigatePageDown() {
+            IOSMenuCoordinator.shared.navigatePageDown?()
+        }
+
+        @objc func handleNavigateToFirst() {
+            IOSMenuCoordinator.shared.navigateToFirst?()
+        }
+
+        @objc func handleNavigateToLast() {
+            IOSMenuCoordinator.shared.navigateToLast?()
+        }
+
         // MARK: - Menu validation
 
         override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
@@ -158,6 +174,11 @@ struct KeyCommandBridge: UIViewRepresentable {
                 return isActive && IOSMenuCoordinator.shared.canMoveDown
             case IOSMenuSelectors.markCompleted:
                 return isActive && IOSMenuCoordinator.shared.canMarkCompleted
+            case IOSMenuSelectors.navigatePageUp,
+                IOSMenuSelectors.navigatePageDown,
+                IOSMenuSelectors.navigateToFirst,
+                IOSMenuSelectors.navigateToLast:
+                return isActive
             default:
                 return super.canPerformAction(action, withSender: sender)
             }

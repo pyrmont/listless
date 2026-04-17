@@ -17,6 +17,10 @@ final class IOSMenuCoordinator {
     var moveUp: (() -> Void)?
     var moveDown: (() -> Void)?
     var markCompleted: (() -> Void)?
+    var navigatePageUp: (() -> Void)?
+    var navigatePageDown: (() -> Void)?
+    var navigateToFirst: (() -> Void)?
+    var navigateToLast: (() -> Void)?
 
     // Enabled state — read by KeyCaptureView in validate(_:).
     var canDelete = false
@@ -38,6 +42,10 @@ enum IOSMenuSelectors {
     static let moveUp = #selector(IOSMenuActions.handleMoveUp)
     static let moveDown = #selector(IOSMenuActions.handleMoveDown)
     static let markCompleted = #selector(IOSMenuActions.handleMarkCompleted)
+    static let navigatePageUp = #selector(IOSMenuActions.handleNavigatePageUp)
+    static let navigatePageDown = #selector(IOSMenuActions.handleNavigatePageDown)
+    static let navigateToFirst = #selector(IOSMenuActions.handleNavigateToFirst)
+    static let navigateToLast = #selector(IOSMenuActions.handleNavigateToLast)
 }
 
 /// Protocol declaring the `@objc` action methods so selectors can be
@@ -48,4 +56,8 @@ enum IOSMenuSelectors {
     func handleMoveUp()
     func handleMoveDown()
     func handleMarkCompleted()
+    func handleNavigatePageUp()
+    func handleNavigatePageDown()
+    func handleNavigateToFirst()
+    func handleNavigateToLast()
 }

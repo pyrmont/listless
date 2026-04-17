@@ -69,6 +69,41 @@ class IOSAppDelegate: UIResponder, UIApplicationDelegate {
             ]),
             atEndOfMenu: .edit
         )
+
+        // Edit menu — Page Up (⌥↑), Page Down (⌥↓),
+        //              Jump to Top (⌘⌥↑), Jump to Bottom (⌘⌥↓).
+        // Provides Magic Keyboard users an alternative to the absent
+        // Page/Home/End keys.
+        let pageUp = UIKeyCommand(
+            title: "Page Up",
+            action: IOSMenuSelectors.navigatePageUp,
+            input: UIKeyCommand.inputUpArrow,
+            modifierFlags: .alternate
+        )
+        let pageDown = UIKeyCommand(
+            title: "Page Down",
+            action: IOSMenuSelectors.navigatePageDown,
+            input: UIKeyCommand.inputDownArrow,
+            modifierFlags: .alternate
+        )
+        let jumpToTop = UIKeyCommand(
+            title: "Jump to Top",
+            action: IOSMenuSelectors.navigateToFirst,
+            input: UIKeyCommand.inputUpArrow,
+            modifierFlags: [.command, .alternate]
+        )
+        let jumpToBottom = UIKeyCommand(
+            title: "Jump to Bottom",
+            action: IOSMenuSelectors.navigateToLast,
+            input: UIKeyCommand.inputDownArrow,
+            modifierFlags: [.command, .alternate]
+        )
+        builder.insertChild(
+            UIMenu(title: "", options: .displayInline, children: [
+                pageUp, pageDown, jumpToTop, jumpToBottom,
+            ]),
+            atEndOfMenu: .edit
+        )
     }
 }
 
