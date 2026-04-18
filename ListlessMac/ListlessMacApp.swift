@@ -41,6 +41,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        let ae = NSAppleEventManager.shared().currentAppleEvent
+        let aeID = ae.map { String(format: "0x%08x", $0.eventID) } ?? "nil"
+        let userInfoKeys = (notification.userInfo?.keys.map { "\($0)" } ?? []).joined(separator: ",")
+        NSLog("[Listless launch] aeID=\(aeID) userInfoKeys=[\(userInfoKeys)] argv=\(CommandLine.arguments)")
+
         NSWindow.allowsAutomaticWindowTabbing = false
         applyAppearanceMode(UserDefaults.standard.integer(forKey: Self.appearanceModeKey))
         keyValueSyncBridge.start()
