@@ -41,28 +41,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let ae = NSAppleEventManager.shared().currentAppleEvent
-        let aeID = ae.map { String(format: "0x%08x", $0.eventID) } ?? "nil"
-        let userInfoKeys = (notification.userInfo?.keys.map { "\($0)" } ?? []).joined(separator: ",")
-        NSLog("[Listless launch] aeID=\(aeID) userInfoKeys=[\(userInfoKeys)] argv=\(CommandLine.arguments)")
-
         NSWindow.allowsAutomaticWindowTabbing = false
         applyAppearanceMode(UserDefaults.standard.integer(forKey: Self.appearanceModeKey))
         keyValueSyncBridge.start()
-        NSApplication.shared.registerForRemoteNotifications()
         installMainMenu()
         openNewWindow()
     }
-
-    func application(
-        _ application: NSApplication,
-        didReceiveRemoteNotification userInfo: [String: Any]
-    ) {
-        // NSPersistentCloudKitContainer handles the sync internally;
-        // implementing this delegate method ensures macOS delivers the
-        // silent push to this process.
-    }
-
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         if !flag {
