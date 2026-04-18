@@ -45,14 +45,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         applyAppearanceMode(UserDefaults.standard.integer(forKey: Self.appearanceModeKey))
         keyValueSyncBridge.start()
         installMainMenu()
-        openNewWindow()
+    }
+
+    func applicationDidBecomeActive(_ notification: Notification) {
+        promoteAndShowWindowIfNeeded()
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         if !flag {
-            openNewWindow()
+            promoteAndShowWindowIfNeeded()
         }
         return true
+    }
+
+    private func promoteAndShowWindowIfNeeded() {
+        NSApp.setActivationPolicy(.regular)
+        if !NSApp.windows.contains(where: { $0.isVisible }) {
+            openNewWindow()
+        }
     }
 
     func applicationDidUnhide(_ notification: Notification) {
@@ -442,7 +452,7 @@ enum ListlessMacMain {
     static func main() {
         let app = NSApplication.shared
         let delegate = AppDelegate()
-        app.setActivationPolicy(.regular)
+        app.setActivationPolicy(.accessory)
         app.delegate = delegate
         withExtendedLifetime(delegate) {
             app.run()
