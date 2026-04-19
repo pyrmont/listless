@@ -45,6 +45,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         applyAppearanceMode(UserDefaults.standard.integer(forKey: Self.appearanceModeKey))
         keyValueSyncBridge.start()
         installMainMenu()
+        if ProcessInfo.processInfo.arguments.contains("UI_TESTING") {
+            promoteAndShowWindowIfNeeded()
+        }
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
