@@ -221,9 +221,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             existingWindow.isVisible && existingWindow.title == "Items"
         }
         position(window, relativeTo: referenceWindow)
+        NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         window.makeFirstResponder(nil)
-        NSApp.activate()
     }
 
     private func position(_ window: NSWindow, relativeTo referenceWindow: NSWindow?) {
