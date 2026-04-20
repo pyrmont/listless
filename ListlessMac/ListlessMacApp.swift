@@ -55,6 +55,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if NSApp.activationPolicy() == .accessory {
+            return false
+        }
         if !flag {
             promoteAndShowWindowIfNeeded()
         }
