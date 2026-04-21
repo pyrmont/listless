@@ -40,6 +40,7 @@ struct PerfDebugView: View {
                 Menu {
                     Button("Refresh") { refreshTick &+= 1 }
                     Button("Copy Summary") { copySummary() }
+                    Button("Copy All Samples") { copyAllSamples() }
                     Button("Clear All", role: .destructive) {
                         PerfSampler.shared.clear()
                         refreshTick &+= 1
@@ -112,6 +113,24 @@ struct PerfDebugView: View {
                 ))
             }
             lines.append("")
+        }
+        UIPasteboard.general.string = lines.joined(separator: "\n")
+    }
+
+    private func copyAllSamples() {
+        var lines = ["launchStart,msSinceLaunch,callIndex,durationMs,label"]
+        for launch in launchesMostRecentFirst() {
+            let iso = ISO8601DateFormatter().string(from: launch.startedAt)
+            for sample in samples(for: launch.launchID) {
+                lines.append(String(
+                    format: "%@,%.3f,%d,%.3f,%@",
+                    iso,
+                    sample.msSinceLaunch,
+                    sample.callIndex,
+                    sample.durationMs,
+                    sample.label
+                ))
+            }
         }
         UIPasteboard.general.string = lines.joined(separator: "\n")
     }
