@@ -36,6 +36,14 @@ final class PerfSampler {
     private var callCounts: [String: Int] = [:]
     private let launchClockStart: DispatchTime
     private var dirty = false
+    private var pendingKeyboardWillShow: DispatchTime?
+
+    /// Anchors the launch clock as early as possible. Call once from
+    /// `ListlessiOSApp.init()`; otherwise the clock starts whenever the
+    /// singleton is first accessed (usually the first `makeUIView`).
+    static func markLaunchStart() {
+        _ = shared
+    }
 
     private init() {
         let dir = try? FileManager.default.url(
@@ -68,6 +76,37 @@ final class PerfSampler {
         ) { _ in
             Task { @MainActor in PerfSampler.shared.flush() }
         }
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { @MainActor in PerfSampler.shared.keyboardWillShow() }
+        }
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardDidShowNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { @MainActor in PerfSampler.shared.keyboardDidShow() }
+        }
+    }
+
+    private func keyboardWillShow() {
+        pendingKeyboardWillShow = DispatchTime.now()
+        record(label: "Keyboard.willShow", durationMs: 0)
+    }
+
+    private func keyboardDidShow() {
+        let durationMs: Double
+        if let start = pendingKeyboardWillShow {
+            let ns = DispatchTime.now().uptimeNanoseconds &- start.uptimeNanoseconds
+            durationMs = Double(ns) / 1_000_000
+        } else {
+            durationMs = 0
+        }
+        pendingKeyboardWillShow = nil
+        record(label: "Keyboard.didShow", durationMs: durationMs)
     }
 
     @discardableResult

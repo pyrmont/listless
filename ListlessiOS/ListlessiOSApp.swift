@@ -118,6 +118,7 @@ struct ListlessiOSApp: App {
     private let keyValueSyncBridge = KeyValueSyncBridge(keys: ["listName", "colorTheme"])
 
     init() {
+        PerfSampler.markLaunchStart()
         let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
         persistenceController = isUITesting ? PersistenceController(inMemory: true) : .shared
         keyValueSyncBridge.start()
