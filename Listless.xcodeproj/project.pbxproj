@@ -92,6 +92,7 @@
 		BA6953E0EFE6F8255F05A3FD /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DD7EDA74DAAFA27C84CA08 /* AccentColor.swift */; };
 		BB16A28C4DA1695B722B45B2 /* ItemEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 138DCA35ED82A745E4745175 /* ItemEntity.swift */; };
 		BDA8D53342F745B27B72B242 /* ItemRowDragGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A80C91DBDA44C879958098 /* ItemRowDragGesture.swift */; };
+		C58C877396361901A3E4489E /* KeyboardWarmup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86029FF31D90CFBA78BC8F60 /* KeyboardWarmup.swift */; };
 		C7C69D883B45F1B4CE979AF7 /* ItemListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31EDB2C34C8B255000A2525 /* ItemListViewProtocol.swift */; };
 		C89D4C17F91AF91F18B6EF4E /* ItemStoreCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 114A89FD89C8EFB5771B7242 /* ItemStoreCompletionTests.swift */; };
 		CA439FD953EA59A9664E0D74 /* CloudKitErrorClassifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C3B9FF63645B35E09CF1B1 /* CloudKitErrorClassifierTests.swift */; };
@@ -234,6 +235,7 @@
 		7C73E9D4C42CCABBF0F33543 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
 		82F2C024B6C1F2F1FD7A25B0 /* ItemListView+Logic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+Logic.swift"; sourceTree = "<group>"; };
 		848DBC251E2D2EB7BD089768 /* ItemListTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListTypes.swift; sourceTree = "<group>"; };
+		86029FF31D90CFBA78BC8F60 /* KeyboardWarmup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardWarmup.swift; sourceTree = "<group>"; };
 		869254E16B52F36616416DB4 /* ItemListView+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+Toolbar.swift"; sourceTree = "<group>"; };
 		88C0D6F2667BD14F29CB84E5 /* ListlessiOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListlessiOSUITests.swift; sourceTree = "<group>"; };
 		9262207DAC21619BD9EDEE15 /* Listless.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Listless.entitlements; sourceTree = "<group>"; };
@@ -296,6 +298,7 @@
 				05AB46824DCDD04903EA4C82 /* ItemRowDragGesture.swift */,
 				E71FBC3E19D32F527B5FE9E6 /* ItemRowMetrics.swift */,
 				DCCE85438FE23E43095B2C25 /* ItemRowSwipeGesture.swift */,
+				86029FF31D90CFBA78BC8F60 /* KeyboardWarmup.swift */,
 				E8B5E429B253183F887C5FD6 /* KeyCommandBridge.swift */,
 				361665491B2313B7A06A94B9 /* PerfSampler.swift */,
 				FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */,
@@ -917,6 +920,7 @@
 				12E43D0CD9124037022E3C38 /* KeyCommandBridge.swift in Sources */,
 				19699EC4FF57EF0D636B65E3 /* KeyValueSyncBridge.swift in Sources */,
 				F6587B84ECC6BFE92A5FB493 /* KeyboardNavigationModifier.swift in Sources */,
+				C58C877396361901A3E4489E /* KeyboardWarmup.swift in Sources */,
 				5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */,
 				F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */,
 				7770D06CBDE3E87B7FDE7C21 /* PerfDebugView.swift in Sources */,

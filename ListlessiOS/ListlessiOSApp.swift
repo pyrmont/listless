@@ -152,6 +152,9 @@ struct ListlessiOSApp: App {
         .onChange(of: appearanceMode, initial: true) { _, newValue in
             applyAppearanceMode(newValue)
         }
+        .task {
+            KeyboardWarmup.prime()
+        }
         .overlay(alignment: .top) {
             Color.outerBackground
                 .opacity(0.9)
