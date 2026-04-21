@@ -65,6 +65,9 @@ struct SettingsView: View {
                         NavigationLink("iCloud Diagnostics") {
                             SyncDiagnosticsView(syncMonitor: syncMonitor)
                         }
+                        NavigationLink("Perf Samples") {
+                            PerfDebugView()
+                        }
                         Button("Reset Tutorial") {
                             didCompleteTutorial = false
                             dismiss()

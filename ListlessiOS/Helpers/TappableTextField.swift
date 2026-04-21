@@ -15,35 +15,43 @@ struct TappableTextField: UIViewRepresentable {
     var initialCursorPoint: CGPoint? = nil
 
     func makeUIView(context: Context) -> UITextView {
-        let textView = UITextView()
-        textView.accessibilityIdentifier = uiAccessibilityIdentifier
-        textView.delegate = context.coordinator
-        textView.font = ItemRowMetrics.bodyUIK
-        textView.backgroundColor = .clear
-        textView.textContainerInset = .zero
-        textView.textContainer.lineFragmentPadding = 0
-        textView.isScrollEnabled = false
-        textView.autocorrectionType = .default
-        textView.autocapitalizationType = .sentences
-        textView.returnKeyType = returnKeyType
+        PerfSampler.shared.measure("TappableTextField.makeUIView") {
+            let textView = UITextView()
+            textView.accessibilityIdentifier = uiAccessibilityIdentifier
+            textView.delegate = context.coordinator
+            textView.font = ItemRowMetrics.bodyUIK
+            textView.backgroundColor = .clear
+            textView.textContainerInset = .zero
+            textView.textContainer.lineFragmentPadding = 0
+            textView.isScrollEnabled = false
+            textView.autocorrectionType = .default
+            textView.autocapitalizationType = .sentences
+            textView.returnKeyType = returnKeyType
 
-        let placeholder = UILabel()
-        placeholder.text = "Enter text"
-        placeholder.font = ItemRowMetrics.bodyUIK
-        placeholder.textColor = .placeholderText
-        placeholder.tag = 100
-        placeholder.translatesAutoresizingMaskIntoConstraints = false
-        textView.addSubview(placeholder)
-        NSLayoutConstraint.activate([
-            placeholder.leadingAnchor.constraint(equalTo: textView.leadingAnchor),
-            placeholder.topAnchor.constraint(equalTo: textView.topAnchor),
-        ])
+            let placeholder = UILabel()
+            placeholder.text = "Enter text"
+            placeholder.font = ItemRowMetrics.bodyUIK
+            placeholder.textColor = .placeholderText
+            placeholder.tag = 100
+            placeholder.translatesAutoresizingMaskIntoConstraints = false
+            textView.addSubview(placeholder)
+            NSLayoutConstraint.activate([
+                placeholder.leadingAnchor.constraint(equalTo: textView.leadingAnchor),
+                placeholder.topAnchor.constraint(equalTo: textView.topAnchor),
+            ])
 
-        context.coordinator.textView = textView
-        return textView
+            context.coordinator.textView = textView
+            return textView
+        }
     }
 
     func updateUIView(_ textView: UITextView, context: Context) {
+        PerfSampler.shared.measure("TappableTextField.updateUIView") {
+            updateUIViewBody(textView, context: context)
+        }
+    }
+
+    private func updateUIViewBody(_ textView: UITextView, context: Context) {
         if !textView.isFirstResponder {
             applyStyle(to: textView, text: text, isCompleted: isCompleted)
         } else if text.isEmpty && !textView.text.isEmpty {
@@ -81,11 +89,13 @@ struct TappableTextField: UIViewRepresentable {
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
-        let proposedWidth = proposal.width ?? uiView.bounds.width
-        let width = proposedWidth > 0 ? proposedWidth : (uiView.window?.bounds.width ?? 0)
-        guard width > 0 else { return nil }
-        let fitted = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
-        return CGSize(width: width, height: fitted.height)
+        PerfSampler.shared.measure("TappableTextField.sizeThatFits") {
+            let proposedWidth = proposal.width ?? uiView.bounds.width
+            let width = proposedWidth > 0 ? proposedWidth : (uiView.window?.bounds.width ?? 0)
+            guard width > 0 else { return nil }
+            let fitted = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+            return CGSize(width: width, height: fitted.height)
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -149,6 +159,10 @@ struct TappableTextField: UIViewRepresentable {
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
+            PerfSampler.shared.record(
+                label: "TappableTextField.didBeginEditing",
+                durationMs: 0
+            )
             if let point = initialCursorPoint {
                 initialCursorPoint = nil
                 textView.layoutIfNeeded()

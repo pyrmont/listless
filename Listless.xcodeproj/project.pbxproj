@@ -61,6 +61,7 @@
 		6FE9D247153209BD4CFD9E34 /* Listless.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C093494053E6C348F245D4EC /* Listless.xcdatamodeld */; };
 		73C05B273DC49DE48B82822E /* ItemValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EB9F584EF43678536F5FDE /* ItemValue.swift */; };
 		763363F6F3C7D2D3C9A63977 /* PlatformScrollIndicatorsModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */; };
+		7770D06CBDE3E87B7FDE7C21 /* PerfDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10806B0AD984F8E480019FD /* PerfDebugView.swift */; };
 		77FE96F070B1F7FE31A9CE51 /* PlatformTextFieldWidthModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */; };
 		785721EB774EAC6BBA26C038 /* PullToClear.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567DBAC2A39FA2760D006AAB /* PullToClear.swift */; };
 		790843E40F28B4E186F88F16 /* ItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8EC97702E7B218A03B7898 /* ItemStore.swift */; };
@@ -70,6 +71,7 @@
 		851F46417FE40D6BC765BC70 /* ItemListView+Logic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82F2C024B6C1F2F1FD7A25B0 /* ItemListView+Logic.swift */; };
 		882695E7AE463C0F39ACFF3C /* HoverCursorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5D8B5866362D422A2A331C /* HoverCursorModifier.swift */; };
 		889DCB2BB3C01DDA281EA81A /* CloudKitSyncMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E82F6093EEFC94A41FED9 /* CloudKitSyncMonitor.swift */; };
+		88C2303FCAD99AC5D1D1C81C /* PerfSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361665491B2313B7A06A94B9 /* PerfSampler.swift */; };
 		89C4109374BD64464B0018B7 /* ItemListView+NavigationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CC030045617DBC90812D79 /* ItemListView+NavigationHeader.swift */; };
 		8FB18395E5436F6C91A0F077 /* ItemRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C7CB071709951F52C7742A3 /* ItemRowView.swift */; };
 		9082E96001188E516B7F903B /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3116A37F1353BF6E18308DD2 /* ItemListView.swift */; };
@@ -200,6 +202,7 @@
 		3048ACA1CAF1284F99E1400E /* ItemRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemRowView.swift; sourceTree = "<group>"; };
 		3116A37F1353BF6E18308DD2 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
 		3313FEDB101EECA4B344EEF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		361665491B2313B7A06A94B9 /* PerfSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfSampler.swift; sourceTree = "<group>"; };
 		37F80F7BB632A04A687890F0 /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
 		3C96B8A403274C4CC7F57460 /* AccentColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColorTests.swift; sourceTree = "<group>"; };
 		3DD31E8962F7EEC22EFC0CA9 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
@@ -257,6 +260,7 @@
 		C9B14DC786A336008AAB78EE /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		CCB5F87A520B1CD47F2F71D0 /* Listless macOS UI Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Listless macOS UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF3374CE58E7D9378C6997D2 /* SyncDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDiagnosticsView.swift; sourceTree = "<group>"; };
+		D10806B0AD984F8E480019FD /* PerfDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfDebugView.swift; sourceTree = "<group>"; };
 		D3E995954787F0A14CCFF348 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		D43D37CE25806380C0B13466 /* BuildNumber.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildNumber.xcconfig; sourceTree = "<group>"; };
 		D640E7D21735C62A30A26DA4 /* ClickableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickableTextField.swift; sourceTree = "<group>"; };
@@ -293,6 +297,7 @@
 				E71FBC3E19D32F527B5FE9E6 /* ItemRowMetrics.swift */,
 				DCCE85438FE23E43095B2C25 /* ItemRowSwipeGesture.swift */,
 				E8B5E429B253183F887C5FD6 /* KeyCommandBridge.swift */,
+				361665491B2313B7A06A94B9 /* PerfSampler.swift */,
 				FA5D58EC1FBAA96E83A79445 /* PlatformScrollIndicatorsModifier.swift */,
 				E2174C43654733E9D4023157 /* PlatformTextFieldWidthModifier.swift */,
 				6ECE0E961F87BA32FA87BF90 /* TappableTextField.swift */,
@@ -381,6 +386,7 @@
 				67CB2A88C7F19F8305EBED43 /* DraftRowView.swift */,
 				3116A37F1353BF6E18308DD2 /* ItemListView.swift */,
 				C0DF205300C6B51A53B256D6 /* ItemRowView.swift */,
+				D10806B0AD984F8E480019FD /* PerfDebugView.swift */,
 				567DBAC2A39FA2760D006AAB /* PullToClear.swift */,
 				BFF7D84B54AE70036D205CA4 /* PullToCreate.swift */,
 				C611E04943F1D82D6F975592 /* SettingsView.swift */,
@@ -913,6 +919,8 @@
 				F6587B84ECC6BFE92A5FB493 /* KeyboardNavigationModifier.swift in Sources */,
 				5B60B409CE4BA668DB30A65D /* Listless.xcdatamodeld in Sources */,
 				F0B2B806BD84A4F2FDF8E038 /* ListlessiOSApp.swift in Sources */,
+				7770D06CBDE3E87B7FDE7C21 /* PerfDebugView.swift in Sources */,
+				88C2303FCAD99AC5D1D1C81C /* PerfSampler.swift in Sources */,
 				DC73A39A269AB495BCE1AC48 /* PersistenceController.swift in Sources */,
 				763363F6F3C7D2D3C9A63977 /* PlatformScrollIndicatorsModifier.swift in Sources */,
 				77FE96F070B1F7FE31A9CE51 /* PlatformTextFieldWidthModifier.swift in Sources */,

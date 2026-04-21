@@ -4,8 +4,7 @@
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES"
-      runPostActionsOnFailure = "NO">
+      buildImplicitDependencies = "YES">
       <PreActions>
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
@@ -16,7 +15,7 @@
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "0FB4F07A37999BBC6DFE4DBB"
-                     BuildableName = "Listless macOS.app"
+                     BuildableName = "Listless.app"
                      BlueprintName = "Listless macOS"
                      ReferencedContainer = "container:Listless.xcodeproj">
                   </BuildableReference>
@@ -34,7 +33,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0FB4F07A37999BBC6DFE4DBB"
-               BuildableName = "Listless macOS.app"
+               BuildableName = "Listless.app"
                BlueprintName = "Listless macOS"
                ReferencedContainer = "container:Listless.xcodeproj">
             </BuildableReference>
@@ -45,13 +44,12 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      onlyGenerateCoverageForSpecifiedTargets = "NO">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0FB4F07A37999BBC6DFE4DBB"
-            BuildableName = "Listless macOS.app"
+            BuildableName = "Listless.app"
             BlueprintName = "Listless macOS"
             ReferencedContainer = "container:Listless.xcodeproj">
          </BuildableReference>
@@ -82,8 +80,6 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
-      <CommandLineArguments>
-      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -100,13 +96,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0FB4F07A37999BBC6DFE4DBB"
-            BuildableName = "Listless macOS.app"
+            BuildableName = "Listless.app"
             BlueprintName = "Listless macOS"
             ReferencedContainer = "container:Listless.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -119,13 +113,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0FB4F07A37999BBC6DFE4DBB"
-            BuildableName = "Listless macOS.app"
+            BuildableName = "Listless.app"
             BlueprintName = "Listless macOS"
             ReferencedContainer = "container:Listless.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-      </CommandLineArguments>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
