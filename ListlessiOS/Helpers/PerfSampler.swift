@@ -80,8 +80,10 @@ final class PerfSampler {
             forName: UIResponder.keyboardWillShowNotification,
             object: nil,
             queue: .main
-        ) { _ in
-            Task { @MainActor in PerfSampler.shared.keyboardWillShow() }
+        ) { note in
+            let animationMs = (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey]
+                as? Double).map { $0 * 1000 } ?? 0
+            Task { @MainActor in PerfSampler.shared.keyboardWillShow(animationMs: animationMs) }
         }
         NotificationCenter.default.addObserver(
             forName: UIResponder.keyboardDidShowNotification,
@@ -90,11 +92,21 @@ final class PerfSampler {
         ) { _ in
             Task { @MainActor in PerfSampler.shared.keyboardDidShow() }
         }
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { @MainActor in
+                PerfSampler.shared.record(label: "App.didBecomeActive", durationMs: 0)
+            }
+        }
     }
 
-    private func keyboardWillShow() {
+    private func keyboardWillShow(animationMs: Double) {
         pendingKeyboardWillShow = DispatchTime.now()
         record(label: "Keyboard.willShow", durationMs: 0)
+        record(label: "Keyboard.animationDurationReported", durationMs: animationMs)
     }
 
     private func keyboardDidShow() {
